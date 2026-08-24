@@ -1,0 +1,250 @@
+site_name: "DevOps Knowledge Base & Handbook"
+site_description: "Комплексная база знаний для DevOps/SRE: Linux, Git, Docker, Kubernetes, Terraform, Ansible, GitOps, Observability, Python, Go, Ceph, Kafka, ClickHouse, PostgreSQL HA, Istio, Cilium, Traefik, Velero, Vault, Zabbix, ELK, Alloy, 100 Interview Questions & 100 Practical Tasks"
+site_author: "DevOps Engineering Team"
+site_url: "https://devops-handbook.example.com/"
+repo_url: "https://github.com/org/devops-handbook"
+edit_uri: "edit/main/docs/"
+copyright: "© 2024-2026 DevOps Handbook — Docs-as-Code, CC BY-SA 4.0"
+
+theme:
+  name: material
+  language: ru
+  custom_dir: overrides
+  icon:
+    logo: material/server-network
+  font:
+    text: Inter
+    code: JetBrains Mono
+  favicon: assets/favicon.png
+  palette:
+    - scheme: slate
+      primary: teal
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - scheme: default
+      primary: teal
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - navigation.path
+    - toc.follow
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+    - content.action.view
+    - content.tabs.link
+
+extra:
+  generator: false
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/org/devops-handbook
+    - icon: fontawesome/brands/telegram
+      link: https://t.me/devops_handbook
+    - icon: fontawesome/solid/book
+      link: https://devops-handbook.example.com
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      linenums: false
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      auto_append:
+        - includes/mkdocs.md
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.arithmatex:
+      generic: true
+  - toc:
+      permalink: true
+      toc_depth: 3
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - tables
+  - attr_list
+  - md_in_html
+  - def_list
+  - footnotes
+  - abbr
+  - sane_lists
+
+plugins:
+  - search:
+      lang: ru
+      separator: '[\s\-,:!=\[\]()"/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - tags
+
+validation:
+  nav:
+    not_found: warn
+    omitted_files: warn
+  links:
+    not_found: warn
+    absolute_links: warn
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+nav:
+  - Главная: index.md
+  - 0. Roadmap:
+      - Путь от нуля до DevOps: 00-roadmap/01-devops-roadmap-2026.md
+  - 1. Linux и Сети:
+      - Ядро, Процессы и Systemd: 01-linux-and-networking/01-linux-core-and-systemd.md
+      - Сетевой стек и Диагностика: 01-linux-and-networking/02-networking-and-troubleshooting.md
+      - Bash-скриптинг и Утилиты: 01-linux-and-networking/03-bash-scripting-and-automation.md
+      - Модель OSI, Протоколы и TLS: 01-linux-and-networking/04-osi-model-and-network-protocols.md
+  - 2. Git:
+      - Архитектура и Workflows: 02-git/01-git-internals-and-workflows.md
+      - Cheat Sheet, Rebase и Hooks: 02-git/02-git-cheatsheet-and-rebase.md
+  - 3. Docker:
+      - Архитектура и CLI: 03-docker/01-docker-architecture-and-cli.md
+      - Dockerfile Best Practices: 03-docker/02-dockerfile-best-practices.md
+      - Docker Compose и Сети: 03-docker/03-docker-compose-and-networking.md
+      - Как устроен Docker под капотом (Deep Internals): 03-docker/04-docker-deep-internals-and-engine.md
+  - 4. Kubernetes:
+      - Архитектура и Workloads: 04-kubernetes/01-k8s-architecture-and-workloads.md
+      - Сети и Хранилища: 04-kubernetes/02-k8s-networking-and-storage.md
+      - Helm и Kustomize: 04-kubernetes/03-helm-and-kustomize.md
+      - Справочник Troubleshooting: 04-kubernetes/04-k8s-troubleshooting-handbook.md
+      - Контроллеры и Informer Pattern: 04-kubernetes/05-k8s-controllers-and-internals.md
+      - Путь сетевого пакета (Packet Flow): 04-kubernetes/06-k8s-networking-packet-flow.md
+      - Все контроллеры K8s (Полный справочник): 04-kubernetes/07-all-kubernetes-controllers-reference.md
+  - 5. GitOps и CI/CD:
+      - ArgoCD и Flux: 05-gitops-and-cicd/01-gitops-argocd-flux.md
+      - Паттерны CI/CD пайплайнов: 05-gitops-and-cicd/02-cicd-pipelines-patterns.md
+  - 6. Terraform:
+      - Основы и HCL: 06-terraform/01-terraform-fundamentals.md
+      - State, Модули и Terragrunt: 06-terraform/02-state-modules-and-terragrunt.md
+  - 7. Ansible:
+      - Архитектура и Плейбуки: 07-ansible/01-ansible-architecture-and-playbooks.md
+      - Роли, Vault и Best Practices: 07-ansible/02-roles-vault-and-best-practices.md
+  - 8. Python и Go:
+      - Python для DevOps: 08-programming-python-go/01-python-for-devops.md
+      - Go для DevOps: 08-programming-python-go/02-go-for-devops.md
+  - 9. Observability:
+      - Prometheus и Grafana: 09-observability/01-prometheus-and-grafana.md
+      - Сбор логов и Трассировка: 09-observability/02-logging-loki-and-tracing.md
+      - Grafana Alloy Телеметрия: 09-observability/03-grafana-alloy-telemetry.md
+      - Корпоративный мониторинг Zabbix: 09-observability/04-zabbix-enterprise-monitoring.md
+      - Стек ELK и OpenSearch: 09-observability/05-elk-opensearch-stack.md
+      - Дашборды и Alertmanager: 09-observability/06-alertmanager-and-dashboards-mastery.md
+  - 10. Security & Cloud:
+      - DevSecOps и Секреты: 10-security-and-cloud/01-devsecops-and-secrets.md
+      - Облака и Веб-серверы: 10-security-and-cloud/02-cloud-and-web-servers.md
+      - HashiCorp Vault Deep Dive: 10-security-and-cloud/03-hashicorp-vault-deep-dive.md
+  - 11. Базы данных и Хранилища:
+      - Ceph и Rook-Ceph: 11-data-and-storage/01-ceph-storage-and-rook.md
+      - Apache Kafka и Strimzi: 11-data-and-storage/02-kafka-and-strimzi.md
+      - ClickHouse СУБД: 11-data-and-storage/03-clickhouse-architecture-and-ops.md
+      - PostgreSQL HA (Patroni, CNPG): 11-data-and-storage/04-postgresql-ha-and-patroni.md
+      - Redis Sentinel и Cluster: 11-data-and-storage/05-redis-sentinel-and-cluster.md
+  - 12. Продвинутые сети и Mesh:
+      - Service Mesh Istio: 12-advanced-networking-and-mesh/01-istio-service-mesh.md
+      - "CNI: Cilium (eBPF) и Calico": 12-advanced-networking-and-mesh/02-cni-cilium-and-calico.md
+      - Traefik и Nginx Advanced: 12-advanced-networking-and-mesh/03-traefik-and-nginx-advanced.md
+  - 13. Disaster Recovery:
+      - Бэкапы и Velero: 13-disaster-recovery-and-tools/01-k8s-backups-velero.md
+  - 14. Собеседования DevOps (100+ Вопросов):
+      - Частые вопросы и ответы (Core): 14-interview-prep/01-devops-interview-core-qa.md
+      - System Design и Траблшутинг: 14-interview-prep/02-devops-system-design-and-troubleshooting-cases.md
+      - "100 Вопросов с собесов (Часть 1: Linux, K8s, Docker)": 14-interview-prep/03-100-devops-interview-questions-bank-part1.md
+      - "100 Вопросов с собесов (Часть 2: IaC, DBs, Obs, Vault)": 14-interview-prep/04-100-devops-interview-questions-bank-part2.md
+  - 15. Практика (100 Боевых Задач):
+      - "100 Задач (Часть 1: Bash, Python, Go, Docker, K8s)": 15-hands-on-practice/01-100-devops-practical-tasks-part1.md
+      - "100 Задач (Часть 2: Terraform, Ansible, CI/CD, Obs, DBs)": 15-hands-on-practice/02-100-devops-practical-tasks-part2.md
+  - 16. Guided Labs (пошагово):
+      - "Lab 01: Linux и Systemd": 16-guided-labs/01-lab-linux-systemd-namespaces.md
+      - "Lab 02: Фабрика образов Docker": 16-guided-labs/02-lab-docker-image-factory.md
+      - "Lab 03: Приложение в Kubernetes": 16-guided-labs/03-lab-kubernetes-kind-app.md
+      - "Lab 04: CI/CD пайплайн end-to-end": 16-guided-labs/04-lab-cicd-pipeline.md
+      - "Lab 05: Terraform + LocalStack": 16-guided-labs/05-lab-terraform-localstack.md
+      - "Lab 06: Мониторинг Prometheus/Grafana/Loki": 16-guided-labs/06-lab-observability-stack.md
+      - "Lab 07: GitOps с ArgoCD": 16-guided-labs/07-lab-gitops-argocd.md
+  - 17. Break-Fix (инциденты):
+      - 10 сценариев «сломай и почини»: 17-break-fix/01-incident-simulations.md
+  - 18. Шаблоны (copy-paste):
+      - Контейнеры и Kubernetes: 18-templates/01-containers-and-k8s.md
+      - Terraform, Ansible, CI/CD: 18-templates/02-iac-and-cicd.md
+      - Observability и веб-серверы: 18-templates/03-observability-and-web.md
+  - 19. Карьера:
+      - Home Lab под любой бюджет: 19-career/01-home-lab-setup.md
+      - "Портфолио: 10 проектов": 19-career/02-portfolio-projects.md
+      - Сертификаты и ресурсы: 19-career/03-certifications-and-resources.md
+      - Резюме, собесы, оффер: 19-career/04-resume-interview-offer.md
+  - 20. Senior Stack:
+      - Сводная проверка (40 вопросов + 10 задач): 20-senior-stack/00-senior-stack-summary.md
+      - 20.1 Policy as Code (OPA/Rego, Kyverno): 20-senior-stack/01-policy-as-code.md
+      - 20.2 Observability at Scale (Thanos/VM/OTel): 20-senior-stack/02-observability-at-scale.md
+      - 20.3 ESO + cert-manager + Falco: 20-senior-stack/03-secrets-runtime-security.md
+      - 20.4 Terratest + Molecule + k6: 20-senior-stack/04-infra-testing.md
+      - 20.5 Harbor/Nexus + Renovate: 20-senior-stack/05-registries-dependencies.md
+      - Сводная проверка Части 2 (40 вопросов + 10 задач): 20-senior-stack/00-senior-stack-summary-p2.md
+      - 20.6 RabbitMQ и NATS: 20-senior-stack/06-message-brokers.md
+      - 20.7 CoreDNS, MetalLB, WireGuard, HAProxy/Envoy: 20-senior-stack/07-network-edge.md
+      - 20.8 MinIO, etcd deep, Longhorn: 20-senior-stack/08-storage-s3-etcd-longhorn.md
+      - 20.9 Pulumi, Packer, Crossplane: 20-senior-stack/09-iac-nextgen.md
+      - 20.10 CLI-арсенал (k9s, stern, jq/yq, tmux): 20-senior-stack/10-cli-arsenal.md
+      - 20.11 Jsonnet/CUE + Sentry: 20-senior-stack/11-config-languages-and-sentry.md
+      - Сводная проверка Части 3 (40 вопросов + 10 задач): 20-senior-stack/00-senior-stack-summary-p3.md
+      - "20.12 Облака: AWS/GCP/Azure/Cloudflare": 20-senior-stack/12-clouds.md
+      - 20.13 GitLab administration: 20-senior-stack/13-gitlab-administration.md
+      - 20.14 Rancher и k3s: 20-senior-stack/14-rancher-and-k3s.md
+      - 20.15 KVM/Proxmox/VMware: 20-senior-stack/15-virtualization.md
+      - 20.16 MySQL High Availability: 20-senior-stack/16-mysql-ha.md
+      - 20.17 Хвосты стека (Linkerd, Locust, Grype, CRI-O): 20-senior-stack/17-tails.md
+  - 21. Песочница:
+      - Терминал и редактор кода (интерактив): 21-playground/index.md
+  - 22. Тренажёр:
+      - "205 карточек: квиз + Anki": 22-trainer/index.md
+  - 23. MLOps:
+      - План раздела: 23-mlops/00-plan.md
+      - 23.1 Введение и жизненный цикл ML: 23-mlops/01-intro-lifecycle.md
+      - "23.2 Experiment Tracking: MLflow": 23-mlops/02-mlflow-tracking.md
+      - "23.3 Данные и пайплайны: DVC, Airflow": 23-mlops/03-data-pipelines.md
+      - "23.4 Сервинг и мониторинг моделей": 23-mlops/04-serving-monitoring.md

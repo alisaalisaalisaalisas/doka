@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Песочница: терминал и редактор — DevOps Handbook</title>
+<style>
+  :root{--bg:#0e1217;--panel:#151b23;--border:#2a3441;--fg:#d5dde5;--dim:#7d8b99;--ok:#4ade80;--err:#f87171;--warn:#fbbf24;--acc:#26c6da}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 "JetBrains Mono",Consolas,monospace}
+  header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border)}
+  header h1{font-size:15px;margin:0 12px 0 0;color:var(--acc)}
+  select,button,input[type=search]{background:#1c2530;color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font:inherit;cursor:pointer}
+  button:hover{border-color:var(--acc)}
+  button.primary{border-color:var(--acc);color:var(--acc)}
+  main{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 14px;height:calc(100vh - 58px)}
+  .pane{display:flex;flex-direction:column;min-height:0;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+  .pane h2{margin:0;padding:8px 12px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);border-bottom:1px solid var(--border)}
+  #brief{overflow:auto;padding:10px 14px;font-size:13px;max-height:26%}
+  #brief b{color:var(--acc)}
+  #brief .file{color:var(--warn);cursor:pointer}
+  #editor-wrap{flex:1;min-height:0;position:relative}
+  #editor{position:absolute;inset:0}
+  textarea.code{width:100%;height:100%;resize:none;border:0;outline:0;background:#0b0f14;color:#cde3ea;
+    font:13px/1.5 Consolas,monospace;padding:10px;tab-size:2}
+  .editor-bar{display:flex;gap:8px;align-items:center;padding:6px 10px;border-top:1px solid var(--border);font-size:12px}
+  #code-result{margin-left:auto}
+  #term{flex:1;overflow:auto;padding:10px 12px;font-size:13px;white-space:pre-wrap;word-break:break-word}
+  #term .cmd{color:#e8eef4}
+  #term .ok{color:var(--ok)} #term .err{color:var(--err)} #term .dim{color:var(--dim)} #term .warn{color:var(--warn)}
+  .term-line{display:flex;gap:6px;padding:8px 12px;border-top:1px solid var(--border)}
+  .term-line input{flex:1;background:transparent;border:0;outline:0;color:var(--fg);font:inherit}
+  .prompt{color:var(--ok);white-space:nowrap}
+  #check-result{padding:8px 12px;border-top:1px solid var(--border);font-size:13px;display:none;overflow:auto;max-height:30%}
+  .pass{color:var(--ok)} .fail{color:var(--err)}
+  #count{font-size:12px;color:var(--dim)}
+  @media(max-width:900px){main{grid-template-columns:1fr;grid-template-rows:40% 60%;height:auto}#term{min-height:300px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧪 Песочница</h1>
+  <select id="scenario"></select>
+  <input type="search" id="filter" placeholder="фильтр сценариев…" size="16">
+  <span id="count"></span>
+  <button id="btn-reset">Сброс</button>
+  <button id="btn-hints">Подсказки</button>
+  <button id="btn-check" class="primary">Проверить решение</button>
+</header>
+<main>
+  <section class="pane">
+    <h2>Задание · файлы · редактор</h2>
+    <div id="brief"></div>
+    <div id="editor-wrap"><div id="editor"></div></div>
+    <div class="editor-bar">
+      <span id="editor-file" class="dim"></span>
+      <button id="check-code">Проверить код</button>
+      <span id="code-result"></span>
+    </div>
+  </section>
+  <section class="pane">
+    <h2>Терминал (Enter — выполнить, ↑/↓ — история, Tab — автодополнение, Ctrl+L — очистка)</h2>
+    <div id="term"></div>
+    <div class="term-line"><span class="prompt" id="prompt">ubuntu@lab:~$</span><input id="term-in" autocomplete="off" spellcheck="false"></div>
+    <div id="check-result"></div>
+  </section>
+</main>
+
+<!-- Реестр сценариев: базовые + пакеты по темам -->
+<script>window.SCENARIOS=[];
+function S(cat,id,title,level,brief,prompt,commands,solution,editor){
+  const o={cat,id,title,level,brief,prompt,commands,solution};
+  if(editor){o.files=editor.files||null;o.editorFile=editor.file||null;o.editorStart=editor.start||null;o.editorChecks=editor.checks||null;}
+  window.SCENARIOS.push(o);
+}</script>
+<script src="scenarios-linux.js"></script>
+<script src="scenarios-k8s.js"></script>
+<script src="scenarios-iac-cicd.js"></script>
+<script src="scenarios-obs-sec.js"></script>
+<script src="scenarios-data.js"></script>
+<script src="scenarios-mesh-cloud.js"></script>
+<script src="scenarios-base.js"></script>
+
+<script>
+/* ======================= РЕДАКТОР (Monaco c fallback) ======================= */
+let editorApi = {getValue:()=>"",setValue:()=>{},setLang:()=>{}};
+function makeTextareaFallback(){
+  if(document.querySelector("#editor textarea")) return;
+  const ta = document.createElement("textarea");
+  ta.className = "code"; ta.spellcheck = false;
+  document.getElementById("editor").appendChild(ta);
+  ta.addEventListener("keydown", e=>{ if(e.key==="Tab"){ e.preventDefault();
+    const s=ta.selectionStart; ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(ta.selectionEnd);
+    ta.selectionStart=ta.selectionEnd=s+2; }});
+  editorApi = {getValue:()=>ta.value, setValue:v=>ta.value=v, setLang:()=>{}};
+}
+(function initMonaco(){
+  window.require = { paths:{ vs:"https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs" } };
+  const s = document.createElement("script");
+  s.src = "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/loader.js";
+  s.onload = () => require(["vs/editor/editor.main"], () => {
+    monaco.editor.defineTheme("lab",{base:"vs-dark",inherit:true,rules:[],
+      colors:{"editor.background":"#0b0f14"}});
+    const ed = monaco.editor.create(document.getElementById("editor"),{
+      theme:"lab", automaticLayout:true, minimap:{enabled:false}, fontSize:13, tabSize:2});
+    editorApi = {getValue:()=>ed.getValue(), setValue:v=>ed.setValue(v),
+      setLang:l=>monaco.editor.setModelLanguage(ed.getModel(), l||"plaintext")};
+    loadScenario(current.id);
+  });
+  s.onerror = () => { makeTextareaFallback(); loadScenario(current.id); };
+  document.head.appendChild(s);
+  setTimeout(()=>{ if(!window.monaco && !document.querySelector("#editor textarea")){ makeTextareaFallback(); loadScenario(current.id);} }, 4000);
+})();
+
+/* ======================= ТЕРМИНАЛ ======================= */
+const term = document.getElementById("term");
+const input = document.getElementById("term-in");
+let history = [], hIdx = -1, executed = [];
+
+function print(text, cls=""){
+  const d = document.createElement("div");
+  if(cls) d.className = cls;
+  d.textContent = text;
+  term.appendChild(d); term.scrollTop = term.scrollHeight;
+}
+function runCommand(raw){
+  const cmd = raw.trim();
+  if(!cmd) return;
+  print(current.prompt+" "+cmd, "cmd"); history.push(cmd); hIdx = history.length; executed.push(cmd);
+  if(cmd === "clear"){ term.innerHTML=""; return; }
+  const rule = current.commands.find(r => RE(r.re).test(cmd));
+  if(rule){ if(rule.out) print(rule.out, rule.cls||""); }
+  else print(`bash: ${cmd.split(" ")[0]}: команда не входит в сценарий. Нажмите «Подсказки».`, "dim");
+}
+input.addEventListener("keydown", e=>{
+  if(e.key==="Enter"){ runCommand(input.value); input.value=""; }
+  else if(e.key==="ArrowUp"){ e.preventDefault(); if(hIdx>0){ hIdx--; input.value=history[hIdx]; } }
+  else if(e.key==="ArrowDown"){ e.preventDefault(); if(hIdx<history.length-1){ hIdx++; input.value=history[hIdx]; } else { hIdx=history.length; input.value=""; } }
+  else if(e.key==="l" && e.ctrlKey){ e.preventDefault(); term.innerHTML=""; }
+  else if(e.key==="Tab"){ e.preventDefault();
+    const v=input.value.toLowerCase();
+    const cand=current.commands.map(r=>r.re.source).find(s=>s.toLowerCase().replace(/[^a-z]/g,"").startsWith(v.replace(/[^a-z]/g,"").slice(0,6)) && v.length>2);
+    if(cand) input.value=cand.split(/\\[s.\-]/)[0].replace(/\\|\^|\$/g,"").slice(0,50);
+  }
+});
+
+/* ======================= СЦЕНАРИИ: реестр и фильтр ======================= */
+const RE = p => (typeof p === "string") ? new RegExp(p, "i") : p;
+const ALL = window.SCENARIOS;
+let current = null;
+
+const sel = document.getElementById("scenario");
+const filter = document.getElementById("filter");
+const countEl = document.getElementById("count");
+
+function fillSelect(){
+  const prev = sel.value;
+  const q = filter.value.trim().toLowerCase();
+  sel.innerHTML = "";
+  const cats = [...new Set(ALL.map(s=>s.cat))];
+  let visible = 0;
+  cats.forEach(cat=>{
+    const items = ALL.map((s,i)=>({s,i})).filter(({s})=>s.cat===cat &&
+      (!q || (s.title+" "+s.id+" "+cat).toLowerCase().includes(q)));
+    if(!items.length) return;
+    const og = document.createElement("optgroup"); og.label = cat;
+    items.forEach(({s,i})=>{ const o=document.createElement("option");
+      o.value=i; o.textContent=`${s.title} [${s.level}]`; og.appendChild(o); visible++; });
+    sel.appendChild(og);
+  });
+  countEl.textContent = visible + "/" + ALL.length + " сценариев";
+  if(prev && [...sel.options].some(o=>o.value===prev)) sel.value = prev;
+}
+filter.oninput = fillSelect;
+
+function loadScenario(idx){
+  current = ALL[idx];
+  executed = []; history = []; term.innerHTML = "";
+  print(`# ${current.title}`, "warn");
+  print(`# Симулятор. «Подсказки» — список шагов. «Проверить решение» — чек-лист.\n`, "dim");
+  document.getElementById("brief").innerHTML = current.brief || "Описание отсутствует.";
+  document.getElementById("prompt").textContent = current.prompt || "ubuntu@lab:~$";
+  document.getElementById("code-result").textContent = "";
+  document.getElementById("check-result").style.display = "none";
+  document.getElementById("editor-file").textContent = "📄 " + (current.editorFile || "—");
+  editorApi.setValue(current.editorStart || (current.files ? Object.values(current.files)[0] : "") || "");
+  if(editorApi.setLang){
+    const f = current.editorFile || "";
+    editorApi.setLang(/\.ya?ml$/.test(f) ? "yaml" : /\.tf$/.test(f) ? "hcl" : /\.py$/.test(f) ? "python" : /\.go$/.test(f) ? "go" : /\.sql$/.test(f) ? "sql" : "shell");
+  }
+  document.querySelectorAll("#brief .file").forEach(el=>{
+    el.onclick = ()=>{ const f=(current.files||{})[el.dataset.file]; if(f!==undefined) editorApi.setValue(f);
+      document.getElementById("editor-file").textContent = "📄 "+el.dataset.file; };
+  });
+  input.focus();
+}
+sel.onchange = ()=>loadScenario(+sel.value);
+document.getElementById("btn-reset").onclick = ()=>loadScenario(+sel.value);
+document.getElementById("btn-hints").onclick = ()=>{
+  print("# Шаги решения:", "dim");
+  (current.solution||[]).forEach(s=>print("  • "+(s.l||s.label), "dim"));
+};
+
+/* ======================= ПРОВЕРКИ ======================= */
+function checkSolution(){
+  const box = document.getElementById("check-result");
+  box.style.display = "block";
+  const sol = current.solution||[];
+  const rows = sol.map(s=>{
+    const ok = executed.some(c=>RE(s.re).test(c));
+    return `<span class="${ok?"pass":"fail"}">${ok?"✓":"✗"}</span> ${s.l||s.label}`;
+  });
+  const all = sol.every(s=>executed.some(c=>RE(s.re).test(c)));
+  box.innerHTML = rows.join("<br>") + `<br><b class="${all?"pass":"fail"}">${all?"🎉 Решение засчитано!":"Пока выполнено не всё — продолжайте."}</b>`;
+}
+document.getElementById("btn-check").onclick = checkSolution;
+
+document.getElementById("check-code").onclick = ()=>{
+  const res = document.getElementById("code-result");
+  const checks = current.editorChecks;
+  if(!checks){ res.textContent = "в этом сценарии код не проверяется"; res.className="dim"; return; }
+  const val = editorApi.getValue();
+  res.innerHTML = checks.map(c=>{
+    const ok = RE(c.re).test(val);
+    return `<span class="${ok?"pass":"fail"}">${ok?"✓":"✗"}</span>${c.l||c.label}`;
+  }).join(" · ");
+};
+
+/* ======================= СТАРТ ======================= */
+fillSelect();
+loadScenario(0);
+</script>
+</body>
+</html>

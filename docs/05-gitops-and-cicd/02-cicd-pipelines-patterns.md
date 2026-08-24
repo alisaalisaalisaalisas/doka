@@ -1,0 +1,222 @@
+# 🚀 02. Паттерны построения пайплайнов (GitLab CI / GitHub Actions)
+
+## 📋 Стандартные стадии CI/CD пайплайна
+
+```mermaid
+graph LR
+    Lint["1. Lint & Format"] --> Test["2. Unit & Integration Tests"]
+    Test --> Sec["3. Security Scan (Trivy/SAST)"]
+    Sec --> Build["4. Build & Push Image (Docker)"]
+    Build --> GitOps["5. GitOps Update (Commit new tag to Infra repo)"]
+```
+
+---
+
+## 🦊 Production-шаблон GitLab CI (`.gitlab-ci.yml`)
+
+```yaml
+stages:
+  - test
+  - security
+  - build
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+
+default:
+  interruptible: true # Автоматически отменять старые пайплайны при новом пуше в ветку
+
+# 1. Линтинг и тесты
+test:unit:
+  stage: test
+  image: golang:1.23-alpine
+  script:
+    - go test -v -race -coverprofile=coverage.txt ./...
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.txt
+
+# 2. Сканирование безопасности через Trivy
+security:trivy:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy fs --exit-code 1 --severity CRITICAL --no-progress .
+  allow_failure: false
+
+# 3. Сборка и отправка Docker-образа с Kaniko (без Docker-in-Docker root)
+build:docker:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  script:
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${IMAGE_TAG}"
+      --destination "${CI_REGISTRY_IMAGE}:latest"
+      --cache=true
+
+# 4. Деплой через GitOps (Обновление тега в репозитории манифестов)
+deploy:gitops:
+  stage: deploy
+  image: alpine/git:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  script:
+    - git config --global user.email "ci-bot@company.com"
+    - git config --global user.name "GitLab CI Bot"
+    - git clone https://oauth2:${GITOPS_ACCESS_TOKEN}@gitlab.com/company/k8s-manifests.git
+    - cd k8s-manifests/environments/production
+    - sed -i "s|image:.*|image: ${IMAGE_TAG}|g" deployment.yaml
+    - git commit -am "chore(release): update web-api to ${CI_COMMIT_SHORT_SHA}"
+    - git push origin main
+```
+
+---
+
+## 🐙 Production-шаблон GitHub Actions (`.github/workflows/ci-cd.yaml`)
+
+```yaml
+name: Production CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: write
+  id-token: write # Для безопасного OIDC доступа к Cloud провайдерам
+
+jobs:
+  # Проверка кода
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: true
+
+      - name: Run Tests
+        run: go test -v -race ./...
+
+  # Сборка и пуш в Docker Hub / GHCR
+  build-and-push:
+    needs: lint-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+```
+
+---
+
+## 🔬 Deep Dive: паттерны, отделяющие CI от CD
+
+```text
+CI: build → test → scan → push image:sha123 → СОХРАНИТЬ артефакт
+CD: отдельный процесс (GitOps operator) подхватывает новый sha → канареечный rollout
+```
+
+**Разделение важно:** CI-runner'ы не должны иметь kubeconfig прода. Компрометация раннера ≠ компрометация кластера.
+
+### Канареечные стратегии
+
+| Стратегия | Механизм | Инструменты |
+| :--- | :--- | :--- |
+| Blue-Green | два полных окружения, переключение LB | Argo Rollouts |
+| Canary 5%→25%→100% | вес трафика по метрикам | Argo Rollouts + Prometheus analysis |
+| Feature Flags | деплой ≠ релиз | Unleash, Flagsmith |
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate     # автоматический откат канарейки
+spec:
+  metrics:
+    - name: error-rate
+      interval: 1m
+      failureLimit: 2
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring:9090
+          query: |
+            sum(rate(http_requests_total{app="api",code=~"5.."}[1m]))
+            / sum(rate(http_requests_total{app="api"}[1m])) * 100
+```
+
+### Кэширование пайплайнов: что реально ускоряет
+
+1. **Layer cache реестра** (`--cache-from/--cache-to type=registry`) вместо локального docker.
+2. **Модульные кэши:** Go modules, pip wheels, npm — S3/GCS бэкенд.
+3. **Тестовый шардинг:** `--shard 1/4` по времени выполнения тестов.
+4. `interruptible: true` + автокancel старых пайплайнов ветки — не собирать очередь устаревших коммитов.
+
+---
+
+<!-- enriched:v1 -->
+
+## 🧨 Типовые грабли Production
+
+| Симптом | Причина | Быстрое решение |
+| :--- | :--- | :--- |
+| Пайплайн зеленый, прод сломан | Разница окружений / secrets не из Vault | Проверять конфиги через `conftest` + smoke-тесты после деплоя |
+| `terraform apply` висит на lock | Умерший CI оставил lock | `force-unlock` после проверки активности |
+| Ansible «работает» но ничего не меняет | `changed_when` не настроен | Явные `changed_when`/`failed_when` для команд |
+| GitOps откатывает ручной фикс | Drift между Git и кластером | Править только в Git; `selfHeal` оставить включенным |
+
+!!! warning «Идемпотентность — закон»
+    Любой скрипт/плейбук/модуль должен быть безопасно перезапускаемым. Если второй прогон меняет состояние — это баг, который однажды уронит прод.
+
+## 🧪 Hands-on Lab
+
+```bash
+gitlab-ci-local --list 2>/dev/null || act --list; echo '---'; \
+docker buildx build --platform linux/amd64 --cache-from type=registry,ref=reg/app:cache -t app:test . --dry-run 2>&1 | tail -5
+```
+
+## ✅ Чек-лист зрелости темы
+
+- [ ] Все изменения проходят через PR с обязательным review
+- [ ] Секреты никогда не хранятся в коде/стейте (Vault/SOPS/secret manager)
+- [ ] Есть dry-run/plan этап и он виден в MR
+- [ ] Откат воспроизводим одной командой (< 10 минут)
+- [ ] Логи пайплайна содержат версии артефактов (image digest, commit SHA)

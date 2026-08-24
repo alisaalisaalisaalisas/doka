@@ -1,0 +1,188 @@
+# 🎭 02. Роли, Коллекции, Jinja2, Vault и Тестирование Molecule
+
+## 📂 Структура Ansible Role
+
+Роли позволяют разбивать плейбуки на независимые переиспользуемые компоненты:
+
+```text
+roles/nginx_server/
+├── defaults/
+│   └── main.yaml    # Дефолтные переменные с низшим приоритетом (можно переопределять)
+├── vars/
+│   └── main.yaml    # Константные переменные роли с высоким приоритетом
+├── tasks/
+│   └── main.yaml    # Основные шаги настройки
+├── handlers/
+│   └── main.yaml    # Обработчики событий (reload, restart)
+├── templates/
+│   └── site.conf.j2 # Jinja2 шаблоны
+├── files/
+│   └── static.html  # Статические файлы для прямого копирования
+└── meta/
+    └── main.yaml    # Зависимости от других ролей
+```
+
+---
+
+## 🎨 Jinja2 Шаблонизация
+
+Пример шаблона `templates/site.conf.j2`:
+```jinja2
+# Конфигурация сгенерирована автоматически через Ansible. Не редактировать вручную!
+server {
+    listen {{ nginx_port | default(80) }};
+    server_name {{ server_domain }};
+
+    root {{ document_root | default('/var/www/html') }};
+    index index.html index.htm;
+
+    {% if enable_gzip %}
+    gzip on;
+    gzip_types text/plain application/json text/css;
+    {% endif %}
+
+    # Итерация по списку upstream серверов
+    location /api/ {
+        proxy_pass http://backend_pool;
+    }
+}
+
+upstream backend_pool {
+{% for host in groups['appservers'] %}
+    server {{ hostvars[host]['ansible_host'] }}:8080 weight={{ hostvars[host]['weight'] | default(1) }};
+{% endfor %}
+}
+```
+
+---
+
+## 🔐 Шифрование секретов: Ansible Vault
+
+Ansible Vault позволяет безопасно хранить пароли, приватные ключи и токены прямо в Git в зашифрованном виде (AES-256).
+
+### 1. Команды Ansible Vault:
+```bash
+# Зашифровать файл с секретами целиком
+ansible-vault encrypt vars/secrets.yaml
+
+# Редактировать зашифрованный файл
+ansible-vault edit vars/secrets.yaml
+
+# Зашифровать отдельную строковую переменную (inline vault)
+ansible-vault encrypt_string 'MySuperSecretPassword123' --name 'db_password'
+
+# Запуск плейбука с запросом пароля от Vault
+ansible-playbook -i inventory.yaml site.yaml --ask-vault-pass
+
+# Запуск в CI с паролем из файла или переменной окружения
+ansible-playbook -i inventory.yaml site.yaml --vault-password-file .vault_pass.txt
+```
+
+### 2. Пример использования зашифрованной переменной:
+```yaml
+# vars/main.yaml
+db_user: "app_admin"
+db_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          35373836373831353163353434626135313936653130633939633532653934376332616239303337
+          3136653439366432363162386538356133373463326138640a323337353936616434373462376239
+```
+
+---
+
+## 🧪 Тестирование ролей с помощью Molecule
+
+**Molecule** автоматически поднимает тестовый Docker-контейнер, накатывает на него роль и выполняет верификацию:
+
+```bash
+# Инициализация тестового сценария в роли
+molecule init scenario --driver-name docker
+
+# Полный цикл тестирования (Lint -> Destroy -> Create -> Converge -> Idempotence -> Verify -> Destroy)
+molecule test
+```
+
+---
+
+## 🔬 Deep Dive: шифрование секретов без боли
+
+```bash
+# Шифруем ТОЛЬКО значения, файл остается читаемым (inline vault)
+ansible-vault encrypt_string 'S3cr3tP@ss' --name 'db_password'
+
+# Rekey всей истории ключей (ротация)
+ansible-vault rekey group_vars/prod/vault.yml
+
+# Идемпотентный запуск с ключом из pass/1password
+ansible-playbook site.yml --vault-password-file ~/.vault_pass_prod
+```
+
+### Molecule: тестирование ролей как кода
+
+```yaml
+# molecule/default/molecule.yml
+scenario:
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence      # второй прогон не должен менять state!
+    - verify           # ваши assert'ы
+    - cleanup
+    - destroy
+```
+
+```bash
+pip install molecule[docker] ansible-lint
+molecule test                     # полная матрица за ~2 минуты
+ansible-lint roles/nginx          # статический анализ best practices
+```
+
+### Precedence переменных (топ-7 из ~22)
+
+```text
+1. role defaults (самые слабые)
+2. inventory group_vars/all
+3. inventory host_vars
+4. play vars
+5. play vars_files
+6. extra-vars (-e) ← ВСЕГДА выигрывает
+```
+
+!!! warning «Ansible ≠ Terraform»
+    Ansible — конфигурация существующих машин (provisioned state drift fixer); Terraform — создание/уничтожение ресурсов. Порядок: Terraform создаёт VM → Ansible настраивает → приложение деплоит GitOps.
+
+---
+
+<!-- enriched:v1 -->
+
+## 🧨 Типовые грабли Production
+
+| Симптом | Причина | Быстрое решение |
+| :--- | :--- | :--- |
+| Пайплайн зеленый, прод сломан | Разница окружений / secrets не из Vault | Проверять конфиги через `conftest` + smoke-тесты после деплоя |
+| `terraform apply` висит на lock | Умерший CI оставил lock | `force-unlock` после проверки активности |
+| Ansible «работает» но ничего не меняет | `changed_when` не настроен | Явные `changed_when`/`failed_when` для команд |
+| GitOps откатывает ручной фикс | Drift между Git и кластером | Править только в Git; `selfHeal` оставить включенным |
+
+!!! warning «Идемпотентность — закон»
+    Любой скрипт/плейбук/модуль должен быть безопасно перезапускаемым. Если второй прогон меняет состояние — это баг, который однажды уронит прод.
+
+## 🧪 Hands-on Lab
+
+```bash
+ansible-lint . && molecule list 2>/dev/null; \
+ansible-vault view group_vars/prod/vault.yml --ask-vault-pass <<< $VAULT_PASS 2>/dev/null | head -5 || echo 'vault ok'
+```
+
+## ✅ Чек-лист зрелости темы
+
+- [ ] Все изменения проходят через PR с обязательным review
+- [ ] Секреты никогда не хранятся в коде/стейте (Vault/SOPS/secret manager)
+- [ ] Есть dry-run/plan этап и он виден в MR
+- [ ] Откат воспроизводим одной командой (< 10 минут)
+- [ ] Логи пайплайна содержат версии артефактов (image digest, commit SHA)
