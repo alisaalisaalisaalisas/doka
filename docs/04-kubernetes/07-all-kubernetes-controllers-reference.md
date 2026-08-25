@@ -207,3 +207,27 @@ kubectl get sts -A && kubectl get jobs -A --sort-by=.metadata.creationTimestamp 
 | :--- | :--- |
 | 🎤 Проверить себя | [Вопросы по workloads](../14-interview-prep/03-100-devops-interview-questions-bank-part1.md) |
 | ➡️ Дальше | [Автоскейлинг: HPA/VPA/KEDA](08-k8s-autoscaling.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Кто именно создаёт pod'ы: Deployment или ReplicaSet?**
+<details><summary>Ответ</summary>
+ReplicaSet. Deployment-контроллер управляет ТОЛЬКО ReplicaSet'ами (создаёт новый RS при изменении template, масштабирует старый вниз). Поэтому scale deployment меняет replicas у RS, а прямой edit RS перезатрётся стратегией Deployment.
+</details>
+
+**В2. Чем StatefulSet отличается от Deployment по идентичности подов?**
+<details><summary>Ответ</summary>
+Стабильное имя (web-0, web-1...), стабильный DNS (pod-0.svc.headless), упорядоченное создание/удаление (по индексу), свои PVC per-pod (volumeClaimTemplates переживают пересоздание). Deployment — взаимозаменяемые клоны без сетевой идентичности.
+</details>
+
+**В3. Что делает Job, а что DaemonSet?**
+<details><summary>Ответ</summary>
+Job — конечная задача до успешного завершения (completions, parallelism, backoffLimit, cron через CronJob). DaemonSet — по одному поду НА КАЖДУЮ (или отобранную selector'ом) ноду постоянно: log-collectors, node-exporter, CNI.
+</details>
+
+**В4. Зачем нужен TTL-after-finished для Job?**
+<details><summary>Ответ</summary>
+Завершённые Job/Pod висят в etcd вечно (для логов/status), размножаясь cron-джобами. ttlSecondsAfterFinished автоматически удалит job+поды через N секунд после завершения — иначе контроллер etcd задыхается от мусора.
+</details>

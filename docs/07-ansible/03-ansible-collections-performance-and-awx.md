@@ -251,3 +251,27 @@ ansible-playbook site.yml >/dev/null && ansible-playbook site.yml | grep -c chan
 | :--- | :--- |
 | 🔬 Закрепить | [Lab 08: идемпотентность](../16-guided-labs/08-lab-ansible-molecule.md) |
 | 🎤 Проверить себя | [Вопросы: AWX, EE](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Что такое collection и как правильно фиксировать зависимости роли?**
+<details><summary>Ответ</summary>
+Collection — пакет модулей/ролей/плагинов (namespace.collection). Зависимости объявляются в galaxy.yml/requirements.yml с версиями (`community.general:">=8.0,<9"`); установка ansible-galaxy collection install -r requirements.yml — в CI обязательно, иначе «работает локально».
+</details>
+
+**В2. Топ-приёмы ускорения Ansible на сотнях хостов?**
+<details><summary>Ответ</summary>
+forks=50+ в ansible.cfg; pipelining=true (SSH без staging-файлов); fact_caching=jsonfile с таймаутом; mitogen-стратегия (×2–7); strategy=free (хосты не ждут друг друга); минимизация gather_facts: false там, где факты не нужны; delegate_to вместо повторного play.
+</details>
+
+**В3. Чем ansible-pull отличается от push и когда он лучше?**
+<details><summary>Ответ</summary>
+Pull: хост сам забирает плейбук из git по расписанию/cron — работает за NAT, масштабируется линейно, нет управляющего узла в доверенной зоне. Push: централизованный контроль и оркестрация. Pull хорош для fleet/edge, push — для координированных миграций.
+</details>
+
+**В4. AWX/AAP: что добавляет поверх CLI-Ansible?**
+<details><summary>Ответ</summary>
+RBAC по инвентарям/проектам, credential store (не в переменных), расписания и workflow-оркестрация (цепочки шаблонов с ветвлениями), audit-log всех запусков, уведомления, Surveys для параметризации. Это уже платформа автоматизации, а не инструмент.
+</details>

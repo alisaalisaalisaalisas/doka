@@ -282,3 +282,32 @@ terraform state mv aws_vpc.main aws_vpc.renamed && terraform plan   # ожида
 | :--- | :--- |
 | 🔬 Закрепить | [Lab 05: план на MR](../16-guided-labs/05-lab-terraform-localstack.md) |
 | 🎤 Проверить себя | [Вопросы: Terraform](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Что проверяет terraform validate против plan?**
+<details><summary>Ответ</summary>
+validate — статика: синтаксис HCL, типы, обязательные аргументы, БЕЗ обращения к API/state. plan — динамика: реальный diff против инфры, интерполяция данных, refresh state. В CI: fmt → validate → plan (комментарий в MR), apply — только по мержу.
+</details>
+
+**В2. Terratest: как устроен типовой тест модуля?**
+<details><summary>Ответ</summary>
+go test: terraform.InitAndApply(stagingOptions) → assert'ы по outputs/реальным ресурсам (HTTP-проверка LB, SSH) → terraform.Destroy в defer. Медленно (реальная инфра!), поэтому гоняют nightly/stage-only, а в MR — plan-diff + policy checks.
+</details>
+
+**В3. Atlantis решает какую проблему?**
+<details><summary>Ответ</summary>
+GitOps для Terraform: plan выполняется автоматически по комментарию/PR и результат публикуется в MR; apply — комментарием atlantis apply с RBAC. Исчезают локальные запуски с продовыми кредами; locking встроенно защищает от параллельных планов.
+</details>
+
+**В4. Стейт разъехался с реальностью (drift). Команды приведения?**
+<details><summary>Ответ</summary>
+terraform plan показывает diff. Ручные правки вне tf: либо импортировать их (terraform import / import block), либо удалить из стейта (state rm) чтобы tf создал заново, либо вернуть инфру apply'ем. Профилактика: запрет ручных изменений IAM'ом + периодический plan по расписанию.
+</details>
+
+**В5. Как безопасно переименовать ресурс в коде без пересоздания?**
+<details><summary>Ответ</summary>
+moved block (Terraform 1.1+): moved { from = aws_instance.old, to = aws_instance.new } — план перенесёт адрес в стейте без destroy/create. Для legacy — terraform state mv.
+</details>

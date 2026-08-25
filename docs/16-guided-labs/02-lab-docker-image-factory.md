@@ -3,13 +3,15 @@
 > **Время:** 75 минут | **Уровень:** Junior→Middle | **Нужно:** Docker Desktop или docker engine
 > **Результат:** production-grade образ <25MB, отсканированный, с SBOM, в локальном registry.
 
+!!! tip "Интерактивная версия"
+    Эту лабу можно прогнать в симуляторе прямо на сайте — с автопроверкой шагов: [Песочница → сценарий «Lab 02»](../21-playground/playground.html?scenario=lab02). Реальные руки — по шагам ниже.
+
 ## 📦 Подготовка
 
 ```bash
 docker version && docker buildx version   # убедимся, что всё стоит
 mkdir -p ~/labs/lab02 && cd ~/labs/lab02
 ```
-
 ---
 
 ## 🧪 Часть 1: Приложение и «наивный» образ (15 мин)

@@ -224,3 +224,32 @@ argocd app diff api --server-side-generate || true
 | :--- | :--- |
 | 🔬 Закрепить | [Lab 07: GitOps с ArgoCD](../16-guided-labs/07-lab-gitops-argocd.md) |
 | 🎤 Проверить себя | [Вопросы: CI/CD, GitOps](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Чем pull-модель GitOps принципиально отличается от push-CI?**
+<details><summary>Ответ</summary>
+Push: CI имеет креды кластера и применяет изменения. Pull: агент ВНУТРИ кластера читает git и приводит состояние к нему — креды кластера не светятся вовне, дрифт ловится постоянно, аудит = история git. CI остаётся сборкой артефактов.
+</details>
+
+**В2. Что такое sync wave и sync options в ArgoCD?**
+<details><summary>Ответ</summary>
+Аннотация argocd.argoproj.io/sync-wave задаёт порядок применения (namespace=-1, миграции=0, app=1). Sync options: CreateNamespace=true, Prune=true и др. Вместе дают детерминированный порядок сложного деплоя.
+</details>
+
+**В3. Как ArgoCD обнаруживает дрифт?**
+<details><summary>Ответ</summary>
+Периодически (~3 мин) или по webhook сравнивает rendered manifests из git с live-состоянием через apiserver. Diff → OutOfSync; auto-sync вернёт состояние сам. ignoreDifferences — для полей, которыми управляют контроллеры (replicas у HPA).
+</details>
+
+**В4. Зачем паттерн App-of-Apps?**
+<details><summary>Ответ</summary>
+Корневое Application генерирует дочерние (ApplicationSet по каталогам/PR-генераторам). Onboarding сервиса/команды = файл в bootstrap-репо вместо кликов в UI; вся топология платформы декларативна.
+</details>
+
+**В5. Flux vs ArgoCD — критерий выбора?**
+<details><summary>Ответ</summary>
+Flux: модульный GitOps Toolkit, легковесен, нативный HelmRelease и image automation. ArgoCD: лучший UI, ApplicationSet, enterprise-фичи. Оба graduated CNCF; выбирают по экосистеме платформы.
+</details>

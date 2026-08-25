@@ -176,3 +176,27 @@ docker system df -v | head -20
 | 🔬 Закрепить | [Lab 02: фабрика образов](../16-guided-labs/02-lab-docker-image-factory.md) |
 | 💪 Практика | [Задачи по Docker](../15-hands-on-practice/01-100-devops-practical-tasks-part1.md) |
 | 🎤 Проверить себя | [Вопросы собесов: Docker](../14-interview-prep/03-100-devops-interview-questions-bank-part1.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Цепочка процессов Docker: кто реально запускает контейнер?**
+<details><summary>Ответ</summary>
+docker CLI → dockerd (API) → containerd → containerd-shim на каждый контейнер → runc, который создаёт namespaces/cgroups и exec'ает процесс. runc выходит после старта; shim держит stdio — поэтому рестарт dockerd не убивает контейнеры при live-restore=true.
+</details>
+
+**В2. CMD vs ENTRYPOINT — когда что?**
+<details><summary>Ответ</summary>
+ENTRYPOINT — фиксированный бинарник; CMD — аргументы по умолчанию (перезаписываются аргументами docker run). ENTRYPOINT ["app"] + CMD ["--port","8080"] = переопределяемые дефолты. Shell-форма добавляет /bin/sh -c и теряет сигналы — использовать exec-форму.
+</details>
+
+**В3. Почему `docker stop` может занять ровно 10 секунд?**
+<details><summary>Ответ</summary>
+Docker шлёт SIGTERM и ждёт graceful shutdown (дефолтный таймаут 10s), потом SIGKILL. Если приложение не обрабатывает SIGTERM (PID 1 не пересылает сигнал детям) — всегда упираемся в таймаут. Фиксы: правильный PID 1/tini, stop_grace_period.
+</details>
+
+**В4. Где смотреть результат healthcheck контейнера?**
+<details><summary>Ответ</summary>
+docker inspect → State.Health.Status и Health.Log (последние проверки и вывод). В Kubernetes эти healthcheck'и не переносятся автоматически — там свои liveness/readiness probes.
+</details>

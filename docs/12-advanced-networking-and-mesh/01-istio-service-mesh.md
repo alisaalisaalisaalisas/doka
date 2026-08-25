@@ -213,3 +213,27 @@ kubectl -n istio-system logs deploy/istiod --tail=20 2>/dev/null | grep -iE 'err
 | :--- | :--- |
 | 💻 Песочница | [Сценарии mesh](../21-playground/index.md) |
 | 🎤 Проверить себя | [Вопросы: Istio](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Что даёт mTLS STRICT и как избежать поломки при включении?**
+<details><summary>Ответ</summary>
+Шифрование+identity всех mesh-соединений, zero-trust по workload identity. Раскатывать PeerAuthentication в режиме PERMISSIVE → проверить, что весь трафик внутри mesh → STRICT; внешний трафик — через ingress gateway, не напрямую.
+</details>
+
+**В2. VirtualService vs DestinationRule — разделение ответственности?**
+<details><summary>Ответ</summary>
+VirtualService — правила маршрутизации запроса (match по header/uri → куда). DestinationRule — политика к destination (subsets/версии, LB-политика, TLS, outlierDetection/circuit breaking). VS направляет на subset, DR описывает свойства этого subset.
+</details>
+
+**В3. Sidecar vs Ambient mesh: ключевое отличие?**
+<details><summary>Ответ</summary>
+Sidecar: envoy в каждом поде (ресурсы ×N, полный набор фич). Ambient: node-level ztunnel (L4/mTLS) + waypoint (опционально L7) — без sidecar-инъекции, ниже overhead, постепенное включение L7 per-namespace.
+</details>
+
+**В4. Outlier detection vs retry policy — что чем лечится?**
+<details><summary>Ответ</summary>
+Retry — временные сбои (5xx, timeout): N попыток с backoff, per-request. Outlier detection — выбивание НЕЗДОРОВЫХ эндпоинтов из пула после серии ошибок (ejection, baseEjectionTime). Retry маскирует одиночные сбои, outlier выводит болные инстансы из балансировки.
+</details>

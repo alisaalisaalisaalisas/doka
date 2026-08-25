@@ -223,3 +223,22 @@ kubectl -n monitoring exec deploy/grafana-alloy -- wget -qO- localhost:12345/met
 | :--- | :--- |
 | ➡️ Дальше | [Продакшн-пайплайны Alloy](07-alloy-pipelines-cookbook.md) |
 | 🔬 Закрепить | [Lab 06](../16-guided-labs/06-lab-observability-stack.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Что такое Alloy и какие пайплайны он объединяет?**
+<details><summary>Ответ</summary>
+Единый телеметрический коллектор Grafana (форк OTel Collector + Flow-модель): метрики (prometheus.scrape/remote_write), логи (loki.source/write, processing), трейсы (otelcol.*), профили. Один демон вместо Promtail+OTel+agent — единая конфигурация river-синтаксисом.
+</details>
+
+**В2. Как в Alloy обогатить логи лейблами перед отправкой в Loki?**
+<details><summary>Ответ</summary>
+loki.process: stages как в Promtail — match/discover по пути, json/parsing stage извлекает поля, labels stage продвигает их в лейблы (только низкокардинальные!), timestamp нормализует, output формирует строку. Всё декларативно в одном компоненте.
+</details>
+
+**В3. Зачем remote_write buffering и как настроить устойчивость?**
+<details><summary>Ответ</summary>
+При недоступности Mimir/Prometheus данные буферизуются на диске (wal/buffer) и досылаются позже — иначе дыры в данных при каждом деплое мониторинга. Настройки: queue_capacity, batch_send_deadline, retry_backoff; volume под WAL обязателен в K8s.
+</details>

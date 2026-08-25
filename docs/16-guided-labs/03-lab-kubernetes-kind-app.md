@@ -3,6 +3,9 @@
 > **Время:** 2 часа | **Уровень:** Middle | **Нужно:** Docker, kubectl, kind
 > **Результат:** three-tier app (db + api + web) с ingress/TLS/HPA/PDB/NetworkPolicy в локальном кластере.
 
+!!! tip "Интерактивная версия"
+    Эту лабу можно прогнать в симуляторе прямо на сайте — с автопроверкой шагов: [Песочница → сценарий «Lab 03»](../21-playground/playground.html?scenario=lab03). Реальные руки — по шагам ниже.
+
 ## 📦 Подготовка инструментов
 
 ```bash
@@ -14,7 +17,6 @@ chmod +x kind && sudo mv kind /usr/local/bin/
 curl -LO "https://dl.k8s.io/release/$(curl -sL dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 ```
-
 ---
 
 ## 🧪 Часть 1: Кластер с ingress-портом наружу (10 мин)

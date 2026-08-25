@@ -215,3 +215,27 @@ curl -s localhost:9090/api/v1/rules | jq -r '.data.groups[].rules[] | select(.he
 | :--- | :--- |
 | 🔬 Закрепить | [Lab 06: алерты в Telegram](../16-guided-labs/06-lab-observability-stack.md) |
 | ➡️ Дальше | [Дашборды как код](08-grafana-dashboards-as-code.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Что такое burn-rate алерт и почему он лучше статического порога?**
+<details><summary>Ответ</summary>
+Скорость расхода error budget относительно нормы: fast-burn (14.4× за 1ч = страница: за сутки сожжёте месячный бюджет), slow-burn (6× за 6ч = тикет). Статический «error rate >1%» шумит при всплесках без ущерба SLO и молчит при медленной утечке бюджета.
+</details>
+
+**В2. Группировка, ингибирование, silence в Alertmanager — зачем каждое?**
+<details><summary>Ответ</summary>
+group_by склеивает сотню одинаковых алертов в одно уведомление (по alertname/cluster). Inhibit: критичный алерт глушит вторичные («node down» подавляет все алерты его подов). Silence — осознанное отключение на время работ, не удаляя правила.
+</details>
+
+**В3. RED vs USE методика: когда какую?**
+<details><summary>Ответ</summary>
+RED для сервисов (Rate, Errors, Duration) — что видит пользователь запросов. USE для ресурсов (Utilization, Saturation, Errors) — CPU/диск/пул соединений. Дашборд сервиса = RED сверху + USE его зависимостей ниже.
+</details>
+
+**В4. Правила хорошего дашборда инцидента?**
+<details><summary>Ответ</summary>
+Одна строка SLO-статуса сверху; далее symptom-метрики (латентность/ошибки), потом cause (CPU/GC/пулы); никаких графиков «на всякий случай»; единые time-range; ссылки на runbook прямо из панелей; имя дашборда = имя сервиса.
+</details>

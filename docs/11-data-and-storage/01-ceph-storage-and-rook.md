@@ -222,3 +222,27 @@ kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph df
 | :--- | :--- |
 | 🎤 Проверить себя | [Вопросы: хранилища](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
 | ➡️ Дальше | [MinIO/Longhorn](../20-senior-stack/08-storage-s3-etcd-longhorn.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Что делает алгоритм CRUSH и почему это умно?**
+<details><summary>Ответ</summary>
+Детерминированно вычисляет размещение объектов по PG на OSD из карты кластера — без центрального каталога. Клиент сам считает путь: нет lookup-запроса, масштабируется линейно, переживает отказ любой ноды пересчётом.
+</details>
+
+**В2. Роли MON, OSD, MGR в Ceph?**
+<details><summary>Ответ</summary>
+MON — карта кластера и консенсус (quorum ≥ половины). OSD — хранение данных+репликация, большинство процессов. MGR — статистика, dashboard, REST. PG (placement groups) — промежуточный шардинг объект→OSD.
+</details>
+
+**В3. RBD, CephFS, RGW — что выбрать под что?**
+<details><summary>Ответ</summary>
+RBD (block) — блочные устройства для K8s PVC/RWO. CephFS — POSIX-файловая система для RWX. RGW — S3-совместимый object storage для бэкапов/приложений. В K8s всё через CSI-драйверы Rook.
+</details>
+
+**В4. Кластер в состоянии HEALTH_WARN с degraded PG. Действия?**
+<details><summary>Ответ</summary>
+ceph status → какие PG degraded/recovering; обычно это нормальное самовосстановление после отказа OSD. Если recovery висит — проверить баланс CRUSH-весов, место (near full ratio), скорость восстановления (osd_recovery_op_priority). HEALTH_ERR — уже потеря данных, разбираться немедленно.
+</details>

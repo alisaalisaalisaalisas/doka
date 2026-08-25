@@ -174,3 +174,27 @@ kubectl get volumesnapshotclasses.velero.io 2>/dev/null; kubectl -n velero logs 
 | :--- | :--- |
 | 🚑 Симуляции | [Инцидент восстановления](../17-break-fix/02-incident-simulations-part2.md) |
 | ➡️ Дальше | [RPO/RTO и бэкапы БД](02-database-backups-and-dr-plan.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Что бэкапит Velero, а что НЕТ?**
+<details><summary>Ответ</summary>
+Да: объекты API (deployments, configmaps, CRD) + опционально volumes через CSI/cloud snapshots. Нет: etcd целиком, состояние контроллеров, данные вне volumes (например, содержимое emptyDir), образы registry. Поэтому Velero — про миграцию/восстановление namespace'ов, etcd-snapshot — про катастрофу кластера.
+</details>
+
+**В2. Зачем hook'и в Velero-бэкапах?**
+<details><summary>Ответ</summary>
+Pre-hook замораживает БД (pg_backup_start/fsfreeze) — снапшот тома становится консистентным; post-hook размораживает. Без hook'а snapshot файловой системы может поймать наполовину записанную транзакцию.
+</details>
+
+**В3. RPO vs RTO: определите и приведите пример настройки.**
+<details><summary>Ответ</summary>
+RPO — максимум потери данных (частота бэкапов: hourly → RPO≤1ч). RTO — целевое время восстановления (репетиция restore, готовые runbook'и → RTO 30 мин). Оба измеряются тестами, а не декларируются.
+</details>
+
+**В4. Restore прошёл, но приложения не работают. Типичные причины?**
+<details><summary>Ответ</summary>
+Порядок восстановления (CRD раньше CR), external-secrets ждут Vault, webhook'и отсутствуют, PVC восстановились в другой зоне (storageclass affinity). Решение: restore order/priority, post-restore smoke-check в runbook.
+</details>

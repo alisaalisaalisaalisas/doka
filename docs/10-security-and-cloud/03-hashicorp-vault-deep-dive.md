@@ -196,3 +196,27 @@ vault secrets list && vault policy list && vault read sys/health 2>/dev/null | h
 | :--- | :--- |
 | 🔬 Закрепить | [Lab 08: Vault в Ansible](../16-guided-labs/08-lab-ansible-molecule.md) |
 | 🎤 Проверить себя | [Вопросы: Vault](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Как работает seal/unseal Vault и что такое Shamir?**
+<details><summary>Ответ</summary>
+Мастер-ключ шифрует данные storage; он сам зашифрован key-encrypting ключом, разделённым по схеме Шамира (N частей, порог T для сборки). Unseal = собрать порог частей. Auto-unseal делегирует расшифровку KMS/HSM/Transit — иначе после каждого рестарта кластер ждёт человека.
+</details>
+
+**В2. KV v2 vs динамические секреты: принципиальная разница?**
+<details><summary>Ответ</summary>
+KV v2 — стационарные секреты с версионированием и rollback (пароль API задан человеком). Динамические (database/AWS engine) генерируются на лету с TTL: Vault создаёт временного пользователя БД, срок жизни истёк — креды отозваны автоматически. Компрометация ограничена TTL.
+</details>
+
+**В3. AppRole: как приложению аутентифицироваться в Vault без человека?**
+<details><summary>Ответ</summary>
+role_id (публичный идентификатор) + secret_id (пароль, доставляется отдельно) → Vault выдаёт токен с политиками и TTL. Усиления: secret_id_num_uses=1, bound_cidr_list, response wrapping для доставки secret_id через промежуточного курьера.
+</details>
+
+**В4. Vault Agent Injector в K8s: что происходит при старте пода?**
+<details><summary>Ответ</summary>
+Mutating webhook добавляет sidecar/init-контейнер с аннотациями vault.hashicorp.com. Контейнер аутентифицируется по SA JWT (k8s auth), получает шаблоны секретов и рендерит их в shared volume/файлы; приложение читает файлы, не зная про Vault. Ротация — перерендер агентом.
+</details>

@@ -3,6 +3,9 @@
 > **Время:** 90 минут | **Уровень:** Middle→Senior | **Нужно:** Docker, kubectl (kind из [Lab 03](03-lab-kubernetes-kind-app.md))
 > **Результат:** полный путь секрета в проде: KV v2 → AppRole для CI → динамические креды PostgreSQL → External Secrets Operator в кластере. Теория — в [10.3 Vault Deep Dive](../10-security-and-cloud/03-hashicorp-vault-deep-dive.md).
 
+!!! tip "Интерактивная версия"
+    Эту лабу можно прогнать в симуляторе прямо на сайте — с автопроверкой шагов: [Песочница → сценарий «Lab 10»](../21-playground/playground.html?scenario=lab10). Реальные руки — по шагам ниже.
+
 ## 🧪 Часть 1: Сервер Vault в dev-режиме + первый секрет (10 мин)
 
 ```bash
@@ -26,7 +29,6 @@ vault kv rollback -version=1 secret/shop/api          # откат секрет�
 ```
 
 **Проверь себя:** чем KV v2 отличается от v1? *(версионирование, rollback, metadata, soft-delete)*
-
 ---
 
 ## 🧪 Часть 2: Политики — принцип наименьших привилегий (15 мин)

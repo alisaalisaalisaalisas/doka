@@ -242,3 +242,32 @@ docker network inspect $(basename $PWD)_default --format '{{json .Containers}}' 
 | :--- | :--- |
 | 💪 Практика | [Задачи по Compose и сетям](../15-hands-on-practice/01-100-devops-practical-tasks-part1.md) |
 | ➡️ Дальше | [Kubernetes — оркестрация поверх контейнеров](../04-kubernetes/01-k8s-architecture-and-workloads.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Какие сети создаёт compose и как сервисы находят друг друга?**
+<details><summary>Ответ</summary>
+По умолчанию bridge-сеть &lt;project&gt;_default; встроенный DNS резолвит имя сервиса в IP контейнера. Изоляция проектов разными сетями; кастомные сети — разделение frontend/backend зон.
+</details>
+
+**В2. Разница именованного volume, bind mount и tmpfs?**
+<details><summary>Ответ</summary>
+Именованный volume управляется Docker и переживает пересоздание контейнера; bind mount (./src:/app) пробрасывает каталог хоста (dev-режим); tmpfs живёт в RAM и исчезает при остановке (сокеты, секреты).
+</details>
+
+**В3. depends_on не ждёт готовности БД. Решения?**
+<details><summary>Ответ</summary>
+depends_on контролирует порядок СТАРТА, не готовность. Варианты: healthcheck + depends_on: condition: service_healthy (compose v2), либо ретраи подключения в приложении — правильнее для прода.
+</details>
+
+**В4. Контейнер падает сразу после старта. Первые три команды диагностики?**
+<details><summary>Ответ</summary>
+docker compose logs &lt;svc&gt; (стек ошибки); docker compose ps -a (exit code); docker compose run --rm &lt;svc&gt; sh (воспроизвести окружение интерактивно). Частые причины: отсутствующая env, localhost вместо имени сервиса.
+</details>
+
+**В5. Как ограничить ресурсы сервиса в compose?**
+<details><summary>Ответ</summary>
+deploy.resources.limits работает и вне swarm в compose v2: limits: {cpus: '0.5', memory: 512M}. Аналог requests/limits K8s; без лимитов один контейнер может задушить хост.
+</details>

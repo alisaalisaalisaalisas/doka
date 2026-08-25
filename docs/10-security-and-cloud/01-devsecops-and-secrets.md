@@ -229,3 +229,27 @@ syft packages dir:. -o cyclonedx-json=sbom.json 2>/dev/null && ls -la sbom.json 
 | :--- | :--- |
 | ➡️ Дальше | [Vault deep dive](03-hashicorp-vault-deep-dive.md) |
 | 🎤 Проверить себя | [Вопросы: секреты](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Vault vs SOPS vs K8s Secrets — когда что?**
+<details><summary>Ответ</summary>
+K8s Secrets — base64 без шифрования (нужен encryption-at-rest/etcd), годится для некритичного. SOPS — секреты в git, зашифрованные ключом KMS/Age: репо остаётся источником правды. Vault — динамические секреты, ротация, аудит, PKI; обязателен, когда секреты нужны сервисам в рантайме.
+</details>
+
+**В2. На каких стадиях пайплайна сканирует Trivy и что именно?**
+<details><summary>Ответ</summary>
+Образ после сборки (OS+языковые CVE), IaC-миссконфиги (tf/k8s/dockerfile), файловая система (зависимости), secrets. Shift-left: скан в MR блокает мерж при critical CVE; тот же образ повторно проверяется перед деплоем.
+</details>
+
+**В3. Как работает admission-политика Kyverno?**
+<details><summary>Ответ</summary>
+Webhook перехватывает create/update: политика матчает ресурсы (match/exclude), validate требует схему (обязательные labels/limits), mutate добавляет недостающее, generate создаёт связанные ресурсы. Violations видны в kyverno CLI до деплоя (audit-режим сначала, потом enforce).
+</details>
+
+**В4. Least privilege для CI-job'а: минимум практик?**
+<details><summary>Ответ</summary>
+OIDC вместо долгоживущих токенов (GitLab→Vault/Cloud), scoped-переменные protected branches only, отдельный runner с сетевыми ограничениями, запрет кэширования секретов, короткие TTL.
+</details>

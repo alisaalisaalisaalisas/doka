@@ -193,3 +193,27 @@ calicoctl node status 2>/dev/null | head -10 || echo 'check cni pods'
 | :--- | :--- |
 | 💻 Песочница | [Сценарии сетей K8s](../21-playground/index.md) |
 | 🎤 Проверить себя | [Вопросы: CNI/eBPF](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Что делает CNI-плагин при создании пода?**
+<details><summary>Ответ</summary>
+По ADD-команде от kubelet: выделяет IP из IPAM-пула, создаёт veth-pair (конец в pod, конец в bridge/host), настраивает routes/masquerade, подключает к сети кластера, отдаёт манифест CNI. DEL — обратная чистка. IPAM может быть host-local/VXLAN/BGP-анонсом.
+</details>
+
+**В2. Calico VXLAN vs BGP режимы — разница?**
+<details><summary>Ответ</summary>
+VXLAN: инкапсуляция L2-over-L3, работает в любых сетях (включая облака без BGP), overhead заголовков. BGP: чистая L3 маршрутизация между нодами (без инкапсуляции, максимум производительности), требует BGP-capable сети/spine-leaf или Route Reflector'ов.
+</details>
+
+**В3. Cilium NetworkPolicy против стандартной: что добавляет eBPF?**
+<details><summary>Ответ</summary>
+Enforcement в eBPF вместо iptables: O(1) lookup, identity-based правила (label пода, а не IP), L7-семантика (HTTP path/method, gRPC, Kafka topic), FQDN-egress. Плюс Hubble: наблюдаемость каждого решения allow/drop в реальном времени.
+</details>
+
+**В4. Поды видят друг друга вопреки NetworkPolicy. Первые проверки?**
+<details><summary>Ответ</summary>
+Поддерживает ли CNI политики вообще (flannel — нет!); включён ли policy enforcement в конфиге CNI (Calico felix); namespaceSelector label совпадает ли фактически (kubectl get ns --show-labels); IPv6/двойной стек; hostNetwork-поды минуют политики.
+</details>

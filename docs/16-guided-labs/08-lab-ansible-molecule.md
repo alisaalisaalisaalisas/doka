@@ -3,6 +3,9 @@
 > **Время:** 75 минут | **Уровень:** Junior→Middle | **Нужно:** Docker, Python 3.10+
 > **Результат:** пишете роль по стандарту, шифруете секреты Vault'ом и проверяете её Molecule-тестами в Docker — как в реальном CI.
 
+!!! tip "Интерактивная версия"
+    Эту лабу можно прогнать в симуляторе прямо на сайте — с автопроверкой шагов: [Песочница → сценарий «Lab 08»](../21-playground/playground.html?scenario=lab08). Реальные руки — по шагам ниже.
+
 ## 🧪 Часть 1: Окружение и каркас роли (10 мин)
 
 ```bash
@@ -16,7 +19,6 @@ ansible-galaxy init nginx_hardening
 cd nginx_hardening
 tree -L 2 .    # defaults/ handlers/ tasks/ templates/ meta/ ...
 ```
-
 ---
 
 ## 🧪 Часть 2: Роль «nginx с харденингом» (20 мин)

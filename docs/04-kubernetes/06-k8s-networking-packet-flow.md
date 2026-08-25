@@ -223,3 +223,27 @@ sudo conntrack -L -p tcp --dport 443 2>/dev/null | head && sudo iptables-save -t
 | :--- | :--- |
 | ➡️ Дальше | [eBPF datapath: Cilium](../12-advanced-networking-and-mesh/02-cni-cilium-and-calico.md) |
 | 🎤 Проверить себя | [Вопросы: путь пакета](../14-interview-prep/03-100-devops-interview-questions-bank-part1.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Путь пакета от пода к ClusterIP Service (iptables-режим)?**
+<details><summary>Ответ</summary>
+eth0 пода → veth-pair → cni0/bridge ноды → PREROUTING nat: KUBE-SERVICES цепочка DNAT'ит VIP на конкретный pod-endpoint (вероятностные правила балансировки) → FORWARD → роутинг к pod-ноте → veth целевого пода. Обратный путь через conntrack восстанавливает исходные адреса.
+</details>
+
+**В2. Почему kube-proxy не видит трафик, а только пишет правила?**
+<details><summary>Ответ</summary>
+Пакеты обрабатывает ядро (netfilter). kube-proxy лишь синхронизирует iptables/IPVS-правила по watch эндпоинтов. Поэтому проблемы балансировки ищут в правилах (iptables-save | grep KUBE-) и conntrack, а не в логах kube-proxy.
+</details>
+
+**В3. Что меняется при hostNetwork: true и когда это оправдано?**
+<details><summary>Ответ</summary>
+Под использует сетевой стек ноды напрямую: нет veth/NAT-овер хеда, порт занят на самой ноде, под виден как процесс ноды. Оправдано для CNI-плагинов, kube-proxy, системных агентов мониторинга; для приложений — риск конфликтов портов и потери изоляции.
+</details>
+
+**В4. Как трассировать пропавший пакет между подами разных нод?**
+<details><summary>Ответ</summary>
+tcpdump на обеих ноде-интерфейсах (veth, cni0, main NIC) с фильтром по порту/ICMP; проверять conntrack -L на NAT; ebtables/bridge fdb для L2; eBPF-трассировка kfree_skb покажет точку дропа. Cilium — hubble observe сразу даёт verdict и причину.
+</details>

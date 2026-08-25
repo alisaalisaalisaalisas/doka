@@ -216,3 +216,27 @@ clickhouse-client --query 'SELECT database,table,sum(rows) FROM system.parts WHE
 | :--- | :--- |
 | 💪 Практика | [Задачи по ClickHouse](../15-hands-on-practice/02-100-devops-practical-tasks-part2.md) |
 | 🎤 Проверить себя | [Вопросы: ClickHouse](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Почему MergeTree быстр на аналитике?**
+<details><summary>Ответ</summary>
+Колоночное хранение (читаются только нужные колонки), сортировка по ORDER BY ключу (sparse primary index — редкие засечки), партиционирование отсекает лишние части, сжатие колонок. INSERT пачками пишет immutable part, фон сливает их (merge).
+</details>
+
+**В2. Почему нельзя делать мелкие одиночные INSERT?**
+<details><summary>Ответ</summary>
+Каждый INSERT = новая part + merge-нагрузка: рекомендация ≤1 insert/сек на таблицу (иначе «too many parts»). Решения: батчинг в приложении, Buffer-таблица, Kafka Engine / materialized views как очередь.
+</details>
+
+**В3. ReplacingMergeTree: когда строки реально дедуплицируются?**
+<details><summary>Ответ</summary>
+Только при фоновом merge, и не гарантированно по времени. Поэтому запрос обязан использовать FINAL или argMax(col, version) GROUP BY — иначе увидите дубли. Идемпотентность вставок строится на версионной колонке.
+</details>
+
+**В4. ClickHouse Keeper заменил ZooKeeper — зачем ему консенсус?**
+<details><summary>Ответ</summary>
+Репликация таблиц (ReplicatedMergeTree) требует координации: кто лидер части, лог операций вставок/мерджей, dedup-блоки. Keeper (C++ Raft-реализация ZK-API) легче и проще в эксплуатации; без него реплики не синхронны.
+</details>

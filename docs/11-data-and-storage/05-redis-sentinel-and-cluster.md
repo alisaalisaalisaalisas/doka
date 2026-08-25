@@ -166,3 +166,27 @@ redis-cli --cluster check 127.0.0.1:7000 2>/dev/null | tail -5 || echo 'standalo
 | :--- | :--- |
 | 💪 Практика | [Задачи по Redis](../15-hands-on-practice/02-100-devops-practical-tasks-part2.md) |
 | 🎤 Проверить себя | [Вопросы: Redis](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Как Sentinel проводит failover и зачем quorum?**
+<details><summary>Ответ</summary>
+Сентинелы мониторят master; при субъективном даунтайме голосуют — quorum (большинство) переводит в objective down, лидер-сентинел выбирает лучший replica (приоритет, offset) и повышает. Quorum защищает от «сплит-мозга» наблюдателей: меньше половины сентинелов не могут фейловать.
+</details>
+
+**В2. Redis Cluster: слоты и ограничения?**
+<details><summary>Ответ</summary>
+16384 hash-slots распределены по мастерам; key попадает в слот по CRC16(key)%16384. Мультиключевые операции требуют один слот (hash tags {user1}). Cluster не поддерживает SELECT нескольких БД и часть команд с CROSSSLOT.
+</details>
+
+**В3. RDB vs AOF: компромиссы персистентности?**
+<details><summary>Ответ</summary>
+RDB — снапшоты (быстро, компактно; теряются данные между снимками). AOF — лог каждой команды (appendfsync everysec ≈ −1 сек данных; тяжелеет, требует rewrite). Прод-стандарт: оба включены; pure-cache может обходиться без диска.
+</details>
+
+**В4. Клиент подключён к упавшему master Sentinel-кластера. Что произойдёт?**
+<details><summary>Ответ</summary>
+Клиент должен использовать Sentinel-aware драйвер: он спрашивает у сентинелов актуальный адрес мастера, получает новый после failover и переподключается. Статический адрес master'а — гарантированный простой на время failover.
+</details>

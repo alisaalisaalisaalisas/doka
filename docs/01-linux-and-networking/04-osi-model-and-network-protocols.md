@@ -187,3 +187,32 @@ curl -sv -o /dev/null --http3 https://api.company.com 2>&1 | grep -E 'HTTP/|ALPN
 | :--- | :--- |
 | 💪 Практика | [Сетевые инциденты](../17-break-fix/01-incident-simulations.md) |
 | 🎤 Проверить себя | [Вопросы собесов: TCP/IP, TLS](../14-interview-prep/03-100-devops-interview-questions-bank-part1.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Что происходит за секунду до готовности TLS 1.3-соединения?**
+<details><summary>Ответ</summary>
+TCP three-way handshake (SYN→SYN/ACK→ACK), затем ClientHello с SNI и списком шифров; в TLS 1.3 клиент сразу отправляет key-share — сервер отвечает ServerHello+Finished уже через 1-RTT. Плюс проверка цепочки сертификата до корневого CA и сверка hostname/SNI.
+</details>
+
+**В2. Почему DNS по умолчанию UDP/53, но иногда TCP?**
+<details><summary>Ответ</summary>
+UDP — быстрые запросы ≤512 байт (или EDNS). TCP нужен при усечении (TC-флаг): большие ответы (DNSSEC, много записей), зонные передачи AXFR/IXFR. Правило firewall'а: открывать оба протокола.
+</details>
+
+**В3. Разница MTU и MSS; что бывает при их рассинхроне?**
+<details><summary>Ответ</summary>
+MTU — максимум кадра L2 (обычно 1500); MSS — максимум полезной нагрузки TCP-сегмента (MTU − заголовки IP+TCP ≈ 1460). Рассинхрон (VXLAN съедает 50 байт, ICMP заблокирован и PMTU не работает) даёт «чёрную дыру»: мелкие пакеты ходят, крупные виснут.
+</details>
+
+**В4. Что такое conntrack и чем грозит переполнение его таблицы?**
+<details><summary>Ответ</summary>
+Таблица состояний соединений netfilter (nf_conntrack). При исчерпании лимита новые соединения дропаются молча: сервис «частично жив». Диагностика: conntrack -C, dmesg | grep 'table full'; лечение — nf_conntrack_max, снижение таймаутов, connection pooling.
+</details>
+
+**В5. SNAT vs DNAT и где каждый живёт в K8s?**
+<details><summary>Ответ</summary>
+SNAT меняет источник (masquerade исходящего трафика подов наружу); DNAT — назначение (ClusterIP → pod endpoint в kube-proxy/IPVS/eBPF). Обратный путь восстанавливается таблицей conntrack автоматически.
+</details>

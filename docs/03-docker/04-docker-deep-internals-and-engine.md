@@ -218,3 +218,32 @@ lsns -t pid,net,mnt | head -12
 | :--- | :--- |
 | 🎤 Проверить себя | [Вопросы про internals](../14-interview-prep/03-100-devops-interview-questions-bank-part1.md) |
 | ➡️ Дальше | [Lab 01: namespaces изнутри](../16-guided-labs/01-lab-linux-systemd-namespaces.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Назовите namespaces, которыми изолируется контейнер.**
+<details><summary>Ответ</summary>
+PID (дерево процессов), NET (стек/интерфейсы), MNT (монтирования), UTS (hostname), IPC (shm), плюс USER (маппинг uid) и cgroup namespace. «Контейнер» = обычный процесс с набором namespaces + лимиты cgroups.
+</details>
+
+**В2. Устройство overlay2: lowerdir/upperdir/workdir?**
+<details><summary>Ответ</summary>
+Слои образа read-only (lowerdir), записываемый слой контейнера (upperdir), workdir для атомарных операций unionfs. Чтение сверху вниз; запись копирует файл вверх (copy-up); удаление из нижнего слоя = whiteout-файл.
+</details>
+
+**В3. Почему удалённый в образе файл всё ещё занимает место?**
+<details><summary>Ответ</summary>
+Слои неизменяемы: rm создаёт whiteout в новом слое, данные остаются внизу. Чистить мусор нужно в ТОМ ЖЕ RUN-слое, где он создан (apt clean в той же команде), иначе образ тяжелее на размер мусора.
+</details>
+
+**В4. Роль runc и почему он существует отдельно?**
+<details><summary>Ответ</summary>
+runc — референсная OCI-runtime реализация: принимает bundle (config.json+rootfs), создаёт namespaces/cgroups, запускает процесс, выходит. Стандартность позволяет подменять рантаймы (crun, kata, gVisor) без изменения Docker/containerd.
+</details>
+
+**В5. Как посмотреть фактические cgroup-лимиты работающего контейнера?**
+<details><summary>Ответ</summary>
+docker inspect (HostConfig.Memory/CpuShares) и напрямую cgroup v2: /sys/fs/cgroup/system.slice/docker-&lt;id&gt;.scope/memory.max, cpu.max. Приложения (JVM, Go) должны читать cgroup-лимиты, а не память хоста.
+</details>

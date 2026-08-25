@@ -3,6 +3,9 @@
 > **Время:** 90 минут | **Уровень:** Junior→Middle | **Нужно:** Docker
 > **Результат:** понимаете state, plan/apply, модули, remote backend и дрейф. Всё локально через LocalStack (эмуляция AWS).
 
+!!! tip "Интерактивная версия"
+    Эту лабу можно прогнать в симуляторе прямо на сайте — с автопроверкой шагов: [Песочница → сценарий «Lab 05»](../21-playground/playground.html?scenario=lab05). Реальные руки — по шагам ниже.
+
 ## 🧪 Часть 1: Установка и «hello world» на local-провайдерах (15 мин)
 
 ```bash
@@ -44,7 +47,6 @@ cat generated/inventory.txt
 sed -i 's/prefix = "web"/prefix = "app"/' main.tf
 terraform plan        # ~ random_pet будет replaced
 ```
-
 ---
 
 ## 🧪 Часть 2: LocalStack = AWS на ноутбуке (20 мин)

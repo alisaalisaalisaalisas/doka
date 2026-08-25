@@ -187,3 +187,32 @@ kubectl logs -n prod -l app=api --previous --tail=50 || true
 | :--- | :--- |
 | 🚑 Симуляции | [Сломай и почини: K8s](../17-break-fix/01-incident-simulations.md) |
 | 💪 Практика | [Задачи-диагностика K8s](../15-hands-on-practice/01-100-devops-practical-tasks-part1.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Под в CrashLoopBackOff. Протокол диагностики?**
+<details><summary>Ответ</summary>
+1) describe pod → Last State: exit code; 2) logs --previous (логи умершего процесса); 3) интерпретация: 137/143 = SIGKILL/SIGTERM (OOMKilled — смотреть memory limits), 1 = ошибка приложения; 4) если убивает liveness probe — увеличить initialDelay/пороги.
+</details>
+
+**В2. Pod Pending: топ-причины в порядке проверки?**
+<details><summary>Ответ</summary>
+Смотреть Events из describe: Insufficient cpu/memory (квоты, лимиты нод) → untolerated taint → node affinity mismatch → PVC Pending → Cluster Autoscaler упёрся в max nodes.
+</details>
+
+**В3. ImagePullBackOff vs ErrImageNeverPull vs RunContainerError?**
+<details><summary>Ответ</summary>
+PullBackOff — не скачать образ (имя/tag, registry недоступен, нет imagePullSecrets). NeverPull — политика запрещает pull, локального образа нет. RunContainerError — образ скачан, но старт падает (cmd не найден, права).
+</details>
+
+**В4. Сервис не достаёт до подов. Где искать?**
+<details><summary>Ответ</summary>
+kubectl get ep svc -o wide: пустые endpoints → selector не матчит labels подов. Endpoints есть, но timeout/404 → readinessProbe false (под исключён из балансировки), неверный targetPort, режет NetworkPolicy.
+</details>
+
+**В5. OOMKilled, хотя приложение использует меньше лимита. Возможные причины?**
+<details><summary>Ответ</summary>
+OOM-killer считает память cgroup целиком (page cache/tmpfs); JVM -Xmx выше лимита контейнера; форки воркеров умножают RSS. Смотреть memory.workingset в метриках и /sys/fs/cgroup внутри пода, а не ps aux.
+</details>

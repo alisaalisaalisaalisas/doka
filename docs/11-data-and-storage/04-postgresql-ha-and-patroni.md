@@ -221,3 +221,27 @@ psql -c 'SELECT name,setting FROM pg_settings WHERE name IN (\'max_connections\'
 | :--- | :--- |
 | ➡️ Дальше | [PITR и DR-план для БД](../13-disaster-recovery-and-tools/02-database-backups-and-dr-plan.md) |
 | 🎤 Проверить себя | [Вопросы: PostgreSQL HA](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Как Patroni обеспечивает failover и какую роль играет DCS?**
+<details><summary>Ответ</summary>
+DCS (etcd/Consul/K8s API) хранит leader-ключ с TTL. Каждый Patroni продлевает lease; если лидер умер — узлы борются за ключ, победивший повышает себя (pg_promote). Fencing через TTL предотвращает split-brain; старый лидер возвращается демотированным (pg_rewind).
+</details>
+
+**В2. Режимы пулинга pgBouncer: session vs transaction?**
+<details><summary>Ответ</summary>
+Session держит соединение сервера за клиентом целиком. Transaction отдаёт соединение на время транзакции — тысячи клиентов на десятки серверных коннектов, но ломает session-фичи (SET, LISTEN, prepared statements — нужен max_prepared_statements).
+</details>
+
+**В3. Синхронная репликация: цена и настройка?**
+<details><summary>Ответ</summary>
+synchronous_commit=on + synchronous_standby_names: commit ждёт подтверждения standby — нулевая потеря данных при failover, но рост латентности и остановка записи при недоступности реплики. Компромисс: ANY 1 (synchronous_standby_names='ANY 1 (...)').
+</details>
+
+**В4. PITR: из чего состоит восстановление на момент времени?**
+<details><summary>Ответ</summary>
+Базовый бэкап (basebackup/WAL-G) + непрерывный архив WAL. restore_command тянет WAL-сегменты, recovery_target_time/lsn останавливает воспроизведение точно перед ошибкой («DROP TABLE»). Тестируется восстановлением — иначе это не бэкап.
+</details>

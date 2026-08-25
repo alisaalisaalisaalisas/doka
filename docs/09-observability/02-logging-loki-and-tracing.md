@@ -183,3 +183,27 @@ curl -sG localhost:3100/loki/api/v1/query_range --data-urlencode 'query={app="ap
 | :--- | :--- |
 | 🔬 Закрепить | [Lab 06: Loki и алерты](../16-guided-labs/06-lab-observability-stack.md) |
 | ➡️ Дальше | [Alloy cookbook: единый коллектор](07-alloy-pipelines-cookbook.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Почему кардинальность лейблов Loki критична?**
+<details><summary>Ответ</summary>
+Каждая уникальная комбинация label'ов = отдельный stream/index. Лейбл с pod_id/user_id создаёт миллионы стримов → взрыв индекса и деградация запросов. Правило: в labels только низкокардинальные поля (namespace, app, level); высококардиональные — внутрь строки лога.
+</details>
+
+**В2. Что такое trace context propagation и какой стандарт?**
+<details><summary>Ответ</summary>
+Передача идентификаторов трейсинга через сервисные границы: W3C Trace Context — заголовки traceparent/tracestate (trace-id, span-id, flags). Без прокидывания контекста каждый сервис рисует независимые трейсы и сквозной путь запроса не собирается.
+</details>
+
+**В3. Чем структурированные логи лучше строковых?**
+<details><summary>Ответ</summary>
+JSON-логи фильтруются по полям без regex-парсинга: query по level/service/request_id точен и быстр. Строковые требуют grok-паттернов на ingestion, ломаются при смене формата. Плюс machine-readable для алертов.
+</details>
+
+**В4. Sampling трейсов: почему head-based недостаточно?**
+<details><summary>Ответ</summary>
+Head-based решает сохранить/выбросить трейс в начале — теряются редкие ошибки (решение принято до их появления). Tail-based собирает весь трейс и фильтрует по результату (все errors + 5% успешных) — дороже памятью, но не теряет инциденты.
+</details>

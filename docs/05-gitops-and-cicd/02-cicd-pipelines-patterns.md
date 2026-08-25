@@ -248,3 +248,32 @@ docker buildx build --platform linux/amd64 --cache-from type=registry,ref=reg/ap
 | :--- | :--- |
 | 🔬 Закрепить | [Lab 04: пайплайн end-to-end](../16-guided-labs/04-lab-cicd-pipeline.md) |
 | 🦊 Глубже | [GitLab CI deep dive](03-gitlab-ci-deep-dive.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Классические стадии пайплайна и что НЕ должен делать build-stage?**
+<details><summary>Ответ</summary>
+build → test → scan → package/publish → deploy(dev) → e2e → promote(prod). Build НЕ деплоит в прод и не имеет секретов прода — только артефакты и метаданные (образ, SBOM, digest).
+</details>
+
+**В2. Что кэшируют в CI и что кэшировать нельзя?**
+<details><summary>Ответ</summary>
+Можно: зависимости (pip/go mod/npm), тулчейны, docker layers через registry-cache. Нельзя: секреты, токены, terraform state — через fork-раннеры они утекут в чужие MR.
+</details>
+
+**В3. Что такое ephemeral (preview) environments?**
+<details><summary>Ответ</summary>
+Окружение на MR: ветка деплоится в namespace preview-pr-N, ссылка приходит комментарием в MR, удаляется при мерже. Реализация — ArgoCD ApplicationSet generator:pull-request. Ревьюер смотрит живую версию.
+</details>
+
+**В4. Почему артефакт собирают один раз («build once, deploy many»)?**
+<details><summary>Ответ</summary>
+Одна версия проходит dev→stage→prod, различие только в конфиге. Пересборка на среду ломает трассируемость (что именно в проде?) и может внести отличия. Digest образа фиксируется в манифесте каждой среды.
+</details>
+
+**В5. Минимальная защита main-ветки?**
+<details><summary>Ответ</summary>
+Запрет прямого push; обязательный MR с approval (CODEOWNERS на критичные пути); green pipeline как условие мержа; выбранная модель истории (merge-only/linear); подписанные коммиты для regulated сред.
+</details>

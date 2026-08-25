@@ -212,3 +212,27 @@ curl -s 'localhost:9200/_cat/allocation?v' && curl -s 'localhost:9200/_cat/indic
 | :--- | :--- |
 | 💪 Практика | [Сценарии песочницы: логи](../21-playground/index.md) |
 | 🎤 Проверить себя | [Вопросы: ELK](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Путь документа в Elasticsearch: index → shard → segment?**
+<details><summary>Ответ</summary>
+Документ попадает в индекс; hash маршрутизации (_id) выбирает primary shard (шардированные Lucene-инстансы), реплика дублирует на другую ноду. Записи идут в in-memory buffer + translog, раз в refresh_interval (1s) формируется новый read-only segment (near-real-time поиск). Сегменты мержатся фоном; flush сбрасывает на диск с очисткой translog.
+</details>
+
+**В2. Зачем ILM (Index Lifecycle Management) и типовая политика?**
+<details><summary>Ответ</summary>
+Индексы растут бесконечно — ILM двигает их по фазам: hot (запись, реплики) → warm (read-only, merge, меньше реплик) → cold (сжатие/дешёвое хранилище) → delete (например 90 дней). Без ILM: переполнение диска и смерть всего кластера из-за одного лога.
+</details>
+
+**В3. Что такое shard explosion и как его избежать?**
+<details><summary>Ответ</summary>
+Тысячи мелких шардов (много индексов × много шардов) съедают heap метаданными и убивают производительность. Профилактика: rollover по размеру (25–50 ГБ/шард), а не только по времени; data streams; уменьшение числа daily-индексов; force-merge в warm-фазе.
+</details>
+
+**В4. Elasticsearch vs OpenSearch — что произошло?**
+<details><summary>Ответ</summary>
+После смены лицензии Elastic (SSPL) AWS форкнул Kibana/Elasticsearch 7.10 в OpenSearch (Apache 2.0): свои версии движков, OpenSearch Dashboards. Функционально близки; выбор чаще диктуют поддержка вендора и лицензионная политика организации.
+</details>

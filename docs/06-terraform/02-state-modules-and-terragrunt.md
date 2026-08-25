@@ -202,3 +202,32 @@ terraform state list | head -20 && terraform output -json | jq 'keys'
 | :--- | :--- |
 | 🔬 Закрепить | [Lab 05: remote state](../16-guided-labs/05-lab-terraform-localstack.md) |
 | ➡️ Дальше | [Тестирование и CI для IaC](03-terraform-testing-ci-and-state-ops.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Почему remote state обязателен команде и что даёт locking?**
+<details><summary>Ответ</summary>
+Локальный state не делится между инженерами. Remote backend (S3+DynamoDB/GCS/TFC) хранит его централизованно; lock запрещает параллельный apply — иначе два плана перезапишут изменения друг друга и инфра разъедется со state'ом.
+</details>
+
+**В2. State содержит секреты. Действия?**
+<details><summary>Ответ</summary>
+Шифрование бакета (SSE-KMS), жёсткий IAM; минимизировать сами секреты в tf (Vault/ESO вместо provider-паролей). Утечка state считается компрометацией всего содержимого → ротация.
+</details>
+
+**В3. Какую проблему решает Terragrunt?**
+<details><summary>Ответ</summary>
+DRY мультиэнва: общий конфиг backend/провайдеров/версий в одном месте, автогенерация remote state per-env, зависимости стеков (dependency outputs) вместо копипасты root-модулей.
+</details>
+
+**В4. Как правильно прокинуть значение из одного стека в другой?**
+<details><summary>Ответ</summary>
+outputs + terraform_remote_state data source или terragrunt dependency. Явные outputs документируют контракт слоёв (network → cluster → apps); ручное чтение чужого state — антипаттерн.
+</details>
+
+**В5. Ломающее изменение модуля v1.x. Стратегия релиза?**
+<details><summary>Ответ</summary>
+Новая major-версия отдельным путём/тегом (modules/vpc/v2), consumers мигрируют по расписанию, старая версия живёт рядом до завершения. Breaking change = новая версия, а не правка существующей.
+</details>

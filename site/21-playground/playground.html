@@ -80,6 +80,7 @@ function S(cat,id,title,level,brief,prompt,commands,solution,editor){
 <script src="scenarios-data.js"></script>
 <script src="scenarios-mesh-cloud.js"></script>
 <script src="scenarios-mlops.js"></script>
+<script src="scenarios-labs.js"></script>
 <script src="scenarios-base.js"></script>
 
 <script>
@@ -253,7 +254,9 @@ document.getElementById("check-code").onclick = ()=>{
 
 /* ======================= СТАРТ ======================= */
 fillSelect();
-loadScenario(0);
+// deep-link: playground.html?scenario=lab07 — открыть конкретный сценарий
+const wantId = new URLSearchParams(location.search).get("scenario");
+if (wantId && ALL.some(s => s.id === wantId)) loadScenario(wantId); else loadScenario(0);
 </script>
 </body>
 </html>

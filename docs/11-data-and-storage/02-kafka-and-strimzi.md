@@ -215,3 +215,27 @@ kubectl -n kafka exec my-cluster-kafka-0 -- \
 | :--- | :--- |
 | 💪 Практика | [Задачи по Kafka](../15-hands-on-practice/02-100-devops-practical-tasks-part2.md) |
 | 🎤 Проверить себя | [Вопросы: Kafka](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Что такое ISR и что происходит при падении лидера партиции?**
+<details><summary>Ответ</summary>
+In-Sync Replicas — реплики, догоняющие лидера (replica.lag.time.max.ms). Контроллер выбирает нового лидера из ISR (unclean.leader.election=false — иначе возможна потеря данных ради доступности). Продюсеры переключаются на нового лидера по метаданным.
+</details>
+
+**В2. Партиции vs консьюмер-группа: как достигается параллелизм?**
+<details><summary>Ответ</summary>
+Порядок гарантируется только внутри партиции; параллелизм чтения ≤ числа партиций в группе (лишний консьюмер простаивает). Ключ сообщения определяет партицию — выбирать так, чтобы связанные события шли в одну.
+</details>
+
+**В3. Retention vs compaction — разница?**
+<details><summary>Ответ</summary>
+Retention удаляет сегменты по времени/размеру (event log). Compaction хранит последний value каждого key (state-топик: KTable, changelog). Комбинируются: compacted-топик + retention.ms для удаления удалённых ключей (tombstone).
+</details>
+
+**В4. Strimzi: что даёт KafkaRebalance/Cruise Control?**
+<details><summary>Ответ</summary>
+Автобалансировка партиций по дискам/брокерам: proposal генерируется по целям (replica capacity, disk usage), применяется пошагово без простоя. Ручной reassign_partitions на больших кластерах опасен и медленен.
+</details>

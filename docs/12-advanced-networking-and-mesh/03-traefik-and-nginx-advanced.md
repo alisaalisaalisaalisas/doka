@@ -227,3 +227,27 @@ kubectl get ingressroute,middleware -A | head && curl -s localhost:9000/api/http
 | :--- | :--- |
 | 🛠️ Шаблоны | [Nginx hardening шаблон](../18-templates/03-observability-and-web.md) |
 | 🎤 Проверить себя | [Вопросы: edge](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Ingress-контроллер: как трафик доходит до пода?**
+<details><summary>Ответ</summary>
+LB/NodePort → pod ingress-controller (envoy/nginx) → контроллер рендерит конфиг из Ingress-ресурсов (host/path → Service) → upstream к endpoint'ам пода напрямую (bypass ClusterIP в nginx через endpoints slice).
+</details>
+
+**В2. Traefik IngressRoute vs стандартный Ingress?**
+<details><summary>Ответ</summary>
+CRD IngressRoute даёт нативные фичи Traefik без аннотаций-костылей: приоритеты правил, middleware-цепочки (rate-limit, auth, headers, strip prefix), TCP/UDP роутинг. Стандартный Ingress — переносимость между контроллерами ценой аннотационного зоопарка.
+</details>
+
+**В3. Rate limiting на edge: где настроить и какие параметры?**
+<details><summary>Ответ</summary>
+Nginx: limit_req_zone $binary_remote_addr zone=api:10m rate=100r/s + burst с nodelay. Traefik: middleware rateLimit (average/burst/sourceCriterion). Ключ группировки важнее цифр: IP за LB (real_ip_header!), API-key, header. Лимит на login-эндпоинт отдельно от основного трафика.
+</details>
+
+**В4. TLS termination vs passthrough — когда какое?**
+<details><summary>Ответ</summary>
+Termination: сертификат на edge, внутрь HTTP/mTLS — простота, WAF/роутинг по L7 видит трафик. Passthrough: TLS идёт до самого приложения (SNI-роутинг) — end-to-end шифрование, клиентские mTLS-сертификаты, соответствие требованиям «ключи не покидают приложение».
+</details>

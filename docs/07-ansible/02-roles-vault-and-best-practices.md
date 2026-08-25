@@ -214,3 +214,32 @@ ansible-vault view group_vars/prod/vault.yml --ask-vault-pass <<< $VAULT_PASS 2>
 | :--- | :--- |
 | 🔬 Закрепить | [Lab 08: Vault и Molecule](../16-guided-labs/08-lab-ansible-molecule.md) |
 | 🎤 Проверить себя | [Вопросы: Ansible](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. defaults/main.yml vs vars/main.yml — разница приоритетов?**
+<details><summary>Ответ</summary>
+defaults — переопределяемые дефолты (самый низкий приоритет переменных); vars — внутренние константы роли с высоким приоритетом, которые не предполагается менять снаружи. handlers — реакции на notify, выполняются один раз в конце play.
+</details>
+
+**В2. encrypt_string против шифрования файла целиком?**
+<details><summary>Ответ</summary>
+encrypt_string шифрует только значения: diff/git-история несекретной части остаётся читаемой, меньше конфликтов мержей. Файл целиком проще, но прячет все изменения. Ключ Vault хранить вне репо (CI variables/менеджер секретов).
+</details>
+
+**В3. Что делает задачу идемпотентной и почему shell-модуль опасен?**
+<details><summary>Ответ</summary>
+Идемпотентность: повторный запуск ничего не меняет, если состояние уже достигнуто (модули apt/copy/template проверяют состояние). command/shell выполняется ВСЕГДА — нужен creates:/changed_when:, иначе задача всегда reported changed и ломает diff-режим.
+</details>
+
+**В4. Molecule: что проверяет и какой дефолтный сценарий?**
+<details><summary>Ответ</summary>
+Тестирование ролей: converge (прогон роли на инстансе — docker/podman/VM), verify (assert'ы через ansible/inspec), idempotence (повторный converge должен дать 0 changed). Ловит ошибки синтаксиса и нарушения идемпотентности до проды.
+</details>
+
+**В5. Как безопасно посмотреть изменения плейбука без применения?**
+<details><summary>Ответ</summary>
+ansible-playbook --check --diff: check-mode не меняет систему, diff показывает, что именно изменилось (файлы, пакеты). Обязателен в CI против staging; для модулей без поддержки check — явно помечать.
+</details>

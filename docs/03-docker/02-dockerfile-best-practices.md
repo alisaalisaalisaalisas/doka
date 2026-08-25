@@ -223,3 +223,32 @@ docker images app:dev --format '{{.Size}}' && dive app:dev --ci
 | :--- | :--- |
 | 🔬 Закрепить | [Lab 02: scan → sign → registry](../16-guided-labs/02-lab-docker-image-factory.md) |
 | 💪 Практика | [Эталонный Dockerfile в шаблонах](../18-templates/01-containers-and-k8s.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Почему порядок инструкций Dockerfile критичен для скорости сборки?**
+<details><summary>Ответ</summary>
+Каждая инструкция — слой; изменение инвалидирует её и ВСЕ последующие. Редко меняющееся (зависимости) — выше отдельными слоями, часто меняющееся (код) — ниже. COPY package.json + install ДО копирования исходников даёт кэш зависимостей.
+</details>
+
+**В2. Что даёт multi-stage сборка?**
+<details><summary>Ответ</summary>
+Билдер (компиляторы, dev-зависимости, кэши) отделён от рантайма: копируются только артефакты (--from=build). Node: 1.2 ГБ → ~180 МБ; Go: → 10–15 МБ scratch/distroless. Меньше CVE, быстрее pull/deploy.
+</details>
+
+**В3. Зачем `npm ci` вместо `npm install` в образе?**
+<details><summary>Ответ</summary>
+ci строго следует lockfile (детерминизм), падает при расхождении package.json↔lock, быстрее (без резолвинга версий). install может тихо обновить зависимости — сборка перестанет воспроизводиться.
+</details>
+
+**В4. Что произойдёт без .dockerignore и почему node_modules обязателен в нём?**
+<details><summary>Ответ</summary>
+Весь каталог уходит в build context (медленный upload, инвалидация COPY). Локальный node_modules перезапишет зависимости, установленные в образе, при COPY . — классический баг «работает у меня». Игнорировать также .git, тесты, секреты.
+</details>
+
+**В5. Зачем USER nonroot и как проверить образ?**
+<details><summary>Ответ</summary>
+Компрометация приложения не должна давать root (escape проще, запись в volume возможна). Проверка: docker run --rm --user 65534:65534 img whoami — если падает на правах записи, выдать точечно chown/chmod нужным путям.
+</details>

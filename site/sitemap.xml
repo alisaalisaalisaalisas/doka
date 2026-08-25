@@ -37,6 +37,38 @@
          <lastmod>2026-08-25</lastmod>
     </url>
     <url>
+         <loc>https://devops-handbook.example.com/02-git/03-git-internals-deep-dive/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/02-git/04-branching-strategies-and-release-engineering/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/02-git/05-merge-rebase-conflicts-masterclass/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/02-git/06-hooks-automation-pre-commit/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/02-git/07-submodules-subtrees-monorepo/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/02-git/08-large-repos-performance-lfs/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/02-git/09-security-signing-secret-scanning/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/02-git/10-git-archaeology-bisect-worktree-filter-repo/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
          <loc>https://devops-handbook.example.com/03-docker/01-docker-architecture-and-cli/</loc>
          <lastmod>2026-08-25</lastmod>
     </url>
@@ -89,6 +121,10 @@
          <lastmod>2026-08-25</lastmod>
     </url>
     <url>
+         <loc>https://devops-handbook.example.com/04-kubernetes/10-serverless-knative-openfaas/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
          <loc>https://devops-handbook.example.com/05-gitops-and-cicd/01-gitops-argocd-flux/</loc>
          <lastmod>2026-08-25</lastmod>
     </url>
@@ -102,6 +138,14 @@
     </url>
     <url>
          <loc>https://devops-handbook.example.com/05-gitops-and-cicd/04-gitops-multienv-and-promotion/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/05-gitops-and-cicd/05-progressive-delivery/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/05-gitops-and-cicd/06-argo-workflows-tekton/</loc>
          <lastmod>2026-08-25</lastmod>
     </url>
     <url>
@@ -137,7 +181,79 @@
          <lastmod>2026-08-25</lastmod>
     </url>
     <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/02-go-fundamentals-deep/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/02-python-environments-packaging/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/03-go-concurrency-patterns/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
          <loc>https://devops-handbook.example.com/08-programming-python-go/03-practice-projects/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/03-python-testing-pytest/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/04-go-testing-benchmarks/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/04-python-asyncio-concurrency/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/05-go-modules-dependencies/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/05-python-typing-mypy-ruff/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/06-go-cli-cobra-goreleaser/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/06-python-cli-apps/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/07-go-k8s-client-go/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/07-python-kubernetes-kopf-operators/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/08-go-operators-kubebuilder/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/08-python-fastapi-services/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/09-go-http-grpc-services/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/09-python-boto3-moto-deep/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/10-go-performance-tooling/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/08-programming-python-go/10-python-performance-profiling/</loc>
          <lastmod>2026-08-25</lastmod>
     </url>
     <url>
@@ -177,6 +293,10 @@
          <lastmod>2026-08-25</lastmod>
     </url>
     <url>
+         <loc>https://devops-handbook.example.com/09-observability/10-sre-practices-incident-management/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
          <loc>https://devops-handbook.example.com/10-security-and-cloud/01-devsecops-and-secrets/</loc>
          <lastmod>2026-08-25</lastmod>
     </url>
@@ -190,6 +310,10 @@
     </url>
     <url>
          <loc>https://devops-handbook.example.com/10-security-and-cloud/04-supply-chain-security/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/10-security-and-cloud/05-compliance-frameworks/</loc>
          <lastmod>2026-08-25</lastmod>
     </url>
     <url>
@@ -226,6 +350,10 @@
     </url>
     <url>
          <loc>https://devops-handbook.example.com/12-advanced-networking-and-mesh/03-traefik-and-nginx-advanced/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/12-advanced-networking-and-mesh/04-ebpf-deep-dive/</loc>
          <lastmod>2026-08-25</lastmod>
     </url>
     <url>
@@ -446,6 +574,10 @@
     </url>
     <url>
          <loc>https://devops-handbook.example.com/20-senior-stack/19-finops/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://devops-handbook.example.com/20-senior-stack/20-alternatives-enterprise/</loc>
          <lastmod>2026-08-25</lastmod>
     </url>
     <url>

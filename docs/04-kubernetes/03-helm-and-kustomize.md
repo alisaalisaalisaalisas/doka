@@ -252,3 +252,32 @@ helm lint chart/ && kubectl kustomize overlays/prod | kubectl diff -f - || true
 | :--- | :--- |
 | 🔬 Закрепить | [Lab 03: чарт приложения](../16-guided-labs/03-lab-kubernetes-kind-app.md) |
 | 💪 Практика | [Шаблоны манифестов](../18-templates/01-containers-and-k8s.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Порядок переопределения values в Helm (от слабого к сильному)?**
+<details><summary>Ответ</summary>
+Дефолты чарта (values.yaml) → values родителя → -f файлы по порядку → --set/--set-string. Для зависимостей: значения под ключом зависимости в родителе сильнее дефолтов дочернего чарта.
+</details>
+
+**В2. Что такое helm hooks и типичный пример?**
+<details><summary>Ответ</summary>
+Ресурсы с аннотацией helm.sh/hook выполняются вне основного порядка: pre-install/pre-upgrade/post-upgrade... Классика — Job pre-upgrade «миграция БД» перед обновлением Deployment; hook-delete-policy убирает джобу после успеха.
+</details>
+
+**В3. Kustomize: что кладём в base и overlays?**
+<details><summary>Ответ</summary>
+Base — общие манифесты + kustomization.yaml (resources). Overlay dev/prod патчит: images newTag, replicasCount, patches (strategic/json6902), configMapGenerator. kustomize build overlays/prod выдаёт итоговый YAML — diff между средами виден до apply.
+</details>
+
+**В4. helm upgrade --atomic против --wait?**
+<details><summary>Ответ</summary>
+--wait просто ждёт готовности ресурсов. --atomic = wait + автоматический rollback к предыдущему release при неудаче или таймауте. Для продовых пайплайнов — --atomic либо Argo Rollouts поверх GitOps.
+</details>
+
+**В5. Как безопасно посмотреть, что изменит helm upgrade?**
+<details><summary>Ответ</summary>
+helm diff upgrade (плагин) — манифест-diff против живого релиза; helm template | kubectl diff -f -; dry-run даёт рендер, но не сравнение с кластером. В CI diff обязателен перед apply.
+</details>

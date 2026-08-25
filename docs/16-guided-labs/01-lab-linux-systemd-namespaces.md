@@ -3,6 +3,9 @@
 > **Время:** 90 минут | **Уровень:** старт с нуля | **Нужно:** Ubuntu 24.04 (VM/VirtualBox/WSL2)
 > **Результат:** свой hardened-сервис под systemd + эксперименты с лимитами и OOM.
 
+!!! tip "Интерактивная версия"
+    Эту лабу можно прогнать в симуляторе прямо на сайте — с автопроверкой шагов: [Песочница → сценарий «Lab 01»](../21-playground/playground.html?scenario=lab01). Реальные руки — по шагам ниже.
+
 ## 📦 Подготовка стенда (10 мин)
 
 ```bash
@@ -11,7 +14,6 @@ sudo apt update && sudo apt install -y curl htop strace stress-ng jq tree lsof
 systemctl --version | head -1
 stat -fc %T /sys/fs/cgroup   # cgroup2fs = у вас v2 ✅
 ```
-
 ---
 
 ## 🧪 Часть 1: Приложение для опытов (10 мин)

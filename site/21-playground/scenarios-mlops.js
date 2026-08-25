@@ -111,7 +111,7 @@ shadow traffic: OK, metrics parity confirmed`,"ok"]
  {re:/set image|serve|deploy/,l:"раскатить новую модель (сначала shadow)"}]);
 
 S("MLOps","gpu1","GPU на K8s: джобы висят в Pending, Kueue не пускает","Senior",
-`<b>Симптом:</b> исследовательские джобы обучения стоят в Pending часами. `kubectl describe pod` говорит "Insufficient nvidia.com/gpu". Часть GPU-узлов при этом простаивает.<br>
+`<b>Симптом:</b> исследовательские джобы обучения стоят в Pending часами. <code>kubectl describe pod</code> говорит "Insufficient nvidia.com/gpu". Часть GPU-узлов при этом простаивает.<br>
 <b>Цель:</b> разобраться с очередями Kueue (LocalQueue/ClusterQueue), приоритетами и квотами.<br>
 <b>Начните с:</b> <code>kubectl get pods; kubectl describe pod &lt;job&gt;</code>`,
 "ubuntu@lab:~$",

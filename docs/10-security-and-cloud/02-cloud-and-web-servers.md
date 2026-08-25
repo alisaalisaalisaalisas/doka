@@ -236,3 +236,27 @@ openssl s_client -connect api.company.com:443 -servername api.company.com </dev/
 | :--- | :--- |
 | 🛠️ Шаблоны | [Nginx hardening](../18-templates/03-observability-and-web.md) |
 | 🎤 Проверить себя | [Вопросы: облака, TLS](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Базовый hardening Nginx: пять обязательных настроек?**
+<details><summary>Ответ</summary>
+server_tokens off (не палить версию); ограничение body size (client_max_body_size); таймауты вниз (slowloris); TLS 1.2+ с современными cipher'ами + HSTS; отдельный пользователь nginx, no-root master worker; rate limiting зоной limit_req на login/API.
+</details>
+
+**В2. Чем Traefik принципиально отличается от Nginx в контейнерах?**
+<details><summary>Ответ</summary>
+Динамическая конфигурация через провайдеров: слушает Docker/K8s API и сам подхватывает сервисы (labels/IngressRoute) — без reload. Встроенный ACME/Let's Encrypt автопродление, dashboard. Nginx сильнее в статической тонкой настройке и привычке админов.
+</details>
+
+**В3. Что проверять при выборе региона/зоны облака кроме цены?**
+<details><summary>Ответ</summary>
+Латентность до пользователей; соответствие регуляторике (152-ФЗ — локализация ПДн в РФ); набор managed-сервисов (Kafka/ML/backup); SLA и history outage; зоны устойчивости внутри региона (минимум 3); egress-тарифы (часто дороже compute).
+</details>
+
+**В4. WAF перед веб-приложением: что даёт и чего не заменяет?**
+<details><summary>Ответ</summary>
+Отсекает топовые web-атаки (OWASP: SQLi/XSS, боты, credential stuffing rate-limits). Не заменяет: безопасную разработку, авторизацию, патчи приложения. Правило: WAF — слой, не серебряная пуля; false positives мониторить в log-only режиме перед блокировкой.
+</details>

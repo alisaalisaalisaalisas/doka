@@ -11,7 +11,10 @@
 | **Терминал** | ввод команд с историей (↑/↓), автодополнение (Tab), `clear`/`Ctrl+L`, цветной вывод как в реальном CLI |
 | **Редактор кода** | Monaco (движок VS Code) с подсветкой YAML/HCL/Shell; при отсутствии интернета — встроенный fallback-редактор |
 | **Проверка решения** | кнопка «Проверить решение» сверяет выполненные команды с целью (чек-лист ✓/✗); «Проверить код» валидирует написанное в редакторе |
-| **126 сценариев** по всем темам: Linux/Bash/Git/Сети · Docker/K8s/Helm · Terraform/Ansible/CI · Prometheus/Loki/Vault/Kyverno · Kafka/RabbitMQ/PG/MySQL/Redis/CH · Istio/облака/Proxmox · **MLOps: MLflow/DVC/дрейф/GPU-Kueue/LLMOps-RAG** |
+| **136 сценариев** по всем темам: Linux/Bash/Git/Сети · Docker/K8s/Helm · Terraform/Ansible/CI · Prometheus/Loki/Vault/Kyverno · Kafka/RabbitMQ/PG/Redis/CH · Istio/облака/Proxmox · **MLOps: MLflow/DVC/дрейф/GPU-Kueue/LLMOps-RAG** · **Labs: интерактивные версии всех 10 Guided Labs** |
+
+!!! tip "Глубокие ссылки из лаб"
+    Каждая лаба раздела [16](../16-guided-labs/01-lab-linux-systemd-namespaces.md) содержит кнопку «Интерактивная версия» со ссылкой вида `playground.html?scenario=lab07` — песочница откроется сразу на нужном сценарии.
 
 ## Как работать
 
@@ -28,6 +31,7 @@
 
 | Сценарий | Основан на материале |
 | :--- | :--- |
+| **Labs 01–10** | все [Guided Labs](../16-guided-labs/01-lab-linux-systemd-namespaces.md) раздела 16 — сжатые интерактивные версии |
 | K8s: CrashLoopBackOff | [Break-Fix №1](../17-break-fix/01-incident-simulations.md), [Lab 03](../16-guided-labs/03-lab-kubernetes-kind-app.md) |
 | jq: аудит подов | [20.10 CLI-арсенал](../20-senior-stack/10-cli-arsenal.md) |
 | MySQL: сломанная реплика | [20.16 MySQL HA](../20-senior-stack/16-mysql-ha.md) |

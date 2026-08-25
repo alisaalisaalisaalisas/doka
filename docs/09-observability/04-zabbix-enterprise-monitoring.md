@@ -167,3 +167,27 @@ ps aux | grep zabbix | head -5 && curl -s http://localhost:10051/api_jsonrpc.php
 | :--- | :--- |
 | 🛠️ Шаблоны | [Правила алертов](../18-templates/03-observability-and-web.md) |
 | ⚖️ Сравнение | [Архитектура стека целиком](09-monitoring-stack-architecture.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Архитектура Zabbix: роли сервера, прокси и агента?**
+<details><summary>Ответ</summary>
+Server — ядро: опрос, триггеры, уведомления, БД. Proxy — сбор данных на площадке/DMZ с буферизацией и передачей серверу (разгружает server, работает через firewall, автономность при обрыве). Agent — источник метрик хоста (active: сам шлёт; passive: отвечает на запросы).
+</details>
+
+**В2. Что такое LLD (Low-Level Discovery) и пример?**
+<details><summary>Ответ</summary>
+Автоматическое создание элементов/триггеров по обнаруженным сущностям: агент возвращает JSON {#FSNAME}, прототипы генерят item/triggers на каждую ФС. Так же — сетевые интерфейсы, диски, сервисы Windows, SNMP-диски. Без LLD каждый диск заводился бы руками.
+</details>
+
+**В3. Zabbix vs Prometheus: критерии выбора?**
+<details><summary>Ответ</summary>
+Zabbix силён в классическом enterprise: SNMP/IPMI/агенты, шаблоны вендоров, встроенные действия эскалации, долгий granular history. Prometheus — cloud-native: pull-модель, PromQL, экспортеры K8s, label-based многомерность. Часто гибрид: Zabbix для железа/сетей, Prometheus для приложений/K8s.
+</details>
+
+**В4. Триггер флапает (up/down каждые минуту). Как лечить?**
+<details><summary>Ответ</summary>
+hysteresis: разные пороги на восстановление (recovery expression), усреднение (avg(5m) вместо last()), multiple/event correlation чтобы не плодить PROBLEM-события, dependency на родительский триггер (роутер упал → не слать алерты на всё за ним).
+</details>

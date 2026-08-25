@@ -171,3 +171,27 @@ services:
 | :--- | :--- |
 | 💪 Практика | [Задачи по БД](../15-hands-on-practice/02-100-devops-practical-tasks-part2.md) |
 | 🎤 Проверить себя | [Вопросы собесов](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Replica Set: роли членов и механика выборов?**
+<details><summary>Ответ</summary>
+Primary принимает записи; Secondaries реплицируют oplog и могут голосовать. При недоступности primary — выборы Raft-подобным протоколом (большинство, priority, catchup до latest oplog entry). Арбитр (arbiter) даёт голос без данных — но лучше нести данные на третьей ноде.
+</details>
+
+**В2. Write concern w:majority — что гарантирует и чем платим?**
+<details><summary>Ответ</summary>
+Запись подтверждается после репликации на большинство — переживает отказ primary без отката подтверждённых данных (no rollback surprise). Цена: латентность + остановка записи при потере большинства.
+</details>
+
+**В3. Когда нужен sharding и какой ключ выбрать?**
+<details><summary>Ответ</summary>
+Когда рабочая set/индексы не влезают в один узел или write throughput упирается в primary. Ключ: высокая кардинальность, равномерное распределение, попадание частых запросов (hashed для равномерности, ranged для range-scan). Монотонно возрастающий ключ (timestamp/_id) = hot shard.
+</details>
+
+**В4. mongodump vs PBM/oplog PITR для MongoDB?**
+<details><summary>Ответ</summary>
+mongodump — логический дамп: просто, но медленно на больших базах и точка восстановления = момент завершения дампа. Percona Backup for Mongo снимает consistent snapshot + непрерывный oplog → восстановление на любой момент (PITR) — стандарт для проды.
+</details>

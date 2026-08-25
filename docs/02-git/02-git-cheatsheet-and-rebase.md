@@ -232,3 +232,32 @@ git log --oneline --author="$(git config user.name)" -5
 | :--- | :--- |
 | 💪 Практика | [Задачи по rebase/hooks](../15-hands-on-practice/01-100-devops-practical-tasks-part1.md) |
 | 🛠️ Шпаргалка | [Cheat sheet рядом с терминалом](02-git-cheatsheet-and-rebase.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Коммит ушёл не в ту ветку минуту назад. Три способа исправить?**
+<details><summary>Ответ</summary>
+(1) Ещё не пушили: git reset --soft HEAD~1, переключиться, закоммитить заново. (2) cherry-pick &lt;sha&gt; в нужную ветку + удалить из текущей reset'ом. (3) Уже запушено — revert в текущей и новый коммит в правильном месте.
+</details>
+
+**В2. Чем `git stash pop` опаснее `stash apply`?**
+<details><summary>Ответ</summary>
+pop удаляет стэш после применения; при конфликте легко потерять ориентацию в нескольких конфликтах подряд. apply оставляет запись — можно повторить или осознанно удалить (stash drop).
+</details>
+
+**В3. Что делает `git cherry-pick -x`?**
+<details><summary>Ответ</summary>
+Создаёт коммит с теми же изменениями и добавляет ссылку на оригинальный SHA («cherry picked from commit ...») — трассировка переносов между release-ветками, защита от двойного переноса фикса.
+</details>
+
+**В4. Как убрать конкретный файл из последнего коммита, сохранив остальные изменения?**
+<details><summary>Ответ</summary>
+git restore --source=HEAD~1 --staged --worktree path/file (вернуть файл к прошлому состоянию) → git commit --amend. Либо checkout HEAD~1 -- file && git commit --amend.
+</details>
+
+**В5. Когда rebase публичной ветки допустим?**
+<details><summary>Ответ</summary>
+Только когда все держатели копий согласованы и переклонятся (типично: автор единственный работает с веткой PR перед мержем). Правило: rebase приватного — свободно, общего — никогда без команды.
+</details>

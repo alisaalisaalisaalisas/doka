@@ -82,6 +82,27 @@ MLOps полный: 23.1–23.4 (база) + 23.5 Feast · 23.6 GPU/Kueue · 23.
 
 ## Что НЕ сделано / кандидаты на продолжение
 
+- **Волна 6b (2026-08, готово): хвосты добиты.** +22 страницы получили самопроверки (k8s 05/06/07 internals, terraform 03, ansible 03, obs 03–06, security 02/03, clickhouse/mongodb, cilium-calico, traefik-nginx + финал: roadmap, practice-projects, все 5 страниц interview-prep). Покрытие «Проверь себя»: **127 из 127 (100%)**.
+- **Anki-экспорт УДАЛЁН по решению пользователя**: `.apkg` и `tools/build_apkg.py` снесены — весь Anki-функционал (SRS-интервалы, Снова/Хорошо/Легко, due-очередь) живёт в quiz.html на сайте. Тренажёр: **678 карточек**.
+- **Волна 6c (2026-08, готово): интерактивные лабы.**
+  - `docs/21-playground/scenarios-labs.js`: **10 сценариев «Labs»** (lab01…lab10) — сжатые симуляции ключевых шагов всех Guided Labs с автопроверкой (solution-чеклисты).
+  - `playground.html`: **deep-link** `?scenario=<id>` — открытие песочницы сразу на нужном сценарии; каждая страница раздела 16 получила плашку «Интерактивная версия» со ссылкой.
+  - **Исправлен предсуществующий баг** scenarios-mlops.js: непарные бэктики в брифе gpu1 рвали template literal — GPU/Kueue и LLMOps сценарии не загружались в браузере. Валидатор: **136 сценариев, badPatterns=0**.
+
+- **Волна 6 (2026-08, готово): стандарт лаб + инфраструктура экспорта.**
+  - `tools/add_selfcheck.py` (Pass A): страницам с готовыми Q/A без заголовка вставляет блок «✅ Проверь себя». Обновлено **43 страницы**.
+  - Pass B: hand-written самопроверки (4–5 Q/A, кормят тренажёр) добавлены в **23 ключевые страницы**: linux 03/04, git 01/02, docker 01–04, k8s 02/03/04, gitops 01/02, terraform 02, ansible 02, obs 02, security 01, ceph/kafka/pg/redis, istio, velero. Временные генераторы `_selfcheck_b*.py` удалены.
+  - Покрытие «Проверь себя»: было 43 стр. (~35%) → стало ~110+ стр. (~85% теоретических).
+  - USAGE.md дополнен: gh-deploy, VPS+nginx, PDF через mkdocs-print-site-page, стандарт «Проверь себя».
+  - Остаток для итераций: страницы без Q/A вообще (obs 03–06/09? нет — они Pass A; остались 11-data 03/06, mesh 02/03, dr 02, security 02–04 частично) — дотягивать по стандарту при правках.
+
+- **Волна 5 (2026-08, готово): глубокая прокачка Git/Python/Go + закрытие пробелов.**
+  - Git (02): +8 страниц (03–10): internals/packfiles/GC · branching/release engineering · merge-rebase-конфликты (+rerere) · hooks/pre-commit/commitlint · submodules/subtrees/монорепо (sparse checkout) · большие репо/LFS/filter-repo · security (SSH-подписи, gitleaks/trufflehog) · археология (bisect/worktree/blame).
+  - Python (08): +9 страниц (02–10): uv/pyproject/wheel/multi-stage Docker · pytest (fixtures/mocks/respx/hypothesis) · asyncio+GIL+to_thread · mypy strict/ruff · Typer CLI · Kopf-операторы · FastAPI webhook-API · boto3 deep+moto · cProfile/py-spy/tracemalloc.
+  - Go (08): +9 страниц (02–10): interfaces/typed-nil/%w/generics · channels/context/errgroup · table-driven/fuzz/benchstat · modules/GOPRIVATE/govulncheck/trimpath · Cobra/goreleaser/distroless · client-go informers/workqueue · kubebuilder/envtest/finalizers · net-http timeouts/graceful/gRPC · pprof/GOMEMLIMIT/race.
+  - Пробелы закрыты: **04.10 Serverless Knative/OpenFaaS** · **05.05 Progressive Delivery Argo Rollouts/Flagger** · **05.06 Argo Workflows/Tekton** · **09.10 SRE-процессы** (SEV, IC, постмортем-шаблон, on-call, error budget policy) · **10.05 Compliance** (PCI DSS/SOC2/ISO27001/152-ФЗ) · **12.04 eBPF Deep Dive** (XDP/bpftrace/Cilium/Tetragon) · **20.20 Nomad+Windows-ноды+AD/LDAP** (enriched:v1 формат).
+  - Тренажёр: 485 карточек (было 320). Все новые страницы с Q/A «Пять вопросов» попадают автоматически.
+  - Jenkins и GitHub Actions сознательно НЕ добавлены (решение пользователя).
 - Расширения 2026-08 (готово, strict проходит): 06.3 Terraform testing/Atlantis/state ops · 07.3 Ansible collections/perf/AWX · 05.3 GitLab CI deep dive · 05.4 GitOps multi-env/promotion · 09.7 Alloy cookbook · 09.8 Grafana as Code · 09.9 Архитектура стека мониторинга.
 - Волна 2 (2026-08, готово): 04.8 Автоскейлинг (HPA/VPA/KEDA) · 04.9 Эксплуатация кластера (etcd, апгрейды) · 13.2 Бэкапы БД + DR-план/RPO-RTO/runbook · 01.5 Диагностика производительности Linux (полный арсенал команд) · 10.4 Supply Chain (SBOM/cosign/Kyverno) · Lab 08 Ansible+Molecule · шаблоны 18.4 GitLab CI/Ansible.
 - Волна 3 (2026-08, готово): сквозные блоки «Что дальше» в 57 теоретических страницах · Q/A-блоки «Пять вопросов» в 10 новых страницах (кормят тренажёр) · 20.18 Platform Engineering/Backstage · 20.19 FinOps/OpenCost/Infracost · 11.6 MongoDB (RS/sharding/PBM) · Lab 09 автоскейлинг на kind · Break-Fix партия №2 (6 сценариев: HPA unknown, drain+PDB, пустой WAL, Kyverno block, IO-шторм, etcd restore) · 18.5 Production Readiness Review · песочница +6 MLOps-сценариев (scenarios-mlops.js, 126 всего).
@@ -90,7 +111,7 @@ MLOps полный: 23.1–23.4 (база) + 23.5 Feast · 23.6 GPU/Kueue · 23.
 - MLOps Часть 2: Feast, GPU/Kueue, Kubeflow deep, LLMOps/RAG (pgvector, Ragas), model governance — план в `23-mlops/00-plan.md`.
 - MLOps-сценарии в песочницу (mlflow/dvc/drift) — по формату S().
 - Публикация сайта: `mkdocs gh-deploy` или VPS+nginx (в USAGE.md).
-- PDF-экспорт, Anki .apkg (сейчас TSV), интерактив по Labs 01-07.
+- PDF-экспорт (mkdocs-print-site-page), интерактив по Labs 01-07.
 - Мелочь: 20.16 MySQL HA остался как справочник (в песочнице MySQL заменён на PG) — спросить пользователя, удалять ли.
 
 ## Команды быстрого старта (для новой сессии)

@@ -164,3 +164,27 @@ kubectl get lease -n kube-system | head && kubectl -n kube-system get cm kube-co
 | :--- | :--- |
 | 🎤 Проверить себя | [Senior-вопросы по контроллерам](../14-interview-prep/03-100-devops-interview-questions-bank-part1.md) |
 | ➡️ Дальше | [Все контроллеры: справочник](07-all-kubernetes-controllers-reference.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. Из чего состоит Informer Pattern и зачем каждый компонент?**
+<details><summary>Ответ</summary>
+Reflector (watch из apiserver) → DeltaFIFO (очередь изменений) → Indexer/local store (кэш с индексами) + EventHandler (колбэки Add/Update/Delete в ваш workqueue). Lister читает из кэша без похода в API; resync переотправляет события для самовосстановления.
+</details>
+
+**В2. Что такое level-triggered reconcile и почему это надёжнее event-driven?**
+<details><summary>Ответ</summary>
+Каждый цикл пересчитывает полный diff «желаемое vs текущее» и чинит расхождения. Пропущенный event или чужая правка исправляются следующим sync'ом. Edge-triggered («реагируй на событие») теряет события при рестарте и копит дрифт навсегда.
+</details>
+
+**В3. Зачем контроллерам ResourceVersion и optimistic concurrency?**
+<details><summary>Ответ</summary>
+Каждое обновление объекта повышает его RV. Update со старым RV отклоняется конфликтом — два контроллера не затрут изменения друг друга молча: проигравший получает Conflict и ретраит с свежим состоянием. Дешевле distributed-локов.
+</details>
+
+**В4. Что делает ownerReference (OwnerReferences) на объекте?**
+<details><summary>Ответ</summary>
+Связывает ребёнка с родителем: GC удаляет детей каскадом после удаления владельца, а Owns() у контроллера триггерит reconcile родителя при изменении ребёнка. Без ownerRef — объекты-сироты после удаления деплоймента.
+</details>

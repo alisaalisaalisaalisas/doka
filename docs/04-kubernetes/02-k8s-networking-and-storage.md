@@ -203,3 +203,32 @@ kubectl -n kube-system get ds kube-proxy -o yaml | grep mode
 | :--- | :--- |
 | 🔬 Закрепить | [Lab 03: ingress и PVC](../16-guided-labs/03-lab-kubernetes-kind-app.md) |
 | 🎤 Проверить себя | [Вопросы: CNI, Services](../14-interview-prep/03-100-devops-interview-questions-bank-part1.md) |
+
+---
+
+## ✅ Проверь себя
+
+**В1. ClusterIP vs NodePort vs LoadBalancer: кто что делает?**
+<details><summary>Ответ</summary>
+ClusterIP — виртуальный VIP внутри кластера (iptables/IPVS/eBPF балансирует на эндпоинты). NodePort открывает порт 30000–32767 на КАЖДОЙ ноде поверх ClusterIP. LoadBalancer — внешний балансировщик облака/MetalLB, ведущий на NodePort. Цепочка: LB → NodePort → ClusterIP → pods.
+</details>
+
+**В2. Что происходит при создании PVC с default StorageClass?**
+<details><summary>Ответ</summary>
+CSI-provisioner видит PVC без PV и динамически создаёт том: StorageClass → драйвер → диск облака/LV → PV, привязка по claimRef. Без StorageClass PVC висит Pending до ручного создания PV.
+</details>
+
+**В3. Зачем headless Service (clusterIP: None)?**
+<details><summary>Ответ</summary>
+DNS возвращает не VIP, а A-записи всех подов: стабильно для StatefulSet (pod-0.svc...), peer-to-peer систем (Cassandra/Kafka) и gRPC client-side balancing.
+</details>
+
+**В4. Дефолтное поведение сети без NetworkPolicy и после первой политики?**
+<details><summary>Ответ</summary>
+По умолчанию разрешено всё-ко-всем. Первая политика, выбравшая под podSelector'ом, делает для него default-deny в выбранном направлении; политики аддитивны (union). Нужен CNI с поддержкой: Calico/Cilium — да, flannel — нет.
+</details>
+
+**В5. Под не стартует: FailedAttachVolume / Multi-Attach error. Причина?**
+<details><summary>Ответ</summary>
+RWO-том уже приаттачен к другой ноде (под переехал, detach не завершился или старый под жив). Дождаться detach/убить старый под; проверить volumeAttachment-объекты; для ReadWriteMany нужен файловый том (NFS/CephFS).
+</details>

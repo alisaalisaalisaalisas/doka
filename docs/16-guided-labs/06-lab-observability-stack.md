@@ -9,8 +9,10 @@ kind create cluster --name obs
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add grafana https://grafana.github.io/helm-charts && helm repo update
 ```
-
 ---
+
+!!! tip "Интерактивная версия"
+    Эту лабу можно прогнать в симуляторе прямо на сайте — с автопроверкой шагов: [Песочница → сценарий «Lab 06»](../21-playground/playground.html?scenario=lab06). Реальные руки — по шагам ниже.
 
 ## 🧪 Часть 1: kube-prometheus-stack (25 мин)
 
