@@ -187,6 +187,11 @@ flowchart TD
 * 📄 [23.2 Experiment Tracking: MLflow (Tracking + Registry + MinIO)](23-mlops/02-mlflow-tracking.md)
 * 📄 [23.3 Данные и пайплайны: DVC, Airflow/Kubeflow, data validation](23-mlops/03-data-pipelines.md)
 * 📄 [23.4 Сервинг и мониторинг: FastAPI, KServe, drift, Evidently](23-mlops/04-serving-monitoring.md)
+* 📄 [23.5 Feature Store: Feast (point-in-time, online/offline)](23-mlops/05-feature-store-feast.md)
+* 📄 [23.6 GPU на Kubernetes: device plugin, MIG, time-slicing, Kueue](23-mlops/06-gpu-k8s.md)
+* 📄 [23.7 Kubeflow Pipelines: шаги-контейнеры, артефакты, кэш](23-mlops/07-kubeflow-pipelines.md)
+* 📄 [23.8 LLMOps и RAG: pgvector, vLLM, Ragas, токен-бюджеты](23-mlops/08-llmops-rag.md)
+* 📄 [23.9 Model Governance: A/B, shadow, lineage, откат](23-mlops/09-model-governance.md)
 
 ---
 

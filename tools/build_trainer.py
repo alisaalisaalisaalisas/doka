@@ -76,16 +76,6 @@ def tag_for(topic: str) -> str:
     return "senior-stack::" + t
 
 
-def build_anki(cards):
-    lines = ["#separator:tab", "#html:true", "#tags column:3"]
-    for c in cards:
-        q = c["q"].replace("\t", " ")
-        a = c["a"].replace("\t", " ")
-        lines.append(f"{q}\t{a}\t{tag_for(c['t'])}")
-    (OUT / "anki-devops-senior-stack.txt").write_text(
-        "\n".join(lines), encoding="utf-8")
-
-
 QUIZ_TEMPLATE = """<!doctype html>
 <html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -250,7 +240,6 @@ INDEX_TEMPLATE = """# 🎯 Тренажёр вопросов: {total} карто
 | Формат | Ссылка | Для чего |
 | :--- | :--- | :--- |
 | **Интерактивный SRS-тренажёр** | [quiz.html](quiz.html) | Браузер: Anki-алгоритм (Снова/Хорошо/Легко, интервалы 1→3→7→16→35→70 дней), фильтр по темам, прогресс в localStorage |
-| **Anki-колода** | [anki-devops-senior-stack.txt](anki-devops-senior-stack.txt) | Импорт в Anki для интервального повторения (кривая забывания) |
 
 ## Статистика по темам
 
@@ -258,14 +247,7 @@ INDEX_TEMPLATE = """# 🎯 Тренажёр вопросов: {total} карто
 | :--- | ---: |
 {stats_rows}
 
-## Импорт в Anki
-
-1. Скачайте `anki-devops-senior-stack.txt`.
-2. Anki → **Файл → Импорт** → выберите файл.
-3. Тип заметки: **Basic**; разделитель — Tab; теги подтянутся автоматически (`senior-stack::...`).
-4. Альтернатива без установки — режим **Anki (по расписанию)** прямо в quiz.html: те же интервалы, прогресс в браузере.
-
-## Как заниматься квизом
+## Как заниматься
 
 1. Откройте [quiz.html](quiz.html), выберите тему (или «Все темы»).
 2. Отвечайте **вслух** до нажатия «Показать ответ».
@@ -305,7 +287,6 @@ def main():
     cards = extract()
     if not cards:
         raise SystemExit("Не найдено ни одного вопроса — проверьте регулярку!")
-    build_anki(cards)
     build_quiz(cards)
     build_index(cards)
     from collections import Counter

@@ -5568,6 +5568,16 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -5755,6 +5765,146 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../23-mlops/05-feature-store-feast/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23.5 Feature Store: Feast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../23-mlops/06-gpu-k8s/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23.6 GPU на Kubernetes: MIG, Kueue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../23-mlops/07-kubeflow-pipelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23.7 Kubeflow Pipelines deep dive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../23-mlops/08-llmops-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23.8 LLMOps и RAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../23-mlops/09-model-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23.9 Model Governance: A/B, shadow, lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -5847,55 +5997,160 @@
 <hr />
 <h2 id="-раздел-1-linux-cli-bash-и-траблшутинг-ос-задачи-115">🐧 Раздел 1: Linux CLI, Bash и Траблшутинг ОС (Задачи 1–15)<a class="headerlink" href="#-раздел-1-linux-cli-bash-и-траблшутинг-ос-задачи-115" title="Permanent link">&para;</a></h2>
 <h3 id="задача-1-анализ-nginx-логов-на-bash">Задача 1: Анализ Nginx логов на Bash<a class="headerlink" href="#задача-1-анализ-nginx-логов-на-bash" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Найти топ-5 IP адресов с наибольшим количеством 5xx ошибок за последний час в <code>/var/log/nginx/access.log</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Найти топ-5 IP адресов с наибольшим количеством 5xx ошибок за последний час в <code>/var/log/nginx/access.log</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>awk</code>, <code>nginx</code>, <code>access.log</code>, <code>sort</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(awk|nginx|access\.log|sort)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>awk<span class="w"> </span><span class="s1">'$9 ~ /^5/ {print $1}'</span><span class="w"> </span>/var/log/nginx/access.log<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span><span class="p">|</span><span class="w"> </span>uniq<span class="w"> </span>-c<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span>-nr<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-n<span class="w"> </span><span class="m">5</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-2-поиск-процесса-удерживающего-удаленный-файл">Задача 2: Поиск процесса, удерживающего удаленный файл<a class="headerlink" href="#задача-2-поиск-процесса-удерживающего-удаленный-файл" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Диск переполнен на 100%, но <code>du -sh /*</code> не находит больших файлов. Найти процессы с удаленными открытыми дескрипторами и обнулить их.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Диск переполнен на 100%, но <code>du -sh /*</code> не находит больших файлов. Найти процессы с удаленными открытыми дескрипторами и обнулить их.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>lsof</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(lsof)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># 1. Поиск удаленных файлов с открытыми FD</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>lsof<span class="w"> </span>+L1
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># 2. Обнуление дескриптора без перезапуска сервиса (где PID=1234, FD=4)</span>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>&gt;<span class="w"> </span>/proc/1234/fd/4
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-3-защита-скрипта-от-параллельного-запуска-через-flock">Задача 3: Защита скрипта от параллельного запуска через <code>flock</code><a class="headerlink" href="#задача-3-защита-скрипта-от-параллельного-запуска-через-flock" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать заголовок Bash-скрипта для cron, исключающий запуск второй копии.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать заголовок Bash-скрипта для cron, исключающий запуск второй копии.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>set</code>, <code>euo</code>, <code>pipefail</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(set|euo|pipefail)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="ch">#!/usr/bin/env bash</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nb">exec</span><span class="w"> </span><span class="m">200</span>&gt;/var/lock/backup_task.lock
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>flock<span class="w"> </span>-n<span class="w"> </span><span class="m">200</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Скрипт уже работает!"</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-4-массовая-замена-домена-во-всех-конфигах">Задача 4: Массовая замена домена во всех конфигах<a class="headerlink" href="#задача-4-массовая-замена-домена-во-всех-конфигах" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Заменить во всех файлах <code>.env</code> в каталоге <code>/opt/apps</code> старый домен <code>old-api.internal</code> на <code>new-api.internal</code> с созданием бэкапа.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Заменить во всех файлах <code>.env</code> в каталоге <code>/opt/apps</code> старый домен <code>old-api.internal</code> на <code>new-api.internal</code> с созданием бэкапа.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>find</code>, <code>exec</code>, <code>sed</code>, <code>i.bak</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(find|exec|sed|i\.bak)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>find<span class="w"> </span>/opt/apps<span class="w"> </span>-name<span class="w"> </span><span class="s2">"*.env"</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-exec<span class="w"> </span>sed<span class="w"> </span>-i.bak<span class="w"> </span><span class="s1">'s|old-api\.internal|new-api\.internal|g'</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span>+
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-5-перехват-http-трафика-по-конкретному-url-через-tcpdump">Задача 5: Перехват HTTP трафика по конкретному URL через <code>tcpdump</code><a class="headerlink" href="#задача-5-перехват-http-трафика-по-конкретному-url-через-tcpdump" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Перехватить на интерфейсе <code>eth0</code> только HTTP POST запросы к <code>/api/v1/checkout</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Перехватить на интерфейсе <code>eth0</code> только HTTP POST запросы к <code>/api/v1/checkout</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>sudo</code>, <code>tcpdump</code>, <code>eth0</code>, <code>tcp</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(sudo|tcpdump|eth0|tcp)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>sudo<span class="w"> </span>tcpdump<span class="w"> </span>-i<span class="w"> </span>eth0<span class="w"> </span>-nn<span class="w"> </span>-A<span class="w"> </span>-s<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="s1">'tcp port 80 and (((ip[2:2] - ((ip[0]&amp;0xf)&lt;&lt;2)) - ((tcp[12:2]&amp;0xf0)&gt;&gt;2)) != 0)'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"POST /api/v1/checkout"</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-6-проверка-валидности-и-срока-истечения-ssl-сертификата">Задача 6: Проверка валидности и срока истечения SSL сертификата<a class="headerlink" href="#задача-6-проверка-валидности-и-срока-истечения-ssl-сертификата" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Одной командой через OpenSSL узнать дату окончания сертификата на удаленном сервере.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Одной командой через OpenSSL узнать дату окончания сертификата на удаленном сервере.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>echo</code>, <code>openssl</code>, <code>s_client</code>, <code>servername</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(echo|openssl|s_client|servername)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">echo</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>s_client<span class="w"> </span>-servername<span class="w"> </span>api.company.com<span class="w"> </span>-connect<span class="w"> </span>api.company.com:443<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>x509<span class="w"> </span>-noout<span class="w"> </span>-dates
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-7-подсчет-суммарного-объема-ram-занятого-всеми-процессами-php-fpm">Задача 7: Подсчет суммарного объема RAM, занятого всеми процессами <code>php-fpm</code><a class="headerlink" href="#задача-7-подсчет-суммарного-объема-ram-занятого-всеми-процессами-php-fpm" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Рассчитать точный объем физической памяти (RSS в МБ), потребляемый пулом PHP.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Рассчитать точный объем физической памяти (RSS в МБ), потребляемый пулом PHP.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>php-fpm</code>, <code>rss</code>, <code>awk</code>, <code>sum</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(php\-fpm|rss|awk|sum)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ps<span class="w"> </span>-C<span class="w"> </span>php-fpm<span class="w"> </span>-o<span class="w"> </span><span class="nv">rss</span><span class="o">=</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">'{sum += $1} END {print "Total PHP-FPM RAM:", sum/1024, "MB"}'</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-8-трассировка-системных-вызовов-зависшего-процесса">Задача 8: Трассировка системных вызовов зависшего процесса<a class="headerlink" href="#задача-8-трассировка-системных-вызовов-зависшего-процесса" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Процесс с PID 5432 завис в 100% CPU. Посмотреть, какие системные вызовы он выполняет в реальном времени.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Процесс с PID 5432 завис в 100% CPU. Посмотреть, какие системные вызовы он выполняет в реальном времени.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>sudo</code>, <code>strace</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(sudo|strace)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>sudo<span class="w"> </span>strace<span class="w"> </span>-p<span class="w"> </span><span class="m">5432</span><span class="w"> </span>-f<span class="w"> </span>-tt<span class="w"> </span>-T<span class="w"> </span>-s<span class="w"> </span><span class="m">512</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-9-создание-systemd-сервиса-с-авто-перезапуском-и-лимитами">Задача 9: Создание systemd сервиса с авто-перезапуском и лимитами<a class="headerlink" href="#задача-9-создание-systemd-сервиса-с-авто-перезапуском-и-лимитами" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать unit-файл <code>/etc/systemd/system/node-app.service</code> для запуска от пользователя <code>nodeapp</code> с лимитом файлов 65535.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать unit-файл <code>/etc/systemd/system/node-app.service</code> для запуска от пользователя <code>nodeapp</code> с лимитом файлов 65535.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Unit</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Unit)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-ini highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">[Unit]</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="na">Description</span><span class="o">=</span><span class="s">NodeJS Backend Service</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="na">After</span><span class="o">=</span><span class="s">network.target</span>
@@ -5912,46 +6167,131 @@
 </span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
 </span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="k">[Install]</span>
 </span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-10-парсинг-сложного-json-через-jq">Задача 10: Парсинг сложного JSON через <code>jq</code><a class="headerlink" href="#задача-10-парсинг-сложного-json-через-jq" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Из вывода JSON извлечь список <code>ip_address</code> только тех серверов, у которых <code>status == "active"</code> и <code>tier == "frontend"</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Из вывода JSON извлечь список <code>ip_address</code> только тех серверов, у которых <code>status == "active"</code> и <code>tier == "frontend"</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>curl</code>, <code>internal-cmdb</code>, <code>servers</code>, <code>select</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(curl|internal\-cmdb|servers|select)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>curl<span class="w"> </span>-s<span class="w"> </span>http://internal-cmdb/api/servers<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.servers[] | select(.status == "active" and .tier == "frontend") | .ip_address'</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-11-безопасное-удаление-старых-бэкапов-старше-30-дней">Задача 11: Безопасное удаление старых бэкапов старше 30 дней<a class="headerlink" href="#задача-11-безопасное-удаление-старых-бэкапов-старше-30-дней" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Удалить архивы <code>.tar.gz</code> в <code>/mnt/backups</code> старше 30 дней с логированием удаленных файлов.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Удалить архивы <code>.tar.gz</code> в <code>/mnt/backups</code> старше 30 дней с логированием удаленных файлов.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>find</code>, <code>mnt</code>, <code>backups</code>, <code>tar.gz</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(find|mnt|backups|tar\.gz)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>find<span class="w"> </span>/mnt/backups<span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-name<span class="w"> </span><span class="s2">"*.tar.gz"</span><span class="w"> </span>-mtime<span class="w"> </span>+30<span class="w"> </span>-print<span class="w"> </span>-delete<span class="w"> </span>&gt;&gt;<span class="w"> </span>/var/log/backup_cleanup.log
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-12-мониторинг-входящей-скорости-сети-через-cli">Задача 12: Мониторинг входящей скорости сети через CLI<a class="headerlink" href="#задача-12-мониторинг-входящей-скорости-сети-через-cli" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Замерить скорость входящего трафика на интерфейсе <code>eth0</code> за 5 секунд.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Замерить скорость входящего трафика на интерфейсе <code>eth0</code> за 5 секунд.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>cat</code>, <code>class</code>, <code>net</code>, <code>eth0</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(cat|class|net|eth0)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nv">R1</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>/sys/class/net/eth0/statistics/rx_bytes<span class="k">)</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>sleep<span class="w"> </span><span class="m">5</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="nv">R2</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>/sys/class/net/eth0/statistics/rx_bytes<span class="k">)</span>
 </span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="k">$((</span><span class="w"> </span><span class="o">(</span><span class="nv">R2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nv">R1</span><span class="o">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="m">1024</span><span class="w"> </span><span class="k">))</span><span class="s2"> KB/s"</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-13-настройка-правила-iptables-для-защиты-от-брутфорса-ssh">Задача 13: Настройка правила iptables для защиты от брутфорса SSH<a class="headerlink" href="#задача-13-настройка-правила-iptables-для-защиты-от-брутфорса-ssh" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Блокировать IP адрес на 10 минут, если за 60 секунд было более 4 попыток подключения к порту 22.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Блокировать IP адрес на 10 минут, если за 60 секунд было более 4 попыток подключения к порту 22.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>iptables</code>, <code>INPUT</code>, <code>tcp</code>, <code>dport</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(iptables|INPUT|tcp|dport)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>iptables<span class="w"> </span>-A<span class="w"> </span>INPUT<span class="w"> </span>-p<span class="w"> </span>tcp<span class="w"> </span>--dport<span class="w"> </span><span class="m">22</span><span class="w"> </span>-m<span class="w"> </span>state<span class="w"> </span>--state<span class="w"> </span>NEW<span class="w"> </span>-m<span class="w"> </span>recent<span class="w"> </span>--set<span class="w"> </span>--name<span class="w"> </span>SSH_ATTEMPTS
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>iptables<span class="w"> </span>-A<span class="w"> </span>INPUT<span class="w"> </span>-p<span class="w"> </span>tcp<span class="w"> </span>--dport<span class="w"> </span><span class="m">22</span><span class="w"> </span>-m<span class="w"> </span>state<span class="w"> </span>--state<span class="w"> </span>NEW<span class="w"> </span>-m<span class="w"> </span>recent<span class="w"> </span>--update<span class="w"> </span>--seconds<span class="w"> </span><span class="m">60</span><span class="w"> </span>--hitcount<span class="w"> </span><span class="m">4</span><span class="w"> </span>--name<span class="w"> </span>SSH_ATTEMPTS<span class="w"> </span>-j<span class="w"> </span>DROP
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-14-проверка-mtu-на-пути-к-серверу-без-фрагментации">Задача 14: Проверка MTU на пути к серверу без фрагментации<a class="headerlink" href="#задача-14-проверка-mtu-на-пути-к-серверу-без-фрагментации" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Определить точный размер пакета, проходящего без фрагментации до <code>8.8.8.8</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Определить точный размер пакета, проходящего без фрагментации до <code>8.8.8.8</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>ping</code>, <code>ICMP</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(ping|ICMP)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>-M<span class="w"> </span><span class="k">do</span><span class="w"> </span>-s<span class="w"> </span><span class="m">1472</span><span class="w"> </span><span class="m">8</span>.8.8.8<span class="w"> </span><span class="c1"># 1472 + 28 байт заголовков IP/ICMP = 1500 байт</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-15-восстановление-сетевого-доступа-при-сбое-dns">Задача 15: Восстановление сетевого доступа при сбое DNS<a class="headerlink" href="#задача-15-восстановление-сетевого-доступа-при-сбое-dns" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Сервер не резолвит внешние имена. Быстро восстановить DNS без перезагрузки.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Сервер не резолвит внешние имена. Быстро восстановить DNS без перезагрузки.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>echo</code>, <code>nameserver</code>, <code>nnameserver</code>, <code>sudo</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(echo|nameserver|nnameserver|sudo)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nb">echo</span><span class="w"> </span>-e<span class="w"> </span><span class="s2">"nameserver 1.1.1.1\nnameserver 8.8.8.8"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>tee<span class="w"> </span>/etc/resolv.conf
-</span></code></pre></div></p>
-<hr />
+</span></code></pre></div>
+
+---
+
+
+</details>
 <h2 id="-раздел-2-python-и-go-для-devops-задачи-1625">🐍 Раздел 2: Python и Go для DevOps (Задачи 16–25)<a class="headerlink" href="#-раздел-2-python-и-go-для-devops-задачи-1625" title="Permanent link">&para;</a></h2>
 <h3 id="задача-16-python-скрипт-проверки-доступности-url-с-ретраями">Задача 16: Python скрипт проверки доступности URL с ретраями<a class="headerlink" href="#задача-16-python-скрипт-проверки-доступности-url-с-ретраями" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать скрипт на Python, который пингует список эндпоинтов и шлет алерт при 3 неудачных попытках.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать скрипт на Python, который пингует список эндпоинтов и шлет алерт при 3 неудачных попытках.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>import</code>, <code>requests</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(import|requests)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 </span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 </span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
@@ -5971,10 +6311,22 @@
 </span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>
 </span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
 </span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>    <span class="n">check_endpoints</span><span class="p">()</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-17-go-утилита-для-параллельного-сканирования-открытых-портов">Задача 17: Go утилита для параллельного сканирования открытых портов<a class="headerlink" href="#задача-17-go-утилита-для-параллельного-сканирования-открытых-портов" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать на Go параллельный сканер TCP портов (от 1 до 1024) на указанном хосте.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать на Go параллельный сканер TCP портов (от 1 до 1024) на указанном хосте.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>package</code>, <code>main</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(package|main)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-go highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
 </span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
 </span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
@@ -6002,10 +6354,22 @@
 </span><span id="__span-16-25"><a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-16-26"><a id="__codelineno-16-26" name="__codelineno-16-26" href="#__codelineno-16-26"></a><span class="w">    </span><span class="nx">wg</span><span class="p">.</span><span class="nx">Wait</span><span class="p">()</span>
 </span><span id="__span-16-27"><a id="__codelineno-16-27" name="__codelineno-16-27" href="#__codelineno-16-27"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-18-python-скрипт-поиска-нетегированных-docker-образов">Задача 18: Python скрипт поиска нетегированных Docker образов<a class="headerlink" href="#задача-18-python-скрипт-поиска-нетегированных-docker-образов" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Использовать <code>docker</code> SDK для Python и удалить все dangling-образы.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Использовать <code>docker</code> SDK для Python и удалить все dangling-образы.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>import</code>, <code>docker</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(import|docker)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">docker</span>
 </span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
 </span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
@@ -6013,10 +6377,22 @@
 </span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">dangling_images</span><span class="p">:</span>
 </span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Removing </span><span class="si">{</span><span class="n">img</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">..."</span><span class="p">)</span>
 </span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>    <span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-19-go-утилита-генерации-kubernetes-configmap-из-локальной-директории">Задача 19: Go утилита генерации Kubernetes ConfigMap из локальной директории<a class="headerlink" href="#задача-19-go-утилита-генерации-kubernetes-configmap-из-локальной-директории" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Прочитать все <code>.yaml</code> файлы в каталоге и сгенерировать единый K8s ConfigMap манифест.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Прочитать все <code>.yaml</code> файлы в каталоге и сгенерировать единый K8s ConfigMap манифест.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>package</code>, <code>main</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(package|main)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-go highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
 </span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
 </span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
@@ -6034,10 +6410,22 @@
 </span><span id="__span-18-15"><a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"    %s\n"</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="p">(</span><span class="nx">content</span><span class="p">))</span>
 </span><span id="__span-18-16"><a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-18-17"><a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-20-python-скрипт-для-ротации-и-сжатия-старых-логов">Задача 20: Python скрипт для ротации и сжатия старых логов<a class="headerlink" href="#задача-20-python-скрипт-для-ротации-и-сжатия-старых-логов" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Найти все <code>.log</code> файлы в <code>/var/log/custom</code>, заархивировать их в <code>gzip</code> и переименовать с добавлением даты.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Найти все <code>.log</code> файлы в <code>/var/log/custom</code>, заархивировать их в <code>gzip</code> и переименовать с добавлением даты.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>import</code>, <code>gzip</code>, <code>shutil</code>, <code>datetime</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(import|gzip|shutil|datetime)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">gzip</span><span class="o">,</span><span class="w"> </span><span class="nn">shutil</span><span class="o">,</span><span class="w"> </span><span class="nn">datetime</span>
 </span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
 </span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">LOG_DIR</span> <span class="o">=</span> <span class="s2">"/var/log/custom"</span>
@@ -6051,10 +6439,22 @@
 </span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>            <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">f_out</span><span class="p">)</span>
 </span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
 </span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Compressed </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-21-go-http-healthcheck-сервер-для-k8s-startupprobe">Задача 21: Go HTTP Healthcheck сервер для K8s StartupProbe<a class="headerlink" href="#задача-21-go-http-healthcheck-сервер-для-k8s-startupprobe" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать легковесный Go-сервер, который возвращает 503 первые 10 секунд после старта, а затем 200 OK.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать легковесный Go-сервер, который возвращает 503 первые 10 секунд после старта, а затем 200 OK.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>package</code>, <code>main</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(package|main)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-go highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
 </span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
 </span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
@@ -6075,10 +6475,22 @@
 </span><span id="__span-20-18"><a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a><span class="w">    </span><span class="p">})</span>
 </span><span id="__span-20-19"><a id="__codelineno-20-19" name="__codelineno-20-19" href="#__codelineno-20-19"></a><span class="w">    </span><span class="nx">http</span><span class="p">.</span><span class="nx">ListenAndServe</span><span class="p">(</span><span class="s">":8080"</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="p">)</span>
 </span><span id="__span-20-20"><a id="__codelineno-20-20" name="__codelineno-20-20" href="#__codelineno-20-20"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-22-python-скрипт-парсинга-метрик-prometheus-и-отправки-в-telegram">Задача 22: Python скрипт парсинга метрик Prometheus и отправки в Telegram<a class="headerlink" href="#задача-22-python-скрипт-парсинга-метрик-prometheus-и-отправки-в-telegram" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Запросить Prometheus API, найти средний CPU Load по кластеру и, если он <span class="arithmatex">\(&gt; 80\%\)</span>, отправить алерт в Telegram.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Запросить Prometheus API, найти средний CPU Load по кластеру и, если он <span class="arithmatex">\(&gt; 80\%\)</span>, отправить алерт в Telegram.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>import</code>, <code>requests</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(import|requests)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 </span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
 </span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="n">PROM_URL</span> <span class="o">=</span> <span class="s2">"http://prometheus.monitoring:9090/api/v1/query"</span>
@@ -6092,10 +6504,22 @@
 </span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a><span class="k">if</span> <span class="n">cpu_val</span> <span class="o">&gt;</span> <span class="mf">80.0</span><span class="p">:</span>
 </span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"🚨 High Cluster CPU: </span><span class="si">{</span><span class="n">cpu_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%"</span>
 </span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>    <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="sa">f</span><span class="s2">"https://api.telegram.org/bot</span><span class="si">{</span><span class="n">BOT_TOKEN</span><span class="si">}</span><span class="s2">/sendMessage"</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">'chat_id'</span><span class="p">:</span> <span class="n">CHAT_ID</span><span class="p">,</span> <span class="s1">'text'</span><span class="p">:</span> <span class="n">msg</span><span class="p">})</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-23-go-cli-с-флагами-на-базе-flag">Задача 23: Go CLI с флагами на базе <code>flag</code><a class="headerlink" href="#задача-23-go-cli-с-флагами-на-базе-flag" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать CLI утилиту, принимающую флаги <code>--env</code> (stage/prod) и <code>--replicas</code> (int).<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать CLI утилиту, принимающую флаги <code>--env</code> (stage/prod) и <code>--replicas</code> (int).  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>package</code>, <code>main</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(package|main)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-go highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
 </span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>
 </span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
@@ -6110,20 +6534,44 @@
 </span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>
 </span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"Deploying to %s with %d replicas\n"</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">env</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">replicas</span><span class="p">)</span>
 </span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-24-python-скрипт-для-очистки-неиспользуемых-дисков-в-облаке">Задача 24: Python скрипт для очистки неиспользуемых дисков в облаке<a class="headerlink" href="#задача-24-python-скрипт-для-очистки-неиспользуемых-дисков-в-облаке" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Найти в AWS все EBS диски в статусе <code>available</code> и вывести суммарный объем.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Найти в AWS все EBS диски в статусе <code>available</code> и вывести суммарный объем.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>import</code>, <code>boto3</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(import|boto3)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
 </span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>
 </span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="n">ec2</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">'ec2'</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="s1">'eu-central-1'</span><span class="p">)</span>
 </span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="n">vols</span> <span class="o">=</span> <span class="n">ec2</span><span class="o">.</span><span class="n">describe_volumes</span><span class="p">(</span><span class="n">Filters</span><span class="o">=</span><span class="p">[{</span><span class="s1">'Name'</span><span class="p">:</span> <span class="s1">'status'</span><span class="p">,</span> <span class="s1">'Values'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'available'</span><span class="p">]}])[</span><span class="s1">'Volumes'</span><span class="p">]</span>
 </span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="n">total_gb</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">'Size'</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vols</span><span class="p">)</span>
 </span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vols</span><span class="p">)</span><span class="si">}</span><span class="s2"> unattached volumes totaling </span><span class="si">{</span><span class="n">total_gb</span><span class="si">}</span><span class="s2"> GB"</span><span class="p">)</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-25-go-скрипт-проверки-целостности-json-файлов">Задача 25: Go скрипт проверки целостности JSON файлов<a class="headerlink" href="#задача-25-go-скрипт-проверки-целостности-json-файлов" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Обойти директорию и проверить, что все файлы <code>.json</code> синтаксически валидны.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Обойти директорию и проверить, что все файлы <code>.json</code> синтаксически валидны.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>package</code>, <code>main</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(package|main)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-go highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
 </span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>
 </span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
@@ -6145,12 +6593,25 @@
 </span><span id="__span-24-19"><a id="__codelineno-24-19" name="__codelineno-24-19" href="#__codelineno-24-19"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
 </span><span id="__span-24-20"><a id="__codelineno-24-20" name="__codelineno-24-20" href="#__codelineno-24-20"></a><span class="w">    </span><span class="p">})</span>
 </span><span id="__span-24-21"><a id="__codelineno-24-21" name="__codelineno-24-21" href="#__codelineno-24-21"></a><span class="p">}</span>
-</span></code></pre></div></p>
-<hr />
+</span></code></pre></div>
+
+---
+
+
+</details>
 <h2 id="-раздел-3-docker--контейнеризация-задачи-2635">🐳 Раздел 3: Docker &amp; Контейнеризация (Задачи 26–35)<a class="headerlink" href="#-раздел-3-docker--контейнеризация-задачи-2635" title="Permanent link">&para;</a></h2>
 <h3 id="задача-26-написание-hardened-dockerfile-для-python-fastapi">Задача 26: Написание hardened Dockerfile для Python FastAPI<a class="headerlink" href="#задача-26-написание-hardened-dockerfile-для-python-fastapi" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать Multi-Stage Dockerfile для FastAPI, запускающийся от non-root пользователя UID 10001.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать Multi-Stage Dockerfile для FastAPI, запускающийся от non-root пользователя UID 10001.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>python</code>, <code>slim</code>, <code>builder</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(python|slim|builder)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-dockerfile highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="k">FROM</span><span class="w"> </span><span class="s">python:3.12-slim</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">builder</span>
 </span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
 </span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="k">COPY</span><span class="w"> </span>requirements.txt<span class="w"> </span>.
@@ -6165,10 +6626,22 @@
 </span><span id="__span-25-12"><a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a><span class="k">ENV</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/home/appuser/.local/bin:<span class="nv">$PATH</span>
 </span><span id="__span-25-13"><a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a><span class="k">EXPOSE</span><span class="w"> </span><span class="s">8000</span>
 </span><span id="__span-25-14"><a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a><span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">"uvicorn"</span><span class="p">,</span><span class="w"> </span><span class="s2">"main:app"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--host"</span><span class="p">,</span><span class="w"> </span><span class="s2">"0.0.0.0"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--port"</span><span class="p">,</span><span class="w"> </span><span class="s2">"8000"</span><span class="p">]</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-27-ограничение-ресурсов-контейнера-в-docker-compose">Задача 27: Ограничение ресурсов контейнера в Docker Compose<a class="headerlink" href="#задача-27-ограничение-ресурсов-контейнера-в-docker-compose" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать сервис в <code>docker-compose.yml</code> с жестким лимитом 512M памяти и 1.5 CPU.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать сервис в <code>docker-compose.yml</code> с жестким лимитом 512M памяти и 1.5 CPU.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>services</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(services)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="nt">services</span><span class="p">:</span>
 </span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">  </span><span class="nt">web</span><span class="p">:</span>
 </span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginx:alpine</span>
@@ -6179,16 +6652,33 @@
 </span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512M</span>
 </span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="w">        </span><span class="nt">reservations</span><span class="p">:</span>
 </span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">256M</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-28-настройка-docker-healthcheck-с-авто-перезапуском">Задача 28: Настройка Docker Healthcheck с авто-перезапуском<a class="headerlink" href="#задача-28-настройка-docker-healthcheck-с-авто-перезапуском" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Добавить проверку здоровья в Dockerfile с интервалом 10с и таймаутом 3с.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Добавить проверку здоровья в Dockerfile с интервалом 10с и таймаутом 3с.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>HEALTHCHECK</code>, <code>interval</code>, <code>timeout</code>, <code>retries</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(HEALTHCHECK|interval|timeout|retries)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-dockerfile highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="k">HEALTHCHECK</span><span class="w"> </span>--interval<span class="o">=</span>10s<span class="w"> </span>--timeout<span class="o">=</span>3s<span class="w"> </span>--retries<span class="o">=</span><span class="m">3</span><span class="w"> </span>--start-period<span class="o">=</span>5s<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">  </span>CMD<span class="w"> </span>curl<span class="w"> </span>-f<span class="w"> </span>http://localhost:8080/healthz<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-29-настройка-логирования-в-docker-с-ротацией-логов-json-file">Задача 29: Настройка логирования в Docker с ротацией логов (json-file)<a class="headerlink" href="#задача-29-настройка-логирования-в-docker-с-ротацией-логов-json-file" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Настроить Docker daemon (<code>/etc/docker/daemon.json</code>) так, чтобы логи контейнеров не превышали 50 МБ (3 файла).<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Настроить Docker daemon (<code>/etc/docker/daemon.json</code>) так, чтобы логи контейнеров не превышали 50 МБ (3 файла).  </p>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-json highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="p">{</span>
 </span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">  </span><span class="nt">"log-driver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"json-file"</span><span class="p">,</span>
 </span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">  </span><span class="nt">"log-opts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -6196,48 +6686,126 @@
 </span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="w">    </span><span class="nt">"max-file"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3"</span>
 </span><span id="__span-28-6"><a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-28-7"><a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-30-создание-кастомной-изолированной-bridge-сети">Задача 30: Создание кастомной изолированной bridge-сети<a class="headerlink" href="#задача-30-создание-кастомной-изолированной-bridge-сети" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Создать изолированную Docker-сеть с подсетью <code>172.28.0.0/16</code> и запретом выхода в интернет.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Создать изолированную Docker-сеть с подсетью <code>172.28.0.0/16</code> и запретом выхода в интернет.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>docker</code>, <code>create</code>, <code>driver</code>, <code>bridge</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(docker|create|driver|bridge)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>docker<span class="w"> </span>network<span class="w"> </span>create<span class="w"> </span>--driver<span class="w"> </span>bridge<span class="w"> </span>--subnet<span class="w"> </span><span class="m">172</span>.28.0.0/16<span class="w"> </span>--internal<span class="w"> </span>secure-backend-net
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-31-экспорт-и-сохранение-docker-образа-в-tar-архив">Задача 31: Экспорт и сохранение Docker образа в <code>.tar</code> архив<a class="headerlink" href="#задача-31-экспорт-и-сохранение-docker-образа-в-tar-архив" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Сохранить образ <code>my-app:v1.0.0</code> в сжатый файл для переноса на закрытый контур без интернета.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Сохранить образ <code>my-app:v1.0.0</code> в сжатый файл для переноса на закрытый контур без интернета.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>docker</code>, <code>save</code>, <code>my-app</code>, <code>v1.0.0</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(docker|save|my\-app|v1\.0\.0)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>docker<span class="w"> </span>save<span class="w"> </span>my-app:v1.0.0<span class="w"> </span><span class="p">|</span><span class="w"> </span>gzip<span class="w"> </span>&gt;<span class="w"> </span>my-app-v1.0.0.tar.gz
 </span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="c1"># Загрузка на целевом сервере:</span>
 </span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>docker<span class="w"> </span>load<span class="w"> </span>&lt;<span class="w"> </span>my-app-v1.0.0.tar.gz
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-32-запуск-контейнера-с-монтированием-secret-через-ram-tmpfs">Задача 32: Запуск контейнера с монтированием Secret через RAM (<code>tmpfs</code>)<a class="headerlink" href="#задача-32-запуск-контейнера-с-монтированием-secret-через-ram-tmpfs" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Смонтировать файл с секретом в <code>/run/secrets</code> так, чтобы он не записывался на физический диск.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Смонтировать файл с секретом в <code>/run/secrets</code> так, чтобы он не записывался на физический диск.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>docker</code>, <code>run</code>, <code>secure-app</code>, <code>tmpfs</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(docker|run|secure\-app|tmpfs)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>secure-app<span class="w"> </span>--tmpfs<span class="w"> </span>/run/secrets:rw,noexec,nosuid,size<span class="o">=</span>10m<span class="w"> </span>my-app:latest
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-33-очистка-неиспользуемых-docker-ресурсов-одной-командой">Задача 33: Очистка неиспользуемых Docker ресурсов одной командой<a class="headerlink" href="#задача-33-очистка-неиспользуемых-docker-ресурсов-одной-командой" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Удалить все остановленные контейнеры, неиспользуемые тома и dangling-образы.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Удалить все остановленные контейнеры, неиспользуемые тома и dangling-образы.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>docker</code>, <code>system</code>, <code>prune</code>, <code>volumes</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(docker|system|prune|volumes)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>docker<span class="w"> </span>system<span class="w"> </span>prune<span class="w"> </span>-a<span class="w"> </span>--volumes<span class="w"> </span>-f
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-34-проброс-ssh-ключа-в-dockerfile-при-сборке-через-buildkit">Задача 34: Проброс SSH ключа в Dockerfile при сборке через BuildKit<a class="headerlink" href="#задача-34-проброс-ssh-ключа-в-dockerfile-при-сборке-через-buildkit" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Безопасно клонировать приватный репозиторий в Dockerfile без сохранения SSH ключа в слои образа.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Безопасно клонировать приватный репозиторий в Dockerfile без сохранения SSH ключа в слои образа.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>alpine</code>, <code>git</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(alpine|git)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-dockerfile highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="c"># syntax=docker/dockerfile:1.4</span>
 </span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="k">FROM</span><span class="w"> </span><span class="s">alpine/git</span>
 </span><span id="__span-33-3"><a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="k">RUN</span><span class="w"> </span>--mount<span class="o">=</span><span class="nv">type</span><span class="o">=</span>ssh<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:company/private-repo.git<span class="w"> </span>/src
 </span></code></pre></div>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="nv">DOCKER_BUILDKIT</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>docker<span class="w"> </span>build<span class="w"> </span>--ssh<span class="w"> </span>default<span class="w"> </span>.
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-35-исследование-слоев-docker-образа-через-dive">Задача 35: Исследование слоев Docker образа через Dive<a class="headerlink" href="#задача-35-исследование-слоев-docker-образа-через-dive" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Найти слои, содержащие дубликаты и неэффективные файлы.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Найти слои, содержащие дубликаты и неэффективные файлы.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>docker</code>, <code>run</code>, <code>docker.sock</code>, <code>wagoodman</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(docker|run|docker\.sock|wagoodman)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span>-v<span class="w"> </span>/var/run/docker.sock:/var/run/docker.sock<span class="w"> </span>wagoodman/dive:latest<span class="w"> </span>my-app:v1.0.0
-</span></code></pre></div></p>
-<hr />
+</span></code></pre></div>
+
+---
+
+
+</details>
 <h2 id="-раздел-4-kubernetes-манифесты--траблшутинг-задачи-3650">☸️ Раздел 4: Kubernetes Манифесты &amp; Траблшутинг (Задачи 36–50)<a class="headerlink" href="#-раздел-4-kubernetes-манифесты--траблшутинг-задачи-3650" title="Permanent link">&para;</a></h2>
 <h3 id="задача-36-манифест-deployment-с-podantiaffinity">Задача 36: Манифест Deployment с PodAntiAffinity<a class="headerlink" href="#задача-36-манифест-deployment-с-podantiaffinity" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Гарантировать, что реплики одного приложения никогда не запустятся на одном физическом сервере.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Гарантировать, что реплики одного приложения никогда не запустятся на одном физическом сервере.  </p>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
 </span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
 </span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -6264,10 +6832,22 @@
 </span><span id="__span-36-24"><a id="__codelineno-36-24" name="__codelineno-36-24" href="#__codelineno-36-24"></a><span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
 </span><span id="__span-36-25"><a id="__codelineno-36-25" name="__codelineno-36-25" href="#__codelineno-36-25"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app</span>
 </span><span id="__span-36-26"><a id="__codelineno-36-26" name="__codelineno-36-26" href="#__codelineno-36-26"></a><span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginx:alpine</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-37-networkpolicy-запрета-всего-трафика-кроме-доверенного-неймспейса">Задача 37: NetworkPolicy запрета всего трафика кроме доверенного неймспейса<a class="headerlink" href="#задача-37-networkpolicy-запрета-всего-трафика-кроме-доверенного-неймспейса" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Заблокировать весь Ingress трафик к подам <code>app: database</code>, кроме трафика из неймспейса <code>monitoring</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Заблокировать весь Ingress трафик к подам <code>app: database</code>, кроме трафика из неймспейса <code>monitoring</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>networking.k8s.io</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(networking\.k8s\.io)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
 </span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NetworkPolicy</span>
 </span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -6283,10 +6863,22 @@
 </span><span id="__span-37-13"><a id="__codelineno-37-13" name="__codelineno-37-13" href="#__codelineno-37-13"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">namespaceSelector</span><span class="p">:</span>
 </span><span id="__span-37-14"><a id="__codelineno-37-14" name="__codelineno-37-14" href="#__codelineno-37-14"></a><span class="w">            </span><span class="nt">matchLabels</span><span class="p">:</span>
 </span><span id="__span-37-15"><a id="__codelineno-37-15" name="__codelineno-37-15" href="#__codelineno-37-15"></a><span class="w">              </span><span class="nt">kubernetes.io/metadata.name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">monitoring</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-38-создание-cronjob-с-политикой-concurrencypolicy-forbid">Задача 38: Создание CronJob с политикой <code>concurrencyPolicy: Forbid</code><a class="headerlink" href="#задача-38-создание-cronjob-с-политикой-concurrencypolicy-forbid" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Запускать бэкап каждые 30 минут с запретом параллельного запуска и лимитом истории в 3 успешных джоба.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Запускать бэкап каждые 30 минут с запретом параллельного запуска и лимитом истории в 3 успешных джоба.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>batch</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(batch)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">batch/v1</span>
 </span><span id="__span-38-2"><a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CronJob</span>
 </span><span id="__span-38-3"><a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -6305,15 +6897,39 @@
 </span><span id="__span-38-16"><a id="__codelineno-38-16" name="__codelineno-38-16" href="#__codelineno-38-16"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backup</span>
 </span><span id="__span-38-17"><a id="__codelineno-38-17" name="__codelineno-38-17" href="#__codelineno-38-17"></a><span class="w">              </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres:16-alpine</span>
 </span><span id="__span-38-18"><a id="__codelineno-38-18" name="__codelineno-38-18" href="#__codelineno-38-18"></a><span class="w">              </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"/bin/sh"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"-c"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"pg_dump</span><span class="nv"> </span><span class="s">-h</span><span class="nv"> </span><span class="s">db</span><span class="nv"> </span><span class="s">app</span><span class="nv"> </span><span class="s">&gt;</span><span class="nv"> </span><span class="s">/backup.sql"</span><span class="p p-Indicator">]</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-39-временная-отладка-пода-без-утилит-через-kubectl-debug">Задача 39: Временная отладка пода без утилит через <code>kubectl debug</code><a class="headerlink" href="#задача-39-временная-отладка-пода-без-утилит-через-kubectl-debug" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> В поде <code>payment-api</code> на базе <code>distroless</code> перехватить трафик утилитой <code>tcpdump</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> В поде <code>payment-api</code> на базе <code>distroless</code> перехватить трафик утилитой <code>tcpdump</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>kubectl</code>, <code>debug</code>, <code>payment-api</code>, <code>nicolaka</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(kubectl|debug|payment\-api|nicolaka)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>kubectl<span class="w"> </span>debug<span class="w"> </span>-it<span class="w"> </span>payment-api<span class="w"> </span>--image<span class="o">=</span>nicolaka/netshoot<span class="w"> </span>--target<span class="o">=</span>payment-container<span class="w"> </span>-n<span class="w"> </span>prod<span class="w"> </span>--<span class="w"> </span>tcpdump<span class="w"> </span>-i<span class="w"> </span>any<span class="w"> </span>-n<span class="w"> </span>port<span class="w"> </span><span class="m">8080</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-40-создание-rbac-роли-read-only-к-логам-и-подам">Задача 40: Создание RBAC роли Read-Only к логам и подам<a class="headerlink" href="#задача-40-создание-rbac-роли-read-only-к-логам-и-подам" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Создать Role и RoleBinding для разработчика <code>dev-user</code>, разрешающие только <code>get</code>, <code>list</code>, <code>watch</code> подов и логов в namespace <code>dev</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Создать Role и RoleBinding для разработчика <code>dev-user</code>, разрешающие только <code>get</code>, <code>list</code>, <code>watch</code> подов и логов в namespace <code>dev</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>rbac.authorization.k8s.io</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(rbac\.authorization\.k8s\.io)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rbac.authorization.k8s.io/v1</span>
 </span><span id="__span-40-2"><a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Role</span>
 </span><span id="__span-40-3"><a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -6337,15 +6953,39 @@
 </span><span id="__span-40-21"><a id="__codelineno-40-21" name="__codelineno-40-21" href="#__codelineno-40-21"></a><span class="w">  </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Role</span>
 </span><span id="__span-40-22"><a id="__codelineno-40-22" name="__codelineno-40-22" href="#__codelineno-40-22"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pod-log-reader</span>
 </span><span id="__span-40-23"><a id="__codelineno-40-23" name="__codelineno-40-23" href="#__codelineno-40-23"></a><span class="w">  </span><span class="nt">apiGroup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rbac.authorization.k8s.io</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-41-исправление-зависшего-в-terminating-namespace">Задача 41: Исправление зависшего в <code>Terminating</code> Namespace<a class="headerlink" href="#задача-41-исправление-зависшего-в-terminating-namespace" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Неймспейс <code>legacy-app</code> завис при удалении из-за недоступного финализатора.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Неймспейс <code>legacy-app</code> завис при удалении из-за недоступного финализатора.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>kubectl</code>, <code>legacy-app</code>, <code>spec.finalizers</code>, <code>replace</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(kubectl|legacy\-app|spec\.finalizers|replace)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>ns<span class="w"> </span>legacy-app<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.spec.finalizers = []'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>kubectl<span class="w"> </span>replace<span class="w"> </span>--raw<span class="w"> </span><span class="s2">"/api/v1/namespaces/legacy-app/finalize"</span><span class="w"> </span>-f<span class="w"> </span>-
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-42-создание-storageclass-с-динамическим-расширением-дисков">Задача 42: Создание StorageClass с динамическим расширением дисков<a class="headerlink" href="#задача-42-создание-storageclass-с-динамическим-расширением-дисков" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Создать StorageClass на AWS EBS с поддержкой <code>allowVolumeExpansion: true</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Создать StorageClass на AWS EBS с поддержкой <code>allowVolumeExpansion: true</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>storage.k8s.io</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(storage\.k8s\.io)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">storage.k8s.io/v1</span>
 </span><span id="__span-42-2"><a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">StorageClass</span>
 </span><span id="__span-42-3"><a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -6355,10 +6995,22 @@
 </span><span id="__span-42-7"><a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a><span class="nt">allowVolumeExpansion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </span><span id="__span-42-8"><a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a><span class="nt">parameters</span><span class="p">:</span>
 </span><span id="__span-42-9"><a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gp3</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-43-настройка-poddisruptionbudget-с-maxunavailable-1">Задача 43: Настройка PodDisruptionBudget с <code>maxUnavailable: 1</code><a class="headerlink" href="#задача-43-настройка-poddisruptionbudget-с-maxunavailable-1" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Защитить критический сервис от падения более чем 1 пода при плановом <code>kubectl drain</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Защитить критический сервис от падения более чем 1 пода при плановом <code>kubectl drain</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>policy</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(policy)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">policy/v1</span>
 </span><span id="__span-43-2"><a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PodDisruptionBudget</span>
 </span><span id="__span-43-3"><a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -6369,20 +7021,56 @@
 </span><span id="__span-43-8"><a id="__codelineno-43-8" name="__codelineno-43-8" href="#__codelineno-43-8"></a><span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
 </span><span id="__span-43-9"><a id="__codelineno-43-9" name="__codelineno-43-9" href="#__codelineno-43-9"></a><span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
 </span><span id="__span-43-10"><a id="__codelineno-43-10" name="__codelineno-43-10" href="#__codelineno-43-10"></a><span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">core-api</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-44-перезапуск-всех-подов-в-deployment-без-изменения-кода">Задача 44: Перезапуск всех подов в Deployment без изменения кода<a class="headerlink" href="#задача-44-перезапуск-всех-подов-в-deployment-без-изменения-кода" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Выполнить плавный перезапуск (Rolling restart) сервиса <code>auth-service</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Выполнить плавный перезапуск (Rolling restart) сервиса <code>auth-service</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>kubectl</code>, <code>rollout</code>, <code>deployment</code>, <code>auth-service</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(kubectl|rollout|deployment|auth\-service)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class="w"> </span>deployment/auth-service<span class="w"> </span>-n<span class="w"> </span>production
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-45-извлечение-всех-секретов-из-k8s-secret-в-открытом-виде">Задача 45: Извлечение всех секретов из K8s Secret в открытом виде<a class="headerlink" href="#задача-45-извлечение-всех-секретов-из-k8s-secret-в-открытом-виде" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Расшифровать Base64 всех ключей секрета <code>db-credentials</code> в консоль.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Расшифровать Base64 всех ключей секрета <code>db-credentials</code> в консоль.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>kubectl</code>, <code>secret</code>, <code>db-credentials</code>, <code>production</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(kubectl|secret|db\-credentials|production)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>db-credentials<span class="w"> </span>-n<span class="w"> </span>production<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data | map_values(@base64d)'</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-46-настройка-ingress-с-редиректом-на-https-и-ssl-сертификатом">Задача 46: Настройка Ingress с редиректом на HTTPS и SSL сертификатом<a class="headerlink" href="#задача-46-настройка-ingress-с-редиректом-на-https-и-ssl-сертификатом" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Настроить NGINX Ingress с Let's Encrypt через cert-manager.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Настроить NGINX Ingress с Let's Encrypt через cert-manager.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>networking.k8s.io</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(networking\.k8s\.io)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
 </span><span id="__span-46-2"><a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ingress</span>
 </span><span id="__span-46-3"><a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -6405,33 +7093,86 @@
 </span><span id="__span-46-20"><a id="__codelineno-46-20" name="__codelineno-46-20" href="#__codelineno-46-20"></a><span class="w">              </span><span class="nt">service</span><span class="p">:</span>
 </span><span id="__span-46-21"><a id="__codelineno-46-21" name="__codelineno-46-21" href="#__codelineno-46-21"></a><span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">web-service</span>
 </span><span id="__span-46-22"><a id="__codelineno-46-22" name="__codelineno-46-22" href="#__codelineno-46-22"></a><span class="w">                </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> number</span><span class="p">:</span><span class="w"> </span><span class="nv">80</span><span class="w"> </span><span class="p p-Indicator">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-47-наложение-taint-на-ноду-для-выделения-под-gpu-задачи">Задача 47: Наложение Taint на ноду для выделения под GPU-задачи<a class="headerlink" href="#задача-47-наложение-taint-на-ноду-для-выделения-под-gpu-задачи" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Заблокировать ноду <code>gpu-node-01</code> для обычных подов.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Заблокировать ноду <code>gpu-node-01</code> для обычных подов.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>kubectl</code>, <code>taint</code>, <code>nodes</code>, <code>gpu-node-01</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(kubectl|taint|nodes|gpu\-node\-01)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>kubectl<span class="w"> </span>taint<span class="w"> </span>nodes<span class="w"> </span>gpu-node-01<span class="w"> </span><span class="nv">dedicated</span><span class="o">=</span>gpu:NoSchedule
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-48-очистка-evicted-и-failed-подов-во-всем-кластере">Задача 48: Очистка Evicted и Failed подов во всем кластере<a class="headerlink" href="#задача-48-очистка-evicted-и-failed-подов-во-всем-кластере" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Одной командой удалить все поды во всех неймспейсах со статусом <code>Evicted</code> или <code>Error</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Одной командой удалить все поды во всех неймспейсах со статусом <code>Evicted</code> или <code>Error</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>kubectl</code>, <code>pods</code>, <code>field-selector</code>, <code>status.phase</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(kubectl|pods|field\-selector|status\.phase)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-A<span class="w"> </span>--field-selector<span class="o">=</span>status.phase<span class="o">=</span>Failed<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.items[] | "\(.metadata.namespace) \(.metadata.name)"'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>ns<span class="w"> </span>name<span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>kubectl<span class="w"> </span>delete<span class="w"> </span>pod<span class="w"> </span><span class="s2">"</span><span class="nv">$name</span><span class="s2">"</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$ns</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-49-настройка-prestop-хука-для-graceful-shutdown-в-nginx">Задача 49: Настройка <code>preStop</code> хука для Graceful Shutdown в Nginx<a class="headerlink" href="#задача-49-настройка-prestop-хука-для-graceful-shutdown-в-nginx" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Предотвратить обрыв соединений в Nginx во время Rolling Update, дав поду 15 секунд на дообслуживание запросов.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Предотвратить обрыв соединений в Nginx во время Rolling Update, дав поду 15 секунд на дообслуживание запросов.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>lifecycle</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(lifecycle)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="nt">lifecycle</span><span class="p">:</span>
 </span><span id="__span-49-2"><a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a><span class="w">  </span><span class="nt">preStop</span><span class="p">:</span>
 </span><span id="__span-49-3"><a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a><span class="w">    </span><span class="nt">exec</span><span class="p">:</span>
 </span><span id="__span-49-4"><a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a><span class="w">      </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"/bin/sh"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"-c"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"sleep</span><span class="nv"> </span><span class="s">15;</span><span class="nv"> </span><span class="s">/usr/sbin/nginx</span><span class="nv"> </span><span class="s">-s</span><span class="nv"> </span><span class="s">quit"</span><span class="p p-Indicator">]</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-50-проброс-порта-kubernetes-сервиса-на-локальную-машину">Задача 50: Проброс порта Kubernetes сервиса на локальную машину<a class="headerlink" href="#задача-50-проброс-порта-kubernetes-сервиса-на-локальную-машину" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Пробросить закрытую базу данных <code>postgres-service:5432</code> из кластера на локальный порт 5433.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Пробросить закрытую базу данных <code>postgres-service:5432</code> из кластера на локальный порт 5433.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>kubectl</code>, <code>port-forward</code>, <code>svc</code>, <code>postgres-service</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(kubectl|port\-forward|svc|postgres\-service)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-50-1"><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>kubectl<span class="w"> </span>port-forward<span class="w"> </span>svc/postgres-service<span class="w"> </span><span class="m">5433</span>:5432<span class="w"> </span>-n<span class="w"> </span>database
-</span></code></pre></div></p>
-<hr />
+</span></code></pre></div>
+
+
+---
+
 <!-- enriched:v1 -->
 
+
+</details>
 <h2 id="-как-работать-с-задачами">🧭 Как работать с задачами<a class="headerlink" href="#-как-работать-с-задачами" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Порядок:</strong> сначала попробуйте решить сами в песочнице (<code>kind</code> / <code>k3d</code> / <code>docker</code>), только потом читайте решение.</li>
@@ -6442,6 +7183,33 @@
 <p class="admonition-title">Практика &gt; теория</p>
 <p>Задача считается закрытой, если вы воспроизвели решение с нуля на чистой машине за отведенное время и можете объяснить каждый шаг.</p>
 </div>
+<script>
+(function(){
+  document.querySelectorAll(".answer-check").forEach(function(box){
+    if(box.dataset.ready) return; box.dataset.ready = "1";
+    var pat = box.getAttribute("data-answer");
+    var inp = document.createElement("input");
+    inp.placeholder = "✍️ Введите вашу команду/решение…";
+    inp.style.cssText = "width:75%;max-width:640px;background:#0b0f14;color:#cde3ea;border:1px solid #2a3441;border-radius:6px;padding:7px 10px;font:13px 'JetBrains Mono',Consolas,monospace;margin:4px 0";
+    var btn = document.createElement("button");
+    btn.textContent = "Проверить ответ";
+    btn.style.cssText = "margin-left:8px;cursor:pointer;background:#1c2530;color:#d5dde5;border:1px solid #2a3441;border-radius:6px;padding:7px 12px";
+    var res = document.createElement("span"); res.style.cssText = "margin-left:10px;font-size:14px";
+    box.appendChild(inp); box.appendChild(btn); box.appendChild(res);
+    function check(){
+      var ok = false;
+      try { ok = new RegExp(pat, "i").test(inp.value); } catch(e) {}
+      res.innerHTML = ok
+        ? '<span style="color:#4ade80">✓ Верно! Сверьте с эталонным решением ниже.</span>'
+        : '<span style="color:#f87171">✗ Пока не то — загляните в подсказку 💡</span>';
+      if(ok) inp.style.borderColor = "#4ade80";
+    }
+    btn.onclick = check;
+    inp.addEventListener("keydown", function(e){ if(e.key==="Enter") check(); });
+  });
+})();
+</script>
+
 <!-- Глобальные сниппеты для включения в документацию -->
 
 

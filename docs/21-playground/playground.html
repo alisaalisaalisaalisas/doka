@@ -84,8 +84,10 @@ function S(cat,id,title,level,brief,prompt,commands,solution,editor){
 <script>
 /* ======================= РЕДАКТОР (Monaco c fallback) ======================= */
 let editorApi = {getValue:()=>"",setValue:()=>{},setLang:()=>{}};
+let editorReady = false, monacoStarted = false;   // защита от гонки Monaco/fallback
 function makeTextareaFallback(){
-  if(document.querySelector("#editor textarea")) return;
+  if(editorReady) return;
+  editorReady = true;
   const ta = document.createElement("textarea");
   ta.className = "code"; ta.spellcheck = false;
   document.getElementById("editor").appendChild(ta);
@@ -98,7 +100,9 @@ function makeTextareaFallback(){
   window.require = { paths:{ vs:"https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs" } };
   const s = document.createElement("script");
   s.src = "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/loader.js";
-  s.onload = () => require(["vs/editor/editor.main"], () => {
+  s.onload = () => { monacoStarted = true; require(["vs/editor/editor.main"], () => {
+    if(editorReady) return;                    // fallback уже создан — не дублируем
+    editorReady = true;
     monaco.editor.defineTheme("lab",{base:"vs-dark",inherit:true,rules:[],
       colors:{"editor.background":"#0b0f14"}});
     const ed = monaco.editor.create(document.getElementById("editor"),{
@@ -106,10 +110,10 @@ function makeTextareaFallback(){
     editorApi = {getValue:()=>ed.getValue(), setValue:v=>ed.setValue(v),
       setLang:l=>monaco.editor.setModelLanguage(ed.getModel(), l||"plaintext")};
     loadScenario(current.id);
-  });
+  }); };
   s.onerror = () => { makeTextareaFallback(); loadScenario(current.id); };
   document.head.appendChild(s);
-  setTimeout(()=>{ if(!window.monaco && !document.querySelector("#editor textarea")){ makeTextareaFallback(); loadScenario(current.id);} }, 4000);
+  setTimeout(()=>{ if(!editorReady && !monacoStarted){ makeTextareaFallback(); loadScenario(current.id);} }, 6000);
 })();
 
 /* ======================= ТЕРМИНАЛ ======================= */
@@ -128,18 +132,31 @@ function runCommand(raw){
   if(!cmd) return;
   print(current.prompt+" "+cmd, "cmd"); history.push(cmd); hIdx = history.length; executed.push(cmd);
   if(cmd === "clear"){ term.innerHTML=""; return; }
-  const rule = current.commands.find(r => RE(r.re).test(cmd));
-  if(rule){ if(rule.out) print(rule.out, rule.cls||""); }
-  else print(`bash: ${cmd.split(" ")[0]}: команда не входит в сценарий. Нажмите «Подсказки».`, "dim");
+  try {
+    const rule = current.commands
+      .map(r => Array.isArray(r) ? {re: r[0], out: r[1], cls: r[2]} : r)
+      .find(r => RE(r.re).test(cmd));
+    if(rule){ if(rule.out) print(rule.out, rule.cls||""); }
+    else print(`bash: ${cmd.split(" ")[0]}: команда не входит в сценарий. Нажмите «Подсказки».`, "dim");
+  } catch(e) {
+    print("⚠ ошибка симулятора: " + e.message, "err");
+    console.error(e);
+  }
+}
+function submitCommand(){
+  const v = input.value;
+  input.value = "";                    // ввод очищается ВСЕГДА, до выполнения
+  try { runCommand(v); }
+  catch(e) { print("⚠ ошибка симулятора: " + e.message, "err"); console.error(e); }
 }
 input.addEventListener("keydown", e=>{
-  if(e.key==="Enter"){ runCommand(input.value); input.value=""; }
+  if(e.key==="Enter"){ submitCommand(); }
   else if(e.key==="ArrowUp"){ e.preventDefault(); if(hIdx>0){ hIdx--; input.value=history[hIdx]; } }
   else if(e.key==="ArrowDown"){ e.preventDefault(); if(hIdx<history.length-1){ hIdx++; input.value=history[hIdx]; } else { hIdx=history.length; input.value=""; } }
   else if(e.key==="l" && e.ctrlKey){ e.preventDefault(); term.innerHTML=""; }
   else if(e.key==="Tab"){ e.preventDefault();
     const v=input.value.toLowerCase();
-    const cand=current.commands.map(r=>r.re.source).find(s=>s.toLowerCase().replace(/[^a-z]/g,"").startsWith(v.replace(/[^a-z]/g,"").slice(0,6)) && v.length>2);
+    const cand=current.commands.map(r=>{const p=Array.isArray(r)?r[0]:r.re; return (typeof p==="string")?new RegExp(p,"i").source:p.source;}).find(s=>s.toLowerCase().replace(/[^a-z]/g,"").startsWith(v.replace(/[^a-z]/g,"").slice(0,6)) && v.length>2);
     if(cand) input.value=cand.split(/\\[s.\-]/)[0].replace(/\\|\^|\$/g,"").slice(0,50);
   }
 });
@@ -174,11 +191,18 @@ function fillSelect(){
 filter.oninput = fillSelect;
 
 function loadScenario(idx){
+  if(typeof idx === "string") idx = ALL.findIndex(s => s.id === idx);   // принимаем и id, и индекс
+  if(idx == null || idx < 0 || idx >= ALL.length || !ALL[idx]) idx = 0; // защита от гонки инициализации
   current = ALL[idx];
   executed = []; history = []; term.innerHTML = "";
   print(`# ${current.title}`, "warn");
   print(`# Симулятор. «Подсказки» — список шагов. «Проверить решение» — чек-лист.\n`, "dim");
-  document.getElementById("brief").innerHTML = current.brief || "Описание отсутствует.";
+  const goals = (current.solution||[]).map(s=>`<li>${s.l||s.label}</li>`).join("");
+  const filesList = Object.keys(current.files||{}).map(f=>`<span class="file" data-file="${f}">${f}</span>`).join(", ") || "—";
+  document.getElementById("brief").innerHTML =
+    (current.brief || "Описание отсутствует.") +
+    `<hr><div><b>📂 Стартовое состояние:</b> файлы ${filesList} (открыты в редакторе слева)</div>` +
+    `<div style="margin-top:6px"><b>🎯 Цели задания</b> (выполните в терминале):<ul style="margin:4px 0 0 18px;padding:0">${goals}</ul></div>`;
   document.getElementById("prompt").textContent = current.prompt || "ubuntu@lab:~$";
   document.getElementById("code-result").textContent = "";
   document.getElementById("check-result").style.display = "none";

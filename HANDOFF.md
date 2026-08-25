@@ -30,6 +30,10 @@
 | `docs/22-trainer/` | **Тренажёр SRS**: quiz.html (225 карточек) + Anki TSV |
 | `docs/23-mlops/` | **MLOps**: план + 4 темы (intro, MLflow, DVC/пайплайны, сервинг) |
 | `tools/build_trainer.py` | генератор тренажёра (запуск: `py tools/build_trainer.py`) |
+| `tools/fold_solutions.py` | сворачивает решения 100 задач в details (идемпотентно) |
+| `tools/enrich_tasks.py` | добавляет к задачам подсказку + поле ввода ответа (JS-проверка) |
+| `tools/validate_scenarios.js` | валидатор паттернов сценариев (node) |
+| `tools/test_playground.js` и др. | e2e-тесты песочницы/задач (playwright, npm i playwright) |
 
 ## Senior Stack (раздел 20) — формат и содержание
 
@@ -51,6 +55,8 @@
 - ⚠️ **Паттерны команд/решений — СТРОКИ, не regex-литералы** (слэши путей ломают литералы; движок делает `new RegExp(p,"i")`).
 - Проверка: «Проверить решение» матчит выполненные команды по `solution`; «Проверить код» — по `editorChecks`.
 - 120 сценариев по всем темам. MySQL-сценарии заменены на PostgreSQL (конфликт recovery, pg_basebackup, PITR, EXPLAIN).
+- Решения 100 задач (разд. 15) свёрнуты в details + у каждой задачи подсказка-инструменты и поле ввода ответа с JS-проверкой (класс .answer-check, data-answer=regex).
+- Движок песочницы: команды могут быть массивами [pattern,out,cls] (pattern — СТРОКА) или объектами; паттерны через RE() (new RegExp(p,"i")). loadScenario принимает id и индекс; защита от гонки Monaco/fallback (editorReady/monacoStarted). Ввод очищается до выполнения (submitCommand, try/catch). В брифе авто-блоки «Стартовое состояние» и «Цели задания» (из solution).
 
 ## Тренажёр (22) — как устроен
 
@@ -58,7 +64,8 @@
   - `docs/22-trainer/quiz.html` — **SRS-тренажёр**: режимы Anki (Снова/Хорошо/Легко, интервалы 1→3→7→16→35→70 дней, due-очередь) и экзамен; прогресс в localStorage (ключ `devops-handbook-srs-v2`)
   - `docs/22-trainer/anki-devops-senior-stack.txt` — Anki TSV (импорт: Файл→Импорт)
   - `docs/22-trainer/index.md` — страница-описание
-- Сейчас **225 карточек** (в т.ч. MLOps 23.1–23.4). После правки материалов — перегенерировать скриптом.
+- Сейчас **250 карточек**. Anki-TSV УДАЛЁН по решению пользователя — всё в SRS-квизе на сайте.
+MLOps полный: 23.1–23.4 (база) + 23.5 Feast · 23.6 GPU/Kueue · 23.7 Kubeflow · 23.8 LLMOps/RAG · 23.9 Governance.
 
 ## MLOps (раздел 23)
 

@@ -5585,6 +5585,16 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -5772,6 +5782,146 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../23-mlops/05-feature-store-feast/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23.5 Feature Store: Feast
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../23-mlops/06-gpu-k8s/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23.6 GPU на Kubernetes: MIG, Kueue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../23-mlops/07-kubeflow-pipelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23.7 Kubeflow Pipelines deep dive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../23-mlops/08-llmops-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23.8 LLMOps и RAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../23-mlops/09-model-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23.9 Model Governance: A/B, shadow, lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -5864,8 +6014,17 @@
 <hr />
 <h2 id="-раздел-5-terraform--infrastructure-as-code-задачи-5160">🏗️ Раздел 5: Terraform &amp; Infrastructure as Code (Задачи 51–60)<a class="headerlink" href="#-раздел-5-terraform--infrastructure-as-code-задачи-5160" title="Permanent link">&para;</a></h2>
 <h3 id="задача-51-динамическое-создание-подсетей-через-cidrsubnet">Задача 51: Динамическое создание подсетей через <code>cidrsubnet()</code><a class="headerlink" href="#задача-51-динамическое-создание-подсетей-через-cidrsubnet" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Разбить VPC <code>10.0.0.0/16</code> на 3 публичные подсети по разным Availability Zones.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Разбить VPC <code>10.0.0.0/16</code> на 3 публичные подсети по разным Availability Zones.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>variable</code>, <code>azs</code>, <code>default</code>, <code>eu-west-1a</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(variable|azs|default|eu\-west\-1a)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-hcl highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"azs"</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"eu-west-1a", "eu-west-1b", "eu-west-1c"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"aws_subnet"</span><span class="w"> </span><span class="nv">"public"</span><span class="w"> </span><span class="p">{</span>
@@ -5875,10 +6034,22 @@
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="na">availability_zone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">each.key</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="nb">tags</span><span class="w">              </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"public-${each.key}"</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-52-создание-s3-бэкенда-с-шифрованием-и-блокировкой-в-dynamodb">Задача 52: Создание S3 бэкенда с шифрованием и блокировкой в DynamoDB<a class="headerlink" href="#задача-52-создание-s3-бэкенда-с-шифрованием-и-блокировкой-в-dynamodb" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать конфигурацию удаленного стейта с шифрованием на стороне сервера.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать конфигурацию удаленного стейта с шифрованием на стороне сервера.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>terraform</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(terraform)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-hcl highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">terraform</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="kr">backend</span><span class="w"> </span><span class="nv">"s3"</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="na">bucket</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s2">"company-tf-states-prod"</span>
@@ -5888,10 +6059,22 @@
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="na">dynamodb_table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"tf-state-locks"</span>
 </span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-53-использование-lifecycleignore_changes-для-автоскейлинга">Задача 53: Использование <code>lifecycle.ignore_changes</code> для автоскейлинга<a class="headerlink" href="#задача-53-использование-lifecycleignore_changes-для-автоскейлинга" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Запретить Terraform сбрасывать количество инстансов в Auto Scaling Group, управляемое внешним HPA/KEDA.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Запретить Terraform сбрасывать количество инстансов в Auto Scaling Group, управляемое внешним HPA/KEDA.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>resource</code>, <code>aws_autoscaling_group</code>, <code>app_asg</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(resource|aws_autoscaling_group|app_asg)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-hcl highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"aws_autoscaling_group"</span><span class="w"> </span><span class="nv">"app_asg"</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="na">desired_capacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="na">max_size</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="m">10</span>
@@ -5901,10 +6084,22 @@
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="na">ignore_changes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nb">desired_capacity</span><span class="p">]</span>
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-54-создание-локальных-вычисляемых-переменных-locals">Задача 54: Создание локальных вычисляемых переменных (<code>locals</code>)<a class="headerlink" href="#задача-54-создание-локальных-вычисляемых-переменных-locals" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Сформировать стандартизированную карту обязательных тегов для всех ресурсов.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Сформировать стандартизированную карту обязательных тегов для всех ресурсов.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>locals</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(locals)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-hcl highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">locals</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nb">common_tags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="na">Environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.env</span>
@@ -5913,10 +6108,22 @@
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="na">CostCenter</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"FinTech-102"</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-55-импорт-существующей-группы-безопасности-aws-через-блок-import">Задача 55: Импорт существующей группы безопасности AWS через блок <code>import</code><a class="headerlink" href="#задача-55-импорт-существующей-группы-безопасности-aws-через-блок-import" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Импортировать существующий Security Group <code>sg-0123456789abcdef0</code> в Terraform 1.5+.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Импортировать существующий Security Group <code>sg-0123456789abcdef0</code> в Terraform 1.5+.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>import</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(import)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-hcl highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">import</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="na">to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">aws_security_group.legacy_sg</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="na">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"sg-0123456789abcdef0"</span>
@@ -5926,10 +6133,22 @@
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="na">name</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">"legacy-web-sg"</span>
 </span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="na">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Imported SG"</span>
 </span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-56-создание-terragrunt-конфигурации-с-зависимостью">Задача 56: Создание Terragrunt конфигурации с зависимостью<a class="headerlink" href="#задача-56-создание-terragrunt-конфигурации-с-зависимостью" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать <code>terragrunt.hcl</code> для модуля базы данных, передающий <code>vpc_id</code> из родительского модуля VPC.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать <code>terragrunt.hcl</code> для модуля базы данных, передающий <code>vpc_id</code> из родительского модуля VPC.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>include</code>, <code>root</code>, <code>find_in_parent_folders</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(include|root|find_in_parent_folders)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-hcl highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="err">include</span><span class="w"> </span><span class="s2">"root"</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">find_in_parent_folders</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="err">dependency</span><span class="w"> </span><span class="s2">"vpc"</span><span class="w"> </span><span class="p">{</span>
@@ -5940,10 +6159,22 @@
 </span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="na">vpc_id</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nv">dependency.vpc.outputs.vpc_id</span>
 </span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="na">db_subnets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">dependency.vpc.outputs.database_subnets</span>
 </span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-57-использование-функции-templatefile-для-user-data">Задача 57: Использование функции <code>templatefile()</code> для User Data<a class="headerlink" href="#задача-57-использование-функции-templatefile-для-user-data" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Сгенерировать скрипт инициализации EC2 с подстановкой переменных окружения.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Сгенерировать скрипт инициализации EC2 с подстановкой переменных окружения.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>resource</code>, <code>aws_instance</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(resource|aws_instance)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-hcl highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kr">resource</span><span class="w"> </span><span class="nc">"aws_instance"</span><span class="w"> </span><span class="nv">"web"</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="na">ami</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="s2">"ami-12345678"</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="na">instance_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"t3.micro"</span>
@@ -5952,10 +6183,22 @@
 </span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="na">db_endpoint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">aws_db_instance.db.endpoint</span>
 </span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="p">})</span>
 </span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-58-валидация-входных-переменных-через-validation-блок">Задача 58: Валидация входных переменных через <code>validation</code> блок<a class="headerlink" href="#задача-58-валидация-входных-переменных-через-validation-блок" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Разрешить ввод переменной <code>environment</code> только со значениями <code>dev</code>, <code>stage</code> или <code>prod</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Разрешить ввод переменной <code>environment</code> только со значениями <code>dev</code>, <code>stage</code> или <code>prod</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>variable</code>, <code>environment</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(variable|environment)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-hcl highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kr">variable</span><span class="w"> </span><span class="nv">"environment"</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nb">validation</span><span class="w"> </span><span class="p">{</span>
@@ -5963,15 +6206,39 @@
 </span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="na">error_message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Environment must be one of: dev, stage, prod."</span>
 </span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="p">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-59-переименование-ресурса-в-стейте-без-его-пересоздания">Задача 59: Переименование ресурса в стейте без его пересоздания<a class="headerlink" href="#задача-59-переименование-ресурса-в-стейте-без-его-пересоздания" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Переименовать ресурс <code>aws_instance.old_server</code> в <code>aws_instance.new_server</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Переименовать ресурс <code>aws_instance.old_server</code> в <code>aws_instance.new_server</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>terraform</code>, <code>state</code>, <code>aws_instance.old_server</code>, <code>aws_instance.new_server</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(terraform|state|aws_instance\.old_server|aws_instance\.new_server)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>terraform<span class="w"> </span>state<span class="w"> </span>mv<span class="w"> </span>aws_instance.old_server<span class="w"> </span>aws_instance.new_server
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-60-использование-провайдера-vault-для-получения-пароля-бд">Задача 60: Использование провайдера Vault для получения пароля БД<a class="headerlink" href="#задача-60-использование-провайдера-vault-для-получения-пароля-бд" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Извлечь секрет из Vault и передать в ресурс базы данных.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Извлечь секрет из Vault и передать в ресурс базы данных.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>vault_generic_secret</code>, <code>db_secret</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(vault_generic_secret|db_secret)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-hcl highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kr">data</span><span class="w"> </span><span class="nc">"vault_generic_secret"</span><span class="w"> </span><span class="nv">"db_secret"</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"secret/database/credentials"</span>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="p">}</span>
@@ -5981,31 +6248,68 @@
 </span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">  </span><span class="na">username</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"dbadmin"</span>
 </span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c1">  # ...</span>
 </span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="p">}</span>
-</span></code></pre></div></p>
-<hr />
+</span></code></pre></div>
+
+---
+
+
+</details>
 <h2 id="-раздел-6-ansible-автоматизация-задачи-6170">📜 Раздел 6: Ansible Автоматизация (Задачи 61–70)<a class="headerlink" href="#-раздел-6-ansible-автоматизация-задачи-6170" title="Permanent link">&para;</a></h2>
 <h3 id="задача-61-установка-пакетов-с-валидацией-чек-суммы">Задача 61: Установка пакетов с валидацией чек-суммы<a class="headerlink" href="#задача-61-установка-пакетов-с-валидацией-чек-суммы" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Скачать бинарник Prometheus Node Exporter и проверить его SHA256 хэш.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Скачать бинарник Prometheus Node Exporter и проверить его SHA256 хэш.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Download</code>, <code>Node</code>, <code>Exporter</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Download|Node|Exporter)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Download Node Exporter</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">ansible.builtin.get_url</span><span class="p">:</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">"https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz"</span>
 </span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="s">"/tmp/node_exporter.tar.gz"</span>
 </span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nt">checksum</span><span class="p">:</span><span class="w"> </span><span class="s">"sha256:1234567890abcdef..."</span>
 </span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="s">'0644'</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-62-использование-jinja2-фильтра-default-и-циклов">Задача 62: Использование Jinja2 фильтра <code>default</code> и циклов<a class="headerlink" href="#задача-62-использование-jinja2-фильтра-default-и-циклов" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Сгенерировать конфигурационный файл с перебором upstream серверов и весов по умолчанию.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Сгенерировать конфигурационный файл с перебором upstream серверов и весов по умолчанию.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>details</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(details)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>upstream backend_pool {
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>{% for host in groups['webservers'] %}
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    server {{ hostvars[host]['ansible_host'] }}:8080 weight={{ hostvars[host]['weight'] | default(1) }};
 </span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>{% endfor %}
 </span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>}
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-63-создание-системного-пользователя-без-пароля-и-оболочки">Задача 63: Создание системного пользователя без пароля и оболочки<a class="headerlink" href="#задача-63-создание-системного-пользователя-без-пароля-и-оболочки" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Создать системного пользователя <code>prometheus</code> с UID 2001 и домашней директорией.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Создать системного пользователя <code>prometheus</code> с UID 2001 и домашней директорией.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Create</code>, <code>Prometheus</code>, <code>system</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Create|Prometheus|system)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create Prometheus system user</span>
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">ansible.builtin.user</span><span class="p">:</span>
 </span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prometheus</span>
@@ -6013,28 +6317,64 @@
 </span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/sbin/nologin</span>
 </span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="nt">system</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="nt">create_home</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-64-безопасное-обновление-конфигурации-через-validate">Задача 64: Безопасное обновление конфигурации через <code>validate</code><a class="headerlink" href="#задача-64-безопасное-обновление-конфигурации-через-validate" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Скопировать конфигурацию Nginx с обязательной проверкой синтаксиса <code>nginx -t</code> перед применением.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Скопировать конфигурацию Nginx с обязательной проверкой синтаксиса <code>nginx -t</code> перед применением.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Deploy</code>, <code>Nginx</code>, <code>configuration</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Deploy|Nginx|configuration)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deploy Nginx configuration</span>
 </span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="nt">ansible.builtin.template</span><span class="p">:</span>
 </span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nt">src</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginx.conf.j2</span>
 </span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/nginx/nginx.conf</span>
 </span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="nt">validate</span><span class="p">:</span><span class="w"> </span><span class="s">'nginx</span><span class="nv"> </span><span class="s">-t</span><span class="nv"> </span><span class="s">-c</span><span class="nv"> </span><span class="s">%s'</span>
 </span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">  </span><span class="nt">notify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reload Nginx</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-65-настройка-таймаута-выполнения-команды-через-async-и-poll">Задача 65: Настройка таймаута выполнения команды через <code>async</code> и <code>poll</code><a class="headerlink" href="#задача-65-настройка-таймаута-выполнения-команды-через-async-и-poll" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Запустить долгий бэкап в фоне с максимальным таймаутом 1 час и проверкой статуса каждые 30 секунд.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Запустить долгий бэкап в фоне с максимальным таймаутом 1 час и проверкой статуса каждые 30 секунд.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Run</code>, <code>heavy</code>, <code>database</code>, <code>backup</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Run|heavy|database|backup)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run heavy database backup</span>
 </span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="nt">ansible.builtin.command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/opt/scripts/backup_db.sh</span>
 </span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span><span class="nt">async</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3600</span>
 </span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">  </span><span class="nt">poll</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-66-редактирование-файла-через-lineinfile-с-регулярными-выражениями">Задача 66: Редактирование файла через <code>lineinfile</code> с регулярными выражениями<a class="headerlink" href="#задача-66-редактирование-файла-через-lineinfile-с-регулярными-выражениями" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Гарантировать отключение парольной аутентификации в <code>/etc/ssh/sshd_config</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Гарантировать отключение парольной аутентификации в <code>/etc/ssh/sshd_config</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Disable</code>, <code>SSH</code>, <code>password</code>, <code>authentication</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Disable|SSH|password|authentication)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Disable SSH password authentication</span>
 </span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="nt">ansible.builtin.lineinfile</span><span class="p">:</span>
 </span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/ssh/sshd_config</span>
@@ -6042,19 +6382,43 @@
 </span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="nt">line</span><span class="p">:</span><span class="w"> </span><span class="s">'PasswordAuthentication</span><span class="nv"> </span><span class="s">no'</span>
 </span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="nt">validate</span><span class="p">:</span><span class="w"> </span><span class="s">'/usr/sbin/sshd</span><span class="nv"> </span><span class="s">-t</span><span class="nv"> </span><span class="s">-f</span><span class="nv"> </span><span class="s">%s'</span>
 </span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">  </span><span class="nt">notify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Restart SSHD</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-67-выполнение-таска-только-при-наличии-определенного-факта">Задача 67: Выполнение таска только при наличии определенного факта<a class="headerlink" href="#задача-67-выполнение-таска-только-при-наличии-определенного-факта" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Устанавливать пакет <code>iptables-persistent</code> только на семействе ОС Debian/Ubuntu.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Устанавливать пакет <code>iptables-persistent</code> только на семействе ОС Debian/Ubuntu.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Install</code>, <code>iptables-persistent</code>, <code>Debian</code>, <code>family</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Install|iptables\-persistent|Debian|family)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install iptables-persistent on Debian family</span>
 </span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="nt">ansible.builtin.apt</span><span class="p">:</span>
 </span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">iptables-persistent</span>
 </span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
 </span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">  </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ansible_os_family == "Debian"</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-68-настройка-системных-параметров-sysctl">Задача 68: Настройка системных параметров <code>sysctl</code><a class="headerlink" href="#задача-68-настройка-системных-параметров-sysctl" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Включить IP Forwarding и увеличить размер очереди сокетов.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Включить IP Forwarding и увеличить размер очереди сокетов.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Configure</code>, <code>kernel</code>, <code>sysctl</code>, <code>parameters</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Configure|kernel|sysctl|parameters)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Configure kernel sysctl parameters</span>
 </span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nt">ansible.posix.sysctl</span><span class="p">:</span>
 </span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">item.key</span><span class="nv"> </span><span class="s">}}"</span>
@@ -6064,10 +6428,22 @@
 </span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">  </span><span class="nt">loop</span><span class="p">:</span>
 </span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> key</span><span class="p">:</span><span class="w"> </span><span class="s">"net.ipv4.ip_forward"</span><span class="p p-Indicator">,</span><span class="nt"> value</span><span class="p">:</span><span class="w"> </span><span class="s">"1"</span><span class="w"> </span><span class="p p-Indicator">}</span>
 </span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> key</span><span class="p">:</span><span class="w"> </span><span class="s">"net.core.somaxconn"</span><span class="p p-Indicator">,</span><span class="nt"> value</span><span class="p">:</span><span class="w"> </span><span class="s">"65535"</span><span class="w"> </span><span class="p p-Indicator">}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-69-выполнение-плейбука-только-на-серверах-требующих-перезагрузки">Задача 69: Выполнение плейбука только на серверах, требующих перезагрузки<a class="headerlink" href="#задача-69-выполнение-плейбука-только-на-серверах-требующих-перезагрузки" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Проверить наличие файла <code>/var/run/reboot-required</code> на хостах Ubuntu и перезагрузить их.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Проверить наличие файла <code>/var/run/reboot-required</code> на хостах Ubuntu и перезагрузить их.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Check</code>, <code>reboot</code>, <code>required</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Check|reboot|required)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check if reboot is required</span>
 </span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span><span class="nt">ansible.builtin.stat</span><span class="p">:</span>
 </span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/run/reboot-required</span>
@@ -6077,10 +6453,22 @@
 </span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">  </span><span class="nt">ansible.builtin.reboot</span><span class="p">:</span>
 </span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">    </span><span class="nt">reboot_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
 </span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">  </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">reboot_file.stat.exists</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-70-использование-delegate_to-для-регистрации-хоста-в-мониторинге">Задача 70: Использование <code>delegate_to</code> для регистрации хоста в мониторинге<a class="headerlink" href="#задача-70-использование-delegate_to-для-регистрации-хоста-в-мониторинге" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> После настройки сервера отправить REST API запрос в Zabbix с хоста управления.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> После настройки сервера отправить REST API запрос в Zabbix с хоста управления.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Register</code>, <code>monitoring</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Register|monitoring)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Register host in monitoring server</span>
 </span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span><span class="nt">ansible.builtin.uri</span><span class="p">:</span>
 </span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">"http://zabbix.internal/api_jsonrpc.php"</span>
@@ -6088,12 +6476,18 @@
 </span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">    </span><span class="nt">body_format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
 </span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">    </span><span class="nt">body</span><span class="p">:</span><span class="w"> </span><span class="s">'{"method":</span><span class="nv"> </span><span class="s">"host.create",</span><span class="nv"> </span><span class="s">"params":</span><span class="nv"> </span><span class="s">{"host":</span><span class="nv"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">inventory_hostname</span><span class="nv"> </span><span class="s">}}"}}'</span>
 </span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">  </span><span class="nt">delegate_to</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
-</span></code></pre></div></p>
-<hr />
+</span></code></pre></div>
+
+---
+
+
+</details>
 <h2 id="-раздел-7-cicd--gitops-пайплайны-задачи-7180">🚀 Раздел 7: CI/CD &amp; GitOps Пайплайны (Задачи 71–80)<a class="headerlink" href="#-раздел-7-cicd--gitops-пайплайны-задачи-7180" title="Permanent link">&para;</a></h2>
 <h3 id="задача-71-gitlab-ci-пайплайн-с-кэшированием-go-модулей">Задача 71: GitLab CI пайплайн с кэшированием Go модулей<a class="headerlink" href="#задача-71-gitlab-ci-пайплайн-с-кэшированием-go-модулей" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Настроить кэш зависимостей <code>go mod</code> по хэшу файла <code>go.sum</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Настроить кэш зависимостей <code>go mod</code> по хэшу файла <code>go.sum</code>.  </p>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="nt">test</span><span class="p">:</span>
 </span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span><span class="nt">stage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test</span>
 </span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">golang:1.23-alpine</span>
@@ -6104,19 +6498,43 @@
 </span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/go/pkg/mod/</span>
 </span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span>
 </span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">go test -v ./...</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-72-github-actions-шаг-аутентификации-в-aws-через-oidc">Задача 72: GitHub Actions шаг аутентификации в AWS через OIDC<a class="headerlink" href="#задача-72-github-actions-шаг-аутентификации-в-aws-через-oidc" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Настроить получение временных учетных данных AWS без использования статических ключей.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Настроить получение временных учетных данных AWS без использования статических ключей.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Configure</code>, <code>AWS</code>, <code>Credentials</code>, <code>via</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Configure|AWS|Credentials|via)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Configure AWS Credentials via OIDC</span>
 </span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aws-actions/configure-aws-credentials@v4</span>
 </span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">  </span><span class="nt">with</span><span class="p">:</span>
 </span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">    </span><span class="nt">role-to-assume</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arn:aws:iam::123456789012:role/GitHubActionsDeploymentRole</span>
 </span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w">    </span><span class="nt">aws-region</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eu-central-1</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-73-сканирование-docker-образа-в-ci-через-trivy-с-блокировкой-релиза">Задача 73: Сканирование Docker-образа в CI через Trivy с блокировкой релиза<a class="headerlink" href="#задача-73-сканирование-docker-образа-в-ci-через-trivy-с-блокировкой-релиза" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Прерывать пайплайн, если в образе найдены уязвимости уровня <code>CRITICAL</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Прерывать пайплайн, если в образе найдены уязвимости уровня <code>CRITICAL</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Scan</code>, <code>with</code>, <code>Trivy</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Scan|with|Trivy)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Scan Image with Trivy</span>
 </span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasecurity/trivy-action@master</span>
 </span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">  </span><span class="nt">with</span><span class="p">:</span>
@@ -6124,19 +6542,43 @@
 </span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w">    </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="s">'table'</span>
 </span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="w">    </span><span class="nt">exit-code</span><span class="p">:</span><span class="w"> </span><span class="s">'1'</span>
 </span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="w">    </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">'CRITICAL'</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-74-автоматическое-обновление-тега-в-gitops-репозитории-манифестов">Задача 74: Автоматическое обновление тега в GitOps репозитории манифестов<a class="headerlink" href="#задача-74-автоматическое-обновление-тега-в-gitops-репозитории-манифестов" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Bash-скрипт в CI, который клонирует репозиторий манифестов, меняет тег в <code>values.yaml</code> и коммитит обратно.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Bash-скрипт в CI, который клонирует репозиторий манифестов, меняет тег в <code>values.yaml</code> и коммитит обратно.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>git</code>, <code>clone</code>, <code>oauth2</code>, <code>GITOPS_TOKEN</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(git|clone|oauth2|GITOPS_TOKEN)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://oauth2:<span class="si">${</span><span class="nv">GITOPS_TOKEN</span><span class="si">}</span>@gitlab.com/org/k8s-infra.git
 </span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="nb">cd</span><span class="w"> </span>k8s-infra/environments/prod
 </span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>yq<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="s1">'.image.tag = "${CI_COMMIT_SHORT_SHA}"'</span><span class="w"> </span>-i<span class="w"> </span>values.yaml
 </span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>git<span class="w"> </span>commit<span class="w"> </span>-am<span class="w"> </span><span class="s2">"chore(release): deploy </span><span class="si">${</span><span class="nv">CI_COMMIT_SHORT_SHA</span><span class="si">}</span><span class="s2">"</span>
 </span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-75-настройка-матрицы-сборки-matrix-build-в-github-actions">Задача 75: Настройка матрицы сборки (Matrix Build) в GitHub Actions<a class="headerlink" href="#задача-75-настройка-матрицы-сборки-matrix-build-в-github-actions" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Параллельно протестировать код на Node.js версий 18, 20 и 22.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Параллельно протестировать код на Node.js версий 18, 20 и 22.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>strategy</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(strategy)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="nt">strategy</span><span class="p">:</span>
 </span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">  </span><span class="nt">matrix</span><span class="p">:</span>
 </span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">    </span><span class="nt">node-version</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">18</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">20</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">22</span><span class="p p-Indicator">]</span>
@@ -6145,10 +6587,15 @@
 </span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="w">    </span><span class="nt">with</span><span class="p">:</span>
 </span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="w">      </span><span class="nt">node-version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ matrix.node-version }}</span>
 </span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npm test</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-76-настройка-argocd-sync-policy-с-авто-удалением-устаревших-ресурсов">Задача 76: Настройка ArgoCD Sync Policy с авто-удалением устаревших ресурсов<a class="headerlink" href="#задача-76-настройка-argocd-sync-policy-с-авто-удалением-устаревших-ресурсов" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать манифест ArgoCD Application с автоматической синхронизацией и удалением ресурсов (<code>prune</code>).<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать манифест ArgoCD Application с автоматической синхронизацией и удалением ресурсов (<code>prune</code>).  </p>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="nt">spec</span><span class="p">:</span>
 </span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">  </span><span class="nt">syncPolicy</span><span class="p">:</span>
 </span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">    </span><span class="nt">automated</span><span class="p">:</span>
@@ -6156,10 +6603,22 @@
 </span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="w">      </span><span class="nt">selfHeal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="w">    </span><span class="nt">syncOptions</span><span class="p">:</span>
 </span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CreateNamespace=true</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-77-gitlab-ci-dynamic-environments-review-apps">Задача 77: GitLab CI Dynamic Environments (Review Apps)<a class="headerlink" href="#задача-77-gitlab-ci-dynamic-environments-review-apps" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Автоматически разворачивать временное окружение для каждого Pull Request и удалять его при закрытии PR.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Автоматически разворачивать временное окружение для каждого Pull Request и удалять его при закрытии PR.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>deploy_review</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(deploy_review)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="nt">deploy_review</span><span class="p">:</span>
 </span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">  </span><span class="nt">stage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deploy</span>
 </span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span>
@@ -6177,48 +6636,114 @@
 </span><span id="__span-26-15"><a id="__codelineno-26-15" name="__codelineno-26-15" href="#__codelineno-26-15"></a><span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stop</span>
 </span><span id="__span-26-16"><a id="__codelineno-26-16" name="__codelineno-26-16" href="#__codelineno-26-16"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span>
 </span><span id="__span-26-17"><a id="__codelineno-26-17" name="__codelineno-26-17" href="#__codelineno-26-17"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">helm uninstall review-${CI_COMMIT_REF_SLUG} -n review</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-78-настройка-kaniko-сборщика-образов-в-kubernetes-без-привилегий">Задача 78: Настройка Kaniko сборщика образов в Kubernetes без привилегий<a class="headerlink" href="#задача-78-настройка-kaniko-сборщика-образов-в-kubernetes-без-привилегий" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Запустить сборку Dockerfile внутри K8s пода без демона Docker.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Запустить сборку Dockerfile внутри K8s пода без демона Docker.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>kaniko</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(kaniko)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kaniko</span>
 </span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gcr.io/kaniko-project/executor:debug</span>
 </span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="w">  </span><span class="nt">args</span><span class="p">:</span>
 </span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"--context=dir:///workspace"</span>
 </span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"--dockerfile=Dockerfile"</span>
 </span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"--destination=registry.company.com/app:v1.0.0"</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-79-github-actions-вычисление-семантической-версии-на-основе-коммитов">Задача 79: GitHub Actions вычисление семантической версии на основе коммитов<a class="headerlink" href="#задача-79-github-actions-вычисление-семантической-версии-на-основе-коммитов" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Автоматически поднять Patch/Minor версию по спецификации Conventional Commits.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Автоматически поднять Patch/Minor версию по спецификации Conventional Commits.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>Semantic</code>, <code>Release</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(Semantic|Release)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Semantic Release</span>
 </span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cycjimmy/semantic-release-action@v4</span>
 </span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">  </span><span class="nt">env</span><span class="p">:</span>
 </span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w">    </span><span class="nt">GITHUB_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.GITHUB_TOKEN }}</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-80-настройка-параллельного-выполнения-тестов-в-gitlab-ci">Задача 80: Настройка параллельного выполнения тестов в GitLab CI<a class="headerlink" href="#задача-80-настройка-параллельного-выполнения-тестов-в-gitlab-ci" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Разбить выполнение 1000 юнит-тестов на 4 параллельных воркера.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Разбить выполнение 1000 юнит-тестов на 4 параллельных воркера.  </p>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="nt">test</span><span class="p">:</span>
 </span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w">  </span><span class="nt">parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
 </span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w">  </span><span class="nt">script</span><span class="p">:</span>
 </span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pytest --splits 4 --group $CI_NODE_INDEX</span>
-</span></code></pre></div></p>
-<hr />
+</span></code></pre></div>
+
+---
+
+
+</details>
 <h2 id="-раздел-8-observability-prometheus-grafana-loki-задачи-8190">📊 Раздел 8: Observability, Prometheus, Grafana, Loki (Задачи 81–90)<a class="headerlink" href="#-раздел-8-observability-prometheus-grafana-loki-задачи-8190" title="Permanent link">&para;</a></h2>
 <h3 id="задача-81-promql-расчет-99-го-процентиля-времени-ответа">Задача 81: PromQL расчет 99-го процентиля времени ответа<a class="headerlink" href="#задача-81-promql-расчет-99-го-процентиля-времени-ответа" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать запрос вычисления p99 latency HTTP запросов за 5 минут.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать запрос вычисления p99 latency HTTP запросов за 5 минут.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>histogram_quantile</code>, <code>sum</code>, <code>rate</code>, <code>http_request_duration_seconds_bucket</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(histogram_quantile|sum|rate|http_request_duration_seconds_bucket)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-promql highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="kr">histogram_quantile</span><span class="o">(</span><span class="mf">0.99</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">http_request_duration_seconds_bucket</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">le</span><span class="p">,</span><span class="w"> </span><span class="nv">service</span><span class="o">))</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-82-promql-алерт-на-высокий-процент-5xx-ошибок-1">Задача 82: PromQL алерт на высокий процент 5xx ошибок (&gt;1%)<a class="headerlink" href="#задача-82-promql-алерт-на-высокий-процент-5xx-ошибок-1" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Сформировать условие срабатывания алерта при превышении порога в 1% ошибок от общего трафика.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Сформировать условие срабатывания алерта при превышении порога в 1% ошибок от общего трафика.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>sum</code>, <code>rate</code>, <code>http_requests_total</code>, <code>status</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(sum|rate|http_requests_total|status)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-promql highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="o">(</span><span class="k">sum</span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">http_requests_total</span><span class="p">{</span><span class="nl">status</span><span class="o">=~</span><span class="p">"</span><span class="s">5..</span><span class="p">"}[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sum</span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">http_requests_total</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">)))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">1.0</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-83-настройка-alertmanager-маршрута-в-telegram-по-лейблу-severity-critical">Задача 83: Настройка Alertmanager маршрута в Telegram по лейблу <code>severity: critical</code><a class="headerlink" href="#задача-83-настройка-alertmanager-маршрута-в-telegram-по-лейблу-severity-critical" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать блок конфигурации <code>alertmanager.yaml</code> для отправки критических алертов в Telegram.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать блок конфигурации <code>alertmanager.yaml</code> для отправки критических алертов в Telegram.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>route</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(route)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="nt">route</span><span class="p">:</span>
 </span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="w">  </span><span class="nt">routes</span><span class="p">:</span>
 </span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
@@ -6231,25 +6756,61 @@
 </span><span id="__span-32-10"><a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">bot_token</span><span class="p">:</span><span class="w"> </span><span class="s">"12345:TOKEN"</span>
 </span><span id="__span-32-11"><a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a><span class="w">        </span><span class="nt">chat_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-100123456789</span>
 </span><span id="__span-32-12"><a id="__codelineno-32-12" name="__codelineno-32-12" href="#__codelineno-32-12"></a><span class="w">        </span><span class="nt">send_resolved</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-84-logql-парсинг-json-логов-и-фильтрация-по-статусу">Задача 84: LogQL парсинг JSON-логов и фильтрация по статусу<a class="headerlink" href="#задача-84-logql-парсинг-json-логов-и-фильтрация-по-статусу" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Найти в Grafana Loki все логи платежного сервиса, где <code>status_code &gt;= 500</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Найти в Grafana Loki все логи платежного сервиса, где <code>status_code &gt;= 500</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>payment-service</code>, <code>prod</code>, <code>status_code</code>, <code>line_format</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(payment\-service|prod|status_code|line_format)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-text highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>{app="payment-service", env="prod"} | json | status_code &gt;= 500 | line_format "{{.timestamp}} [{{.status_code}}] {{.error_message}}"
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-85-настройка-vector-для-маскирования-номеров-кредитных-карт-в-логах">Задача 85: Настройка Vector для маскирования номеров кредитных карт в логах<a class="headerlink" href="#задача-85-настройка-vector-для-маскирования-номеров-кредитных-карт-в-логах" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать VRL (Vector Remap Language) скрипт для замены номеров карт на <code>[REDACTED]</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать VRL (Vector Remap Language) скрипт для замены номеров карт на <code>[REDACTED]</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>transforms</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(transforms)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="nt">transforms</span><span class="p">:</span>
 </span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="w">  </span><span class="nt">mask_card</span><span class="p">:</span>
 </span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">remap</span>
 </span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="w">    </span><span class="nt">inputs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"raw_logs"</span><span class="p p-Indicator">]</span>
 </span><span id="__span-34-5"><a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a><span class="w">    </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 </span><span id="__span-34-6"><a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a><span class="w">      </span><span class="no">.message = replace(.message, r'\b(?:\d[ -]*?){13,16}\b', "[REDACTED]")</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-86-настройка-prometheus-servicemonitor-для-кастомного-приложения">Задача 86: Настройка Prometheus ServiceMonitor для кастомного приложения<a class="headerlink" href="#задача-86-настройка-prometheus-servicemonitor-для-кастомного-приложения" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Создать манифест Prometheus Operator <code>ServiceMonitor</code> для сбора метрик с порта <code>9090</code> каждые 15 секунд.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Создать манифест Prometheus Operator <code>ServiceMonitor</code> для сбора метрик с порта <code>9090</code> каждые 15 секунд.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>monitoring.coreos.com</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(monitoring\.coreos\.com)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">monitoring.coreos.com/v1</span>
 </span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceMonitor</span>
 </span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -6263,15 +6824,39 @@
 </span><span id="__span-35-11"><a id="__codelineno-35-11" name="__codelineno-35-11" href="#__codelineno-35-11"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metrics</span>
 </span><span id="__span-35-12"><a id="__codelineno-35-12" name="__codelineno-35-12" href="#__codelineno-35-12"></a><span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span>
 </span><span id="__span-35-13"><a id="__codelineno-35-13" name="__codelineno-35-13" href="#__codelineno-35-13"></a><span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/metrics</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-87-promql-расчет-оставшегося-времени-до-переполнения-диска">Задача 87: PromQL расчет оставшегося времени до переполнения диска<a class="headerlink" href="#задача-87-promql-расчет-оставшегося-времени-до-переполнения-диска" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Спрогнозировать переполнение диска менее чем за 4 часа с помощью функции <code>predict_linear</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Спрогнозировать переполнение диска менее чем за 4 часа с помощью функции <code>predict_linear</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>predict_linear</code>, <code>node_filesystem_free_bytes</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(predict_linear|node_filesystem_free_bytes)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-promql highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="kr">predict_linear</span><span class="o">(</span><span class="nv">node_filesystem_free_bytes</span><span class="p">[</span><span class="s">1h</span><span class="p">],</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">3600</span><span class="o">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-88-настройка-opentelemetry-collector-для-экспорта-трейсов-в-jaeger">Задача 88: Настройка OpenTelemetry Collector для экспорта трейсов в Jaeger<a class="headerlink" href="#задача-88-настройка-opentelemetry-collector-для-экспорта-трейсов-в-jaeger" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Написать блок экспортера OTel Collector для отправки gRPC трейсов.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Написать блок экспортера OTel Collector для отправки gRPC трейсов.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>exporters</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(exporters)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="nt">exporters</span><span class="p">:</span>
 </span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="w">  </span><span class="nt">otlp/jaeger</span><span class="p">:</span>
 </span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="w">    </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="s">"jaeger-collector.monitoring:4317"</span>
@@ -6283,45 +6868,99 @@
 </span><span id="__span-37-9"><a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a><span class="w">      </span><span class="nt">receivers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">otlp</span><span class="p p-Indicator">]</span>
 </span><span id="__span-37-10"><a id="__codelineno-37-10" name="__codelineno-37-10" href="#__codelineno-37-10"></a><span class="w">      </span><span class="nt">processors</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">batch</span><span class="p p-Indicator">]</span>
 </span><span id="__span-37-11"><a id="__codelineno-37-11" name="__codelineno-37-11" href="#__codelineno-37-11"></a><span class="w">      </span><span class="nt">exporters</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">otlp/jaeger</span><span class="p p-Indicator">]</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-89-настройка-дашборда-grafana-с-переменной-namespace">Задача 89: Настройка дашборда Grafana с переменной Namespace<a class="headerlink" href="#задача-89-настройка-дашборда-grafana-с-переменной-namespace" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Запрос для выпадающего списка всех активных неймспейсов в Grafana.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Запрос для выпадающего списка всех активных неймспейсов в Grafana.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>label_values</code>, <code>kube_pod_info</code>, <code>namespace</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(label_values|kube_pod_info|namespace)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-sql highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="n">label_values</span><span class="p">(</span><span class="n">kube_pod_info</span><span class="p">,</span><span class="w"> </span><span class="n">namespace</span><span class="p">)</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-90-zabbix-low-level-discovery-lld-json-для-обнаружения-дисков">Задача 90: Zabbix Low-Level Discovery (LLD) JSON для обнаружения дисков<a class="headerlink" href="#задача-90-zabbix-low-level-discovery-lld-json-для-обнаружения-дисков" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Сформировать валидный JSON для авто-создания метрик кастомных разделов.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Сформировать валидный JSON для авто-создания метрик кастомных разделов.  </p>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-json highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="p">{</span>
 </span><span id="__span-39-2"><a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 </span><span id="__span-39-3"><a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a><span class="w">    </span><span class="p">{</span><span class="nt">"{#FSNAME}"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/data"</span><span class="p">,</span><span class="w"> </span><span class="nt">"{#FSTYPE}"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xfs"</span><span class="p">},</span>
 </span><span id="__span-39-4"><a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a><span class="w">    </span><span class="p">{</span><span class="nt">"{#FSNAME}"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/var/log"</span><span class="p">,</span><span class="w"> </span><span class="nt">"{#FSTYPE}"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ext4"</span><span class="p">}</span>
 </span><span id="__span-39-5"><a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="w">  </span><span class="p">]</span>
 </span><span id="__span-39-6"><a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a><span class="p">}</span>
-</span></code></pre></div></p>
-<hr />
+</span></code></pre></div>
+
+---
+
+
+</details>
 <h2 id="-раздел-9-databases-kafka-vault--security-задачи-91100">🔒 Раздел 9: Databases, Kafka, Vault &amp; Security (Задачи 91–100)<a class="headerlink" href="#-раздел-9-databases-kafka-vault--security-задачи-91100" title="Permanent link">&para;</a></h2>
 <h3 id="задача-91-генерация-динамического-пользователя-бд-через-hashicorp-vault">Задача 91: Генерация динамического пользователя БД через HashiCorp Vault<a class="headerlink" href="#задача-91-генерация-динамического-пользователя-бд-через-hashicorp-vault" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Настроить Vault роль для создания пользователя PostgreSQL со сроком жизни 1 час.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Настроить Vault роль для создания пользователя PostgreSQL со сроком жизни 1 час.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>vault</code>, <code>write</code>, <code>database</code>, <code>roles</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(vault|write|database|roles)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>vault<span class="w"> </span>write<span class="w"> </span>database/roles/app-readonly<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-40-2"><a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a><span class="w">    </span><span class="nv">db_name</span><span class="o">=</span>my-postgres<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-40-3"><a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a><span class="w">    </span><span class="nv">creation_statements</span><span class="o">=</span><span class="s2">"CREATE USER \"{{name}}\" WITH ENCRYPTED PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";"</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-40-4"><a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a><span class="w">    </span><span class="nv">default_ttl</span><span class="o">=</span><span class="s2">"1h"</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-40-5"><a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a><span class="w">    </span><span class="nv">max_ttl</span><span class="o">=</span><span class="s2">"24h"</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-92-сброс-offset-в-топике-kafka-на-100-сообщений-назад">Задача 92: Сброс Offset в топике Kafka на 100 сообщений назад<a class="headerlink" href="#задача-92-сброс-offset-в-топике-kafka-на-100-сообщений-назад" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Выполнить смещение консьюмер-группы <code>order-processing</code> для топика <code>orders</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Выполнить смещение консьюмер-группы <code>order-processing</code> для топика <code>orders</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>kafka-consumer-groups.sh</code>, <code>bootstrap-server</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(kafka\-consumer\-groups\.sh|bootstrap\-server)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>kafka-consumer-groups.sh<span class="w"> </span>--bootstrap-server<span class="w"> </span>localhost:9092<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a><span class="w">  </span>--group<span class="w"> </span>order-processing<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-41-3"><a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a><span class="w">  </span>--topic<span class="w"> </span>orders<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-41-4"><a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="w">  </span>--reset-offsets<span class="w"> </span>--shift-by<span class="w"> </span>-100<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-41-5"><a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a><span class="w">  </span>--execute
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-93-поиск-долгих-блокировок-в-postgresql">Задача 93: Поиск долгих блокировок в PostgreSQL<a class="headerlink" href="#задача-93-поиск-долгих-блокировок-в-postgresql" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Найти SQL запрос, блокирующий другие транзакции.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Найти SQL запрос, блокирующий другие транзакции.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>SELECT</code>, <code>blocked_locks.pid</code>, <code>blocked_pid</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(SELECT|blocked_locks\.pid|blocked_pid)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-sql highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">blocked_locks</span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocked_pid</span><span class="p">,</span>
 </span><span id="__span-42-2"><a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a><span class="w">       </span><span class="n">blocking_locks</span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocking_pid</span><span class="p">,</span>
 </span><span id="__span-42-3"><a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a><span class="w">       </span><span class="n">blocked_activity</span><span class="p">.</span><span class="n">query</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocked_statement</span><span class="p">,</span>
@@ -6335,10 +6974,22 @@
 </span><span id="__span-42-11"><a id="__codelineno-42-11" name="__codelineno-42-11" href="#__codelineno-42-11"></a><span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">blocking_locks</span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">blocked_locks</span><span class="p">.</span><span class="n">pid</span>
 </span><span id="__span-42-12"><a id="__codelineno-42-12" name="__codelineno-42-12" href="#__codelineno-42-12"></a><span class="k">JOIN</span><span class="w"> </span><span class="n">pg_catalog</span><span class="p">.</span><span class="n">pg_stat_activity</span><span class="w"> </span><span class="n">blocking_activity</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">blocking_activity</span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blocking_locks</span><span class="p">.</span><span class="n">pid</span>
 </span><span id="__span-42-13"><a id="__codelineno-42-13" name="__codelineno-42-13" href="#__codelineno-42-13"></a><span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">blocked_locks</span><span class="p">.</span><span class="k">granted</span><span class="p">;</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-94-настройка-istio-peerauthentication-в-режиме-strict-mtls">Задача 94: Настройка Istio PeerAuthentication в режиме <code>STRICT mTLS</code><a class="headerlink" href="#задача-94-настройка-istio-peerauthentication-в-режиме-strict-mtls" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Запретить любой нешифрованный plain-text трафик в namespace <code>production</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Запретить любой нешифрованный plain-text трафик в namespace <code>production</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>security.istio.io</code>, <code>v1beta1</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(security\.istio\.io|v1beta1)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">security.istio.io/v1beta1</span>
 </span><span id="__span-43-2"><a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PeerAuthentication</span>
 </span><span id="__span-43-3"><a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -6347,15 +6998,39 @@
 </span><span id="__span-43-6"><a id="__codelineno-43-6" name="__codelineno-43-6" href="#__codelineno-43-6"></a><span class="nt">spec</span><span class="p">:</span>
 </span><span id="__span-43-7"><a id="__codelineno-43-7" name="__codelineno-43-7" href="#__codelineno-43-7"></a><span class="w">  </span><span class="nt">mtls</span><span class="p">:</span>
 </span><span id="__span-43-8"><a id="__codelineno-43-8" name="__codelineno-43-8" href="#__codelineno-43-8"></a><span class="w">    </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STRICT</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-95-очистка-старых-данных-в-clickhouse-по-ttl">Задача 95: Очистка старых данных в ClickHouse по TTL<a class="headerlink" href="#задача-95-очистка-старых-данных-в-clickhouse-по-ttl" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Настроить таблицу с автоматическим удалением логов старше 30 дней.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Настроить таблицу с автоматическим удалением логов старше 30 дней.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>ALTER</code>, <code>TABLE</code>, <code>app_logs</code>, <code>MODIFY</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(ALTER|TABLE|app_logs|MODIFY)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-sql highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">app_logs</span><span class="w"> </span><span class="k">MODIFY</span><span class="w"> </span><span class="n">TTL</span><span class="w"> </span><span class="n">event_time</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="mi">30</span><span class="w"> </span><span class="k">DAY</span><span class="p">;</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-96-настройка-external-secrets-operator-eso-для-синхронизации-из-vault">Задача 96: Настройка External Secrets Operator (ESO) для синхронизации из Vault<a class="headerlink" href="#задача-96-настройка-external-secrets-operator-eso-для-синхронизации-из-vault" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Создать K8s Secret из ключа Vault <code>secret/data/production/api</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Создать K8s Secret из ключа Vault <code>secret/data/production/api</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>external-secrets.io</code>, <code>v1beta1</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(external\-secrets\.io|v1beta1)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">external-secrets.io/v1beta1</span>
 </span><span id="__span-45-2"><a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ExternalSecret</span>
 </span><span id="__span-45-3"><a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -6372,20 +7047,56 @@
 </span><span id="__span-45-14"><a id="__codelineno-45-14" name="__codelineno-45-14" href="#__codelineno-45-14"></a><span class="w">      </span><span class="nt">remoteRef</span><span class="p">:</span>
 </span><span id="__span-45-15"><a id="__codelineno-45-15" name="__codelineno-45-15" href="#__codelineno-45-15"></a><span class="w">        </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">secret/data/production/api</span>
 </span><span id="__span-45-16"><a id="__codelineno-45-16" name="__codelineno-45-16" href="#__codelineno-45-16"></a><span class="w">        </span><span class="nt">property</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api_key</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-97-анализ-самых-больших-ключей-в-redis">Задача 97: Анализ самых больших ключей в Redis<a class="headerlink" href="#задача-97-анализ-самых-больших-ключей-в-redis" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Найти топ ключей в памяти Redis без блокировки сервера.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Найти топ ключей в памяти Redis без блокировки сервера.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>redis-cli</code>, <code>redis.prod.internal</code>, <code>Pass</code>, <code>bigkeys</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(redis\-cli|redis\.prod\.internal|Pass|bigkeys)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>redis-cli<span class="w"> </span>-h<span class="w"> </span>redis.prod.internal<span class="w"> </span>-p<span class="w"> </span><span class="m">6379</span><span class="w"> </span>-a<span class="w"> </span><span class="s2">"Pass"</span><span class="w"> </span>--bigkeys
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-98-шифрование-файла-манифеста-через-mozilla-sops-с-использованием-age">Задача 98: Шифрование файла манифеста через Mozilla SOPS с использованием Age<a class="headerlink" href="#задача-98-шифрование-файла-манифеста-через-mozilla-sops-с-использованием-age" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Зашифровать файл <code>secret.yaml</code> публичным ключом <code>age1234...</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Зашифровать файл <code>secret.yaml</code> публичным ключом <code>age1234...</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>sops</code>, <code>encrypt</code>, <code>age</code>, <code>age1234567890abcdef...</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(sops|encrypt|age|age1234567890abcdef\.\.\.)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>sops<span class="w"> </span>--encrypt<span class="w"> </span>--age<span class="w"> </span>age1234567890abcdef...<span class="w"> </span>secret.yaml<span class="w"> </span>&gt;<span class="w"> </span>secret.enc.yaml
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-99-настройка-политики-kyverno-для-запрета-запуска-privileged-контейнеров">Задача 99: Настройка политики Kyverno для запрета запуска privileged контейнеров<a class="headerlink" href="#задача-99-настройка-политики-kyverno-для-запрета-запуска-privileged-контейнеров" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Отклонять деплой подов с параметром <code>privileged: true</code>.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Отклонять деплой подов с параметром <code>privileged: true</code>.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>kyverno.io</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(kyverno\.io)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kyverno.io/v1</span>
 </span><span id="__span-48-2"><a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterPolicy</span>
 </span><span id="__span-48-3"><a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -6404,15 +7115,32 @@
 </span><span id="__span-48-16"><a id="__codelineno-48-16" name="__codelineno-48-16" href="#__codelineno-48-16"></a><span class="w">            </span><span class="nt">containers</span><span class="p">:</span>
 </span><span id="__span-48-17"><a id="__codelineno-48-17" name="__codelineno-48-17" href="#__codelineno-48-17"></a><span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">=(securityContext)</span><span class="p">:</span>
 </span><span id="__span-48-18"><a id="__codelineno-48-18" name="__codelineno-48-18" href="#__codelineno-48-18"></a><span class="w">                  </span><span class="nt">=(privileged)</span><span class="p">:</span><span class="w"> </span><span class="s">"false"</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+
+
+</details>
 <h3 id="задача-100-создание-полного-disaster-recovery-бэкапа-неймспейса-через-velero">Задача 100: Создание полного Disaster Recovery бэкапа неймспейса через Velero<a class="headerlink" href="#задача-100-создание-полного-disaster-recovery-бэкапа-неймспейса-через-velero" title="Permanent link">&para;</a></h3>
-<p><strong>Условие:</strong> Снять снапшот всех подов, PV дисков и манифестов неймспейса <code>production</code> с ожиданием завершения.<br />
-<strong>Решение:</strong>
+<p><strong>Условие:</strong> Снять снапшот всех подов, PV дисков и манифестов неймспейса <code>production</code> с ожиданием завершения.  </p>
+<details><summary>💡 Подсказка (инструменты)</summary>
+
+<p>Ключевые инструменты: <code>velero</code>, <code>backup</code>, <code>create</code>, <code>prod-full-backup</code>. Начните с них — полное решение ниже под спойлером.</p>
+
+</details>
+
+<div class="answer-check" data-answer="\b(velero|backup|create|prod\-full\-backup)\b"></div>
+<details>
+<summary>👁 <b>Показать решение</b></summary>
+
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>velero<span class="w"> </span>backup<span class="w"> </span>create<span class="w"> </span>prod-full-backup<span class="w"> </span>--include-namespaces<span class="w"> </span>production<span class="w"> </span>--snapshot-volumes<span class="w"> </span>--wait
-</span></code></pre></div></p>
-<hr />
+</span></code></pre></div>
+
+
+---
+
 <!-- enriched:v1 -->
 
+
+</details>
 <h2 id="-как-работать-с-задачами">🧭 Как работать с задачами<a class="headerlink" href="#-как-работать-с-задачами" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Порядок:</strong> сначала попробуйте решить сами в песочнице (<code>kind</code> / <code>k3d</code> / <code>docker</code>), только потом читайте решение.</li>
@@ -6423,6 +7151,33 @@
 <p class="admonition-title">Практика &gt; теория</p>
 <p>Задача считается закрытой, если вы воспроизвели решение с нуля на чистой машине за отведенное время и можете объяснить каждый шаг.</p>
 </div>
+<script>
+(function(){
+  document.querySelectorAll(".answer-check").forEach(function(box){
+    if(box.dataset.ready) return; box.dataset.ready = "1";
+    var pat = box.getAttribute("data-answer");
+    var inp = document.createElement("input");
+    inp.placeholder = "✍️ Введите вашу команду/решение…";
+    inp.style.cssText = "width:75%;max-width:640px;background:#0b0f14;color:#cde3ea;border:1px solid #2a3441;border-radius:6px;padding:7px 10px;font:13px 'JetBrains Mono',Consolas,monospace;margin:4px 0";
+    var btn = document.createElement("button");
+    btn.textContent = "Проверить ответ";
+    btn.style.cssText = "margin-left:8px;cursor:pointer;background:#1c2530;color:#d5dde5;border:1px solid #2a3441;border-radius:6px;padding:7px 12px";
+    var res = document.createElement("span"); res.style.cssText = "margin-left:10px;font-size:14px";
+    box.appendChild(inp); box.appendChild(btn); box.appendChild(res);
+    function check(){
+      var ok = false;
+      try { ok = new RegExp(pat, "i").test(inp.value); } catch(e) {}
+      res.innerHTML = ok
+        ? '<span style="color:#4ade80">✓ Верно! Сверьте с эталонным решением ниже.</span>'
+        : '<span style="color:#f87171">✗ Пока не то — загляните в подсказку 💡</span>';
+      if(ok) inp.style.borderColor = "#4ade80";
+    }
+    btn.onclick = check;
+    inp.addEventListener("keydown", function(e){ if(e.key==="Enter") check(); });
+  });
+})();
+</script>
+
 <!-- Глобальные сниппеты для включения в документацию -->
 
 
