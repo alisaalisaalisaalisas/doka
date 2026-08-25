@@ -23,10 +23,11 @@
 - [ ] Linux: установка Ubuntu/Debian на VM, базовые команды, права, процессы
 - [ ] Bash: написать скрипт бэкапа с логированием и обработкой ошибок
 - [ ] Сеть: OSI наизусть, `ip`, `ss`, `dig`, `tcpdump` — диагностика «интернет не работает»
+- [ ] Диагностика: сценарий «сервер тормозит» за 60 секунд (uptime → vmstat → iostat → pidstat)
 - [ ] SSH: ключи, config с ProxyJump, туннели
 - [ ] Git: ветки, merge vs rebase, разрешение конфликтов, PR-флоу
 
-📚 Читать параллельно: [01-linux](../01-linux-and-networking/01-linux-core-and-systemd.md), [02-git](../02-git/01-git-internals-and-workflows.md)
+📚 Читать параллельно: [01-linux](../01-linux-and-networking/01-linux-core-and-systemd.md), [05. Диагностика производительности](../01-linux-and-networking/05-linux-performance-diagnostics.md), [02-git](../02-git/01-git-internals-and-workflows.md)
 🧪 Лаба после этапа: [Lab 01 — Linux & Systemd](../16-guided-labs/01-lab-linux-systemd-namespaces.md)
 
 ✅ **Критерий выхода:** можете с нуля поднять сервер, задеплоить на него простое приложение вручную и объяснить каждый шаг.
@@ -61,9 +62,11 @@
 - [ ] Helm: свой чарт с нуля + values для dev/prod
 - [ ] Troubleshooting: все статусы подов на автомате
 - [ ] RBAC, ResourceQuotas, requests/limits
+- [ ] Автоскейлинг: HPA с behavior, VPA, KEDA, Cluster Autoscaler
+- [ ] Эксплуатация: бэкап etcd, апгрейд на минор, drain/uncordon
 
-📚 Читать: [04-kubernetes весь](../04-kubernetes/01-k8s-architecture-and-workloads.md)
-🧪 Лабы: [Lab 03 — Полное приложение в kind](../16-guided-labs/03-lab-kubernetes-kind-app.md)
+📚 Читать: [04-kubernetes весь](../04-kubernetes/01-k8s-architecture-and-workloads.md), затем [08. Автоскейлинг](../04-kubernetes/08-k8s-autoscaling.md) и [09. Эксплуатация](../04-kubernetes/09-k8s-cluster-operations.md)
+🧪 Лабы: [Lab 03 — Полное приложение в kind](../16-guided-labs/03-lab-kubernetes-kind-app.md), [Lab 09 — Автоскейлинг](../16-guided-labs/09-lab-autoscaling-kind.md)
 
 ✅ **Критерий выхода:** деплоите трёхзвенное приложение (frontend+api+db) с ingress, TLS, HPA и мониторингом; чините сломанный кластер по чек-листу из [17-break-fix](../17-break-fix/01-incident-simulations.md).
 
@@ -74,13 +77,14 @@
 **Цель:** инфраструктура и доставка только через код.
 
 - [ ] Terraform: провайдеры, state, модули, remote backend S3+DynamoDB
-- [ ] Ansible: роли, vault, molecule-тесты
+- [ ] Terraform в CI: plan на MR, тесты модулей, контроль дрейфа
+- [ ] Ansible: роли, vault, molecule-тесты, производительность (forks/pipelining)
 - [ ] GitLab CI или GitHub Actions: полный пайплайн test→build→scan→deploy
 - [ ] GitOps: ArgoCD или Flux, sync waves, rollback
 - [ ] Секреты: Vault / SOPS — никаких паролей в git!
 
-📚 Читать: [06-terraform](../06-terraform/01-terraform-fundamentals.md), [07-ansible](../07-ansible/01-ansible-architecture-and-playbooks.md), [05-cicd](../05-gitops-and-cicd/01-gitops-argocd-flux.md)
-🧪 Лабы: [Lab 05 — Terraform+LocalStack](../16-guided-labs/05-lab-terraform-localstack.md), [Lab 04 — CI/CD](../16-guided-labs/04-lab-cicd-pipeline.md), [Lab 07 — ArgoCD](../16-guided-labs/07-lab-gitops-argocd.md)
+📚 Читать: [06-terraform](../06-terraform/01-terraform-fundamentals.md), [06.3 Тестирование и CI](../06-terraform/03-terraform-testing-ci-and-state-ops.md), [07-ansible](../07-ansible/01-ansible-architecture-and-playbooks.md), [05-cicd](../05-gitops-and-cicd/01-gitops-argocd-flux.md), [GitLab CI deep dive](../05-gitops-and-cicd/03-gitlab-ci-deep-dive.md), [GitOps multi-env](../05-gitops-and-cicd/04-gitops-multienv-and-promotion.md)
+🧪 Лабы: [Lab 05 — Terraform+LocalStack](../16-guided-labs/05-lab-terraform-localstack.md), [Lab 04 — CI/CD](../16-guided-labs/04-lab-cicd-pipeline.md), [Lab 07 — ArgoCD](../16-guided-labs/07-lab-gitops-argocd.md), [Lab 08 — Ansible+Molecule](../16-guided-labs/08-lab-ansible-molecule.md)
 
 ✅ **Критерий выхода:** push в main → автотесты → образ в registry → ArgoCD выкатил в кластер. Откат одной командой за 2 минуты.
 
@@ -109,13 +113,14 @@
 - [ ] Vault: KV v2, AppRole, динамические секреты БД
 - [ ] Сканирование: Trivy в CI, SBOM (syft), подпись образов (cosign)
 - [ ] Policy as Code: Kyverno/OPA
+- [ ] Supply chain: admission по подписи, provenance (SLSA)
 - [ ] Service Mesh: Istio ambient — mTLS без переписывания приложений
 - [ ] eBPF: Cilium, Hubble observability
-- [ ] DR: Velero бэкапы + проверенное восстановление
+- [ ] DR: Velero бэкапы + проверенное восстановление + PITR для БД
 
-📚 [10-security](../10-security-and-cloud/01-devsecops-and-secrets.md), [12-mesh](../12-advanced-networking-and-mesh/01-istio-service-mesh.md), [13-dr](../13-disaster-recovery-and-tools/01-k8s-backups-velero.md)
+📚 [10-security](../10-security-and-cloud/01-devsecops-and-secrets.md), [10.4 Supply Chain](../10-security-and-cloud/04-supply-chain-security.md), [12-mesh](../12-advanced-networking-and-mesh/01-istio-service-mesh.md), [13-dr](../13-disaster-recovery-and-tools/01-k8s-backups-velero.md), [13.2 PITR и DR-план](../13-disaster-recovery-and-tools/02-database-backups-and-dr-plan.md)
 
-✅ **Критерий выхода:** прошли все 10 сценариев из [17-break-fix](../17-break-fix/01-incident-simulations.md) на время (<30 мин каждый).
+✅ **Критерий выхода:** прошли все сценарии из [17-break-fix](../17-break-fix/01-incident-simulations.md) и [партии №2](../17-break-fix/02-incident-simulations-part2.md) на время (<30 мин каждый).
 
 ---
 

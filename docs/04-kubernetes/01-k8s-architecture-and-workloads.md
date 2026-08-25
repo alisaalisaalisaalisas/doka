@@ -186,10 +186,104 @@ kubectl top nodes && kubectl get events -A --sort-by=.lastTimestamp | tail -20 &
 kubectl get pods -A -o wide --field-selector status.phase!=Running
 ```
 
+## 🧪 Hands-on Lab (30 минут): Deployment от нуля до боевого
+
+!!! abstract "Формат"
+    **Стенд:** kind ([Lab 03](../16-guided-labs/03-lab-kubernetes-kind-app.md)). **Легенда:** выкатываем сервис так, чтобы он пережил отказ узла и деплой без даунтайма. Каждый шаг заканчивается проверкой.
+
+### Шаг 1. Минимальный деплой и знакомство с его жизнью
+
+```bash
+kubectl create deployment web --image=nginx:1.27 --replicas=2
+kubectl get deploy,pods -o wide && kubectl rollout history deploy/web
+```
+
+**Ожидаемый вывод:** 2 пода на разных узлах (или одном в kind — почему?), ReplicaSet `web-7d...` в истории.
+
+??? question "Кто именно создал поды — Deployment?"
+    Нет: ReplicaSet. Deployment — только стратегия обновлений поверх RS. Это видно: при rollback Deployment меняет RS, а не трогает поды напрямую. Проверьте `kubectl get rs`.
+
+### Шаг 2. Добавляем боевую обвязку (probes, resources, PDB)
+
+```bash
+kubectl set resources deploy/web --requests=cpu=100m,memory=64Mi --limits=cpu=500m,memory=128Mi
+kubectl patch deploy/web --type merge -p '
+spec:
+  template:
+    spec:
+      containers:
+        - name: nginx
+          readinessProbe: { httpGet: { path: /, port: 80 }, initialDelaySeconds: 3 }
+          livenessProbe:  { httpGet: { path: /, port: 80 }, periodSeconds: 10 }'
+kubectl get pods -l app=web   # READY 1/1 после проб?
+```
+
+**Ожидаемый вывод:** поды перечислены, READY 1/1, рестартов нет.
+
+### Шаг 3. Проверяем отказоустойчивость ломанием
+
+```bash
+# Убиваем под грубо — что произойдёт и как быстро восстановится сервис?
+POD=$(kubectl get pod -l app=web -o name | head -1)
+kubectl delete $POD --force --grace-period=0
+watch 'kubectl get pods -l app=web'    # новый под за секунды
+
+# Проверяем rolling update без даунтайма
+kubectl set image deploy/web nginx=nginx:1.27-alpine
+kubectl rollout status deploy/web      # по одному поду, без простоя
+kubectl rollout undo deploy/web        # и откат одной командой
+```
+
+**Критерий успеха:** во время rolling update сервис ни разу не вернул ошибку (проверьте loop'ом curl через Service).
+
+### Шаг 4. Проверь себя (ответы вслух до раскрытия)
+
+1. Почему без requests HPA и scheduler работают некорректно? Два разных эффекта.
+2. Чем liveness отличается от readiness? Что случится при перепутывании?
+3. Под в CrashLoopBackOff — какие три места смотреть по порядку?
+
+<details><summary>Ответы</summary>
+
+1. Scheduler размещает по requests (нет их → BestEffort, первым на eviction); HPA считает usage/request (нет знаменателя → unknown).
+2. Liveness = «процесс жив» (иначе рестарт контейнера), readiness = «готов трафик» (иначе вывод из Service). Перепутали liveness с зависимостью к БД → рестарт-шторм при лаге БД.
+3. `kubectl describe` (events) → `logs --previous` → манифест/env/configmap.
+</details>
+
 ## ✅ Чек-лист зрелости темы
 
 - [ ] Все Deployment имеют `requests`/`limits`, liveness/readiness/startup пробы
+
+    ??? tip "Как закрыть пункт"
+        Requests — по данным недели из metrics/VPA-рекомендаций; limits осознаны для runtime (JVM heap vs cgroup). Пробы разделены по смыслу: startup для медленного старта, liveness НЕ про внешние зависимости. Автопроверка: kyverno-политика или kube-score в CI.
+
 - [ ] Настроен `PodDisruptionBudget` и `topologySpreadConstraints`
+
+    ??? tip "Как закрыть пункт"
+        PDB допускает ≥1 нарушение (`minAvailable: N-1`, не N!) — иначе drain вечен (см. Break-Fix №12). Spread по zones+nodes гарантирует переживание отказа AZ. Тест зрелости: `kubectl drain` узла проходит, SLO не нарушен.
+
 - [ ] Есть NetworkPolicy по умолчанию (default-deny) в каждом namespace
+
+    ??? tip "Как закрыть пункт"
+        Default-deny ingress+egress, затем явные allow-правила (DNS! иначе всё ляжет). Шаблон — [18.1](../18-templates/01-containers-and-k8s.md). Проверка: из «чужого» пода curl к сервису таймаутится.
+
+---
+
 - [ ] RBAC минимально-привилегированный, ServiceAccount токены не монтируются лишний раз
+
+    ??? tip "Как закрыть пункт"
+        `automountServiceAccountToken: false` по умолчанию; роли с verb/resource списком, не `*`. Аудит: kubectl-who-can / audit2rbac. Проверка: pod без явной необходимости не имеет токена в /var/run/secrets.
+
 - [ ] Проверяется совместимость манифестов с новой версией K8s (kubent/pluto)
+
+    ??? tip "Как закрыть пункт"
+        kubent/pluto в CI перед каждым минорным апгрейдом кластера (см. [04.9](09-k8s-cluster-operations.md)); deprecated API = блокирующий warning. Список удалённых API на целевую версию — в PR апгрейда.
+
+---
+
+## 🧭 Что дальше
+
+| Шаг | Материал |
+| :--- | :--- |
+| 🔬 Закрепить | [Lab 03: приложение в kind](../16-guided-labs/03-lab-kubernetes-kind-app.md) |
+| 💪 Практика | [Задачи по K8s](../15-hands-on-practice/01-100-devops-practical-tasks-part1.md) |
+| 🎤 Проверить себя | [Вопросы собесов: K8s](../14-interview-prep/03-100-devops-interview-questions-bank-part1.md) |

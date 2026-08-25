@@ -11,7 +11,7 @@
 | **Терминал** | ввод команд с историей (↑/↓), автодополнение (Tab), `clear`/`Ctrl+L`, цветной вывод как в реальном CLI |
 | **Редактор кода** | Monaco (движок VS Code) с подсветкой YAML/HCL/Shell; при отсутствии интернета — встроенный fallback-редактор |
 | **Проверка решения** | кнопка «Проверить решение» сверяет выполненные команды с целью (чек-лист ✓/✗); «Проверить код» валидирует написанное в редакторе |
-| **120 сценариев** по всем темам: Linux/Bash/Git/Сети · Docker/K8s/Helm · Terraform/Ansible/CI · Prometheus/Loki/Vault/Kyverno · Kafka/RabbitMQ/PG/MySQL/Redis/CH · Istio/облака/Proxmox и др. |
+| **126 сценариев** по всем темам: Linux/Bash/Git/Сети · Docker/K8s/Helm · Terraform/Ansible/CI · Prometheus/Loki/Vault/Kyverno · Kafka/RabbitMQ/PG/MySQL/Redis/CH · Istio/облака/Proxmox · **MLOps: MLflow/DVC/дрейф/GPU-Kueue/LLMOps-RAG** |
 
 ## Как работать
 

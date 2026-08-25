@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Генератор тренажёра: извлекает все вопросы/ответы из docs/20-senior-stack/*.md
-и создаёт: интерактивный quiz.html, Anki-колоду (TSV) и страницу-описание.
+"""Генератор тренажёра: извлекает все вопросы/ответы из docs/ (формат
+`**ВN. вопрос**` + `<details><summary>Ответ</summary>`) и создаёт
+интерактивный quiz.html и страницу-описание.
+
+Сканируются ВСЕ разделы docs/*/ — новые Q/A-блоки в любой теме попадают
+в колоду автоматически после перегенерации.
 
 Запуск: py tools/build_trainer.py  (из корня репозитория)
 """
@@ -10,7 +14,12 @@ import pathlib
 import re
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-SRC_DIRS = [ROOT / "docs" / "20-senior-stack", ROOT / "docs" / "23-mlops"]
+DOCS = ROOT / "docs"
+EXCLUDED_DIRS = {"22-trainer"}          # сам тренажёр не сканируем
+SRC_DIRS = [
+    d for d in sorted(DOCS.iterdir())
+    if d.is_dir() and d.name not in EXCLUDED_DIRS
+]
 OUT = ROOT / "docs" / "22-trainer"
 
 TOPICS = {
@@ -34,6 +43,8 @@ TOPICS = {
     "00-senior-stack-summary": "Свод Части 1",
     "00-senior-stack-summary-p2": "Свод Части 2",
     "00-senior-stack-summary-p3": "Свод Части 3",
+    "01-python-for-devops": "Python для DevOps",
+    "02-go-for-devops": "Go для DevOps",
     "01-intro-lifecycle": "MLOps 23.1 Введение и жизненный цикл",
     "02-mlflow-tracking": "MLOps 23.2 MLflow",
     "03-data-pipelines": "MLOps 23.3 DVC и пайплайны",
@@ -233,9 +244,10 @@ rebuild();
 </script></body></html>
 """
 
-INDEX_TEMPLATE = """# 🎯 Тренажёр вопросов: {total} карточек по Senior Stack
+INDEX_TEMPLATE = """# 🎯 Тренажёр вопросов: {total} карточек по всему курсу
 
-> Все вопросы из раздела [20. Senior Stack](../20-senior-stack/00-senior-stack-summary.md) (подтемы 2.5 + три сводные проверки) — в двух форматах.
+> Вопросы собираются автоматически из всех разделов, где есть блоки формата
+> `**ВN. вопрос**` + спойлер «Ответ» (Senior Stack, MLOps, Python/Go и новые разделы).
 
 | Формат | Ссылка | Для чего |
 | :--- | :--- | :--- |
@@ -259,7 +271,7 @@ INDEX_TEMPLATE = """# 🎯 Тренажёр вопросов: {total} карто
 
 ## Пересборка тренажёра
 
-После изменения материалов раздела 20 перегенерируйте карточки:
+После изменения материалов любого раздела (блоки «ВN. вопрос» + «Ответ») перегенерируйте карточки:
 
 ```bash
 py tools/build_trainer.py

@@ -497,3 +497,12 @@ go run . --namespace prod --json | jq '.items | length'
 ---
 
 *Назад к обзору: [Python для DevOps](01-python-for-devops.md) · [Раздел 08](../08-programming-python-go/01-python-for-devops.md)*
+
+---
+
+## 🧭 Что дальше
+
+| Шаг | Материал |
+| :--- | :--- |
+| 💪 Практика | [Задачи по Go](../15-hands-on-practice/01-100-devops-practical-tasks-part1.md) |
+| 🎤 Проверить себя | [Карточки Go в тренажёре](../22-trainer/index.md) |

@@ -19,7 +19,7 @@
 | `USAGE.md` | инструкция по запуску/использованию сайта |
 | `docs/index.md` | главная (карта знаний, learning paths, глоссарий) |
 | `docs/00-roadmap/` | путь от нуля до DevOps (этапы, ресурсы, чек-листы) |
-| `docs/01..14-*/` | теория: Linux, Git, Docker, K8s (7 стр.), GitOps/CI, Terraform, Ansible, Python/Go, Observability (6), Security (3), Data (5), Mesh (3), DR, Interview |
+| `docs/01..14-*/` | теория: Linux, Git, Docker, K8s (7 стр.), GitOps/CI (4), Terraform (3), Ansible (3), Python/Go, Observability (9), Security (3), Data (5), Mesh (3), DR, Interview |
 | `docs/15-hands-on-practice/` | банк 100 практических задач (2 файла) |
 | `docs/16-guided-labs/` | 7 пошаговых лабораторных (Linux→ArgoCD) |
 | `docs/17-break-fix/` | 10 инцидент-симуляций «сломай и почини» |
@@ -82,6 +82,11 @@ MLOps полный: 23.1–23.4 (база) + 23.5 Feast · 23.6 GPU/Kueue · 23.
 
 ## Что НЕ сделано / кандидаты на продолжение
 
+- Расширения 2026-08 (готово, strict проходит): 06.3 Terraform testing/Atlantis/state ops · 07.3 Ansible collections/perf/AWX · 05.3 GitLab CI deep dive · 05.4 GitOps multi-env/promotion · 09.7 Alloy cookbook · 09.8 Grafana as Code · 09.9 Архитектура стека мониторинга.
+- Волна 2 (2026-08, готово): 04.8 Автоскейлинг (HPA/VPA/KEDA) · 04.9 Эксплуатация кластера (etcd, апгрейды) · 13.2 Бэкапы БД + DR-план/RPO-RTO/runbook · 01.5 Диагностика производительности Linux (полный арсенал команд) · 10.4 Supply Chain (SBOM/cosign/Kyverno) · Lab 08 Ansible+Molecule · шаблоны 18.4 GitLab CI/Ansible.
+- Волна 3 (2026-08, готово): сквозные блоки «Что дальше» в 57 теоретических страницах · Q/A-блоки «Пять вопросов» в 10 новых страницах (кормят тренажёр) · 20.18 Platform Engineering/Backstage · 20.19 FinOps/OpenCost/Infracost · 11.6 MongoDB (RS/sharding/PBM) · Lab 09 автоскейлинг на kind · Break-Fix партия №2 (6 сценариев: HPA unknown, drain+PDB, пустой WAL, Kyverno block, IO-шторм, etcd restore) · 18.5 Production Readiness Review · песочница +6 MLOps-сценариев (scenarios-mlops.js, 126 всего).
+- Волна 4 (2026-08, готово): Lab 10 Vault end-to-end (KV→AppRole→динамические креды БД→ESO) · Break-Fix №3 сетевая (6 сценариев: ndots-DNS, PMTU, conntrack, TLS handshake, QoS, CNI после ребута) · Банк 20 system-design задач с критериями (14.5) · tools/chaos-lab.sh + страница Chaos Drills (17.4) · Мини-проекты Python/Go (08.3) · **Стандарт лаб/чек-листов** (18.6): лаб = шаги+ожидаемый вывод+???-вопросы+«Проверь себя», чек-лист = каждый пункт с ??? «Как закрыть пункт». Апгрейд по стандарту применён к 6 флагманским страницам (01.1, 01.2, 04.1, 06.1, 07.1, 09.1) — остальные страницы можно дотягивать итеративно.
+- Тренажёр: build_trainer.py теперь сканирует ВСЕ docs/*/ (формат `**ВN**`+`<details>Ответ`); сейчас **320 карточек**. Новые Q/A в любых темах попадают автоматически после `py tools/build_trainer.py`.
 - MLOps Часть 2: Feast, GPU/Kueue, Kubeflow deep, LLMOps/RAG (pgvector, Ragas), model governance — план в `23-mlops/00-plan.md`.
 - MLOps-сценарии в песочницу (mlflow/dvc/drift) — по формату S().
 - Публикация сайта: `mkdocs gh-deploy` или VPS+nginx (в USAGE.md).

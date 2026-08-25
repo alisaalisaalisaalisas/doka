@@ -217,22 +217,101 @@ pmap -x $(pidof myapp) | sort -k3 -n | tail
 !!! warning "Правило пяти почему"
     Каждый инцидент заканчивается не фиксом, а **post-mortem** с 5×Why и action items в бэклоге. Иначе грабли возвращаются через квартал — но уже в пятницу вечером.
 
-## 🧪 Hands-on Lab (15 минут)
+## 🧪 Hands-on Lab (25 минут): диагностика юнита как в дежурстве
+
+!!! abstract "Формат"
+    **Стенд:** любая Linux VM или WSL2. **Легенда:** сервис `myapp` падает, вы дежурный. Каждый шаг = команда → ожидаемый вывод → что делать дальше.
+
+### Шаг 1. Воспроизведите «сломанный» сервис
 
 ```bash
-# 1. Воспроизведите проблему из таблицы выше на стенде (kind/k3d/VirtualBox)
-# 2. Соберите диагностику одной командой:
-systemd-analyze critical-chain myapp.service && \
-journalctl -u myapp.service --since -1h -p err --no-pager && \
-ps -eo pid,ppid,state,rss,%cpu,cmd --sort=-rss | head -15
-# 3. Зафиксируйте вывод в post-mortem шаблон:
-#    Что случилось / Когда заметили / Root cause / Fix / Prevention
+sudo tee /etc/systemd/system/myapp.service <<'EOF'
+[Unit]
+Description=Demo app for lab
+[Service]
+ExecStart=/usr/bin/sleep 100000
+Restart=on-failure
+# Ошибки специально: нет After=network.target, лимит памяти 10М
+MemoryMax=10M
+EOF
+sudo systemctl daemon-reload && sudo systemctl start myapp.service
+sleep 3 && systemctl status myapp --no-pager | head -8
 ```
+
+**Ожидаемый вывод:** `Active: activating (auto-restart)` и счётчик рестартов — сервис циклически умирает.
+
+### Шаг 2. Соберите доказательства (три команды дежурного)
+
+```bash
+systemctl status myapp --no-pager -l          # состояние + последние строки лога
+journalctl -u myapp.service -n 20 --no-pager  # полный журнал юнита
+systemd-analyze critical-chain myapp.service  # где теряется время при старте
+```
+
+**Ожидаемый вывод:** `journalctl` покажет `Main process exited, code=killed, status=9/KILL` — процесс убит по OOM от нашего `MemoryMax=10M`.
+
+??? question "Почему status=9, а не exit code приложения?"
+    Сигнал 9 (SIGKILL) отправил kernel OOM-killer внутри cgroup юнита: `MemoryMax` — жёсткий лимит cgroup v2. Отличать «приложение упало само» (exit≠0) от «убил ядро/лимит» — первый шаг любого разбора.
+
+### Шаг 3. Исправьте и проверьте идемпотентность
+
+```bash
+sudo systemctl edit myapp.service      # добавьте:
+# [Service]
+# MemoryMax=200M
+
+sudo systemctl restart myapp.service && systemctl is-active myapp   # active
+systemctl show myapp -p MemoryMax,NRestarts                          # 209715200 / 0
+```
+
+**Критерий успеха:** NRestarts не растёт после рестарта; `journalctl -u myapp -f` тихий.
+
+### Шаг 4. Проверь себя (ответы вслух до раскрытия)
+
+1. Чем `Restart=on-failure` отличается от `always`, когда вы сами делаете `systemctl stop`?
+2. Где увидите причину смерти процесса быстрее: `/var/log/syslog` или journalctl? Почему?
+3. Что покажет `critical-chain`, если юнит ждёт сеть, которой нет?
+
+<details><summary>Ответы</summary>
+
+1. `stop` вручную не триггерит on-failure рестарт (это не failure); always перезапустил бы даже после stop.
+2. journalctl: структурированные метаданные юнита (`_SYSTEMD_UNIT`), не зависит от rsyslog-конфигурации.
+3. Цепочку ожидания с пометкой на зависимость network.target и суммарную задержку.
+</details>
 
 ## ✅ Чек-лист зрелости темы
 
 - [ ] Конфигурации версионируются в Git, ручные правки на проде запрещены
+
+    ??? tip "Как закрыть пункт"
+        Все unit-файлы и drop-in'ы живут в etc-репозитории (или Ansible-роли), деплой через pipeline. Проверка зрелости: `git log` показывает историю изменения конфига сервиса, а не `stat` файла на сервере.
+
 - [ ] Есть мониторинг именно этой подсистемы (не только CPU/RAM)
+
+    ??? tip "Как закрыть пункт"
+        Для systemd: экспортёр systemd-collector или node_exporter с `--collector.systemd`; алерты на unit failed, рестарты >N за час. Для подсистем ядра (OOM, fd) — правила из [09.1](../09-observability/01-prometheus-and-grafana.md).
+
 - [ ] Задокументирован runbook на типовые отказы (кто/что/как)
+
+    ??? tip "Как закрыть пункт"
+        Шаблон runbook — в [13.2](../13-disaster-recovery-and-tools/02-database-backups-and-dr-plan.md). Минимум для юнита: симптомы → 3 команды диагностики → фикс → критерий успеха. Хранится рядом с кодом сервиса, ссылка из алерта.
+
 - [ ] Проведено хотя бы одно учение Chaos/GameDay по теме
+
+    ??? tip "Как закрыть пункт"
+        Возьмите дрель из `tools/chaos-lab.sh` (в корне репозитория) (`oom_kill_test`, `disk_fill`), запустите на стенде, прогоните свой runbook по шагам. Время до восстановления запишите в шапку runbook'а.
+
 - [ ] Лимиты ресурсов и квоты осознаны, а не «дефолт из туториала»
+
+    ??? tip "Как закрыть пункт"
+        Для каждого юнита известно: MemoryMax/CPUQuota выбраны по данным недели работы (не копипаста), LimitNOFILE соответствует реальному числу соединений. Проверка: `systemctl show <unit> -p MemoryMax,CPUQuotaPerSecSec,LimitNOFILE` + сравнение с фактическим потреблением за месяц.
+
+---
+
+## 🧭 Что дальше
+
+| Шаг | Материал |
+| :--- | :--- |
+| 🔬 Закрепить | [Lab 01: namespaces и cgroups](../16-guided-labs/01-lab-linux-systemd-namespaces.md) |
+| 💪 Практика | [Задачи по Bash и системе](../15-hands-on-practice/01-100-devops-practical-tasks-part1.md) |
+| 🎤 Проверить себя | [Вопросы собесов: Linux](../14-interview-prep/03-100-devops-interview-questions-bank-part1.md) |

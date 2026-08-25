@@ -510,3 +510,12 @@ print(cfg.replicas)   # типизированный доступ, IDE подс�
 ---
 
 *Следующая страница: [02. Go для DevOps](02-go-for-devops.md)*
+
+---
+
+## 🧭 Что дальше
+
+| Шаг | Материал |
+| :--- | :--- |
+| 💪 Практика | [Задачи по Python](../15-hands-on-practice/01-100-devops-practical-tasks-part1.md) |
+| 🎤 Проверить себя | [Карточки Python в тренажёре](../22-trainer/index.md) |

@@ -191,7 +191,35 @@ sudo conntrack -L -p tcp --dport 443 2>/dev/null | head && sudo iptables-save -t
 ## ✅ Чек-лист зрелости темы
 
 - [ ] Все Deployment имеют `requests`/`limits`, liveness/readiness/startup пробы
+
+    ??? tip "Как закрыть пункт"
+        Requests по данным недели/VPA-рекомендаций; probes разделены по смыслу (liveness ≠ зависимость к БД); startup для медленного старта. Автопроверка: kube-score/Kyverno в CI блокирует деплой без проб.
+
 - [ ] Настроен `PodDisruptionBudget` и `topologySpreadConstraints`
+
+    ??? tip "Как закрыть пункт"
+        PDB допускает ≥1 нарушение (minAvailable N-1, не N — иначе drain вечен). Spread по zones+nodes: реплики переживают отказ AZ. Тест: kubectl drain проходит без нарушения SLO ([04.9](09-k8s-cluster-operations.md)).
+
 - [ ] Есть NetworkPolicy по умолчанию (default-deny) в каждом namespace
+
+    ??? tip "Как закрыть пункт"
+        Default-deny ingress+egress + явные allow (DNS первым делом!). Шаблон — [18.1](../18-templates/01-containers-and-k8s.md). Проверка: чужой под не достучался, легитимный клиент — достучался.
+
 - [ ] RBAC минимально-привилегированный, ServiceAccount токены не монтируются лишний раз
+
+    ??? tip "Как закрыть пункт"
+        automountServiceAccountToken: false по умолчанию; роли перечисляют verbs/resources явно, без wildcards. Аудит: kubectl-who-can на критичные права; токены в подах только там, где реально нужен API.
+
 - [ ] Проверяется совместимость манифестов с новой версией K8s (kubent/pluto)
+
+    ??? tip "Как закрыть пункт"
+        kubent/pluto в CI перед минорным апгрейдом; deprecated API — блокирующий warning. Список удалённых API целевой версии приложен к PR апгрейда ([04.9](09-k8s-cluster-operations.md)).
+
+---
+
+## 🧭 Что дальше
+
+| Шаг | Материал |
+| :--- | :--- |
+| ➡️ Дальше | [eBPF datapath: Cilium](../12-advanced-networking-and-mesh/02-cni-cilium-and-calico.md) |
+| 🎤 Проверить себя | [Вопросы: путь пакета](../14-interview-prep/03-100-devops-interview-questions-bank-part1.md) |

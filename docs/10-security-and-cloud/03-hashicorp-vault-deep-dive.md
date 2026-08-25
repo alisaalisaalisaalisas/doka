@@ -164,7 +164,35 @@ vault secrets list && vault policy list && vault read sys/health 2>/dev/null | h
 ## ✅ Чек-лист зрелости темы
 
 - [ ] Есть golden signals на каждый сервис (latency/traffic/errors/saturation)
+
+    ??? tip "Как закрыть пункт"
+        Четыре сигнала видны на дашборде сервиса: RPS, error ratio, latency p99 (histogram), saturation (очереди/пулы). Собраны provisioning'ом как код ([09.8](../09-observability/08-grafana-dashboards-as-code.md)), а не руками в UI.
+
 - [ ] Алерты actionable: каждый требует действия, а не просто информирует
+
+    ??? tip "Как закрыть пункт"
+        Тест правила: «что я сделаю, увидев?» Нет действия → это дашборд-метрика, убрать из пейджера. Пороги — burn-rate относительно SLO ([09.6](../09-observability/06-alertmanager-and-dashboards-mastery.md)). Аудит: % алертов с реальными действиями за месяц.
+
 - [ ] Настроены inhibition rules: падение ноды глушит её дочерние алерты
+
+    ??? tip "Как закрыть пункт"
+        equal: [node] связывает NodeDown с сервисными правилами этого узла — один инцидент = один алерт вместо двадцати. Проверка учением: выключить узел, убедиться в единственной нотификации.
+
 - [ ] Runbook ссылка внутри каждого алерта
+
+    ??? tip "Как закрыть пункт"
+        annotation runbook_url обязателен (lint правил), ведёт на конкретные команды диагностики, не на главную вики. Шаблон runbook — [13.2](../13-disaster-recovery-and-tools/02-database-backups-and-dr-plan.md).
+
 - [ ] Проведен учение: симулировали инцидент, проверили доставку нотификаций
+
+    ??? tip "Как закрыть пункт"
+        Раз в квартал: дрель хаоса → проверить путь правило→AM→канал, замерить MTTA. Заодно проверить silence/amtool и эскалации. Итог учения фиксируется.
+
+---
+
+## 🧭 Что дальше
+
+| Шаг | Материал |
+| :--- | :--- |
+| 🔬 Закрепить | [Lab 08: Vault в Ansible](../16-guided-labs/08-lab-ansible-molecule.md) |
+| 🎤 Проверить себя | [Вопросы: Vault](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |

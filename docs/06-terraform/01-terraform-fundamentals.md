@@ -171,17 +171,113 @@ echo 'import { to = aws_instance.web  id = "i-0abc123" }' >> import.tf && terraf
 !!! warning «Идемпотентность — закон»
     Любой скрипт/плейбук/модуль должен быть безопасно перезапускаемым. Если второй прогон меняет состояние — это баг, который однажды уронит прод.
 
-## 🧪 Hands-on Lab
+## 🧪 Hands-on Lab (30 минут): полный цикл на бесплатных провайдерах
+
+!!! abstract "Формат"
+    **Стенд:** только локальный файловый backend — облако не нужно. **Легенда:** создаём, изменяем, импортируем и уничтожаем ресурс так, как это будет выглядеть в облаке.
+
+### Шаг 1. Проект с двумя ресурсами и зависимостью
 
 ```bash
-terraform fmt -check -recursive && terraform validate && \
-terraform providers schema -json > /tmp/schema.json 2>/dev/null; terraform plan -out=/dev/null 2>&1 | tail -5
+mkdir tf-lab && cd tf-lab && cat > main.tf <<'EOF'
+resource "local_file" "config" {
+  filename = "app.conf"
+  content  = "host=${random_pet.name.id}\nenv=demo\n"
+}
+resource "random_pet" "name" { prefix = "web" }
+EOF
+
+terraform init && terraform plan     # +2 to add — читаем план ДО apply
+terraform apply -auto-approve && cat app.conf
 ```
+
+**Ожидаемый вывод:** `Plan: 2 to add`, после apply — файл с именем `web-<pet>`.
+
+??? question "В каком порядке создались ресурсы и почему Terraform знает порядок?"
+    Сначала `random_pet` (нет зависимостей), потом `local_file` — неявная зависимость через ссылку `random_pet.name.id`. Граф: `terraform graph | dot -Tpng > g.png`.
+
+### Шаг 2. Изменение и чтение диффа
+
+```bash
+sed -i 's/env=demo/env=prod/' main.tf
+terraform plan    # ~1 to change: content меняется
+```
+
+**Ожидаемый вывод:** план показывает ровно одно поле. Умение читать `-/+/~` в плане — навык №1.
+
+### Шаг 3. Импорт существующего (TF ≥ 1.5)
+
+```bash
+echo 'manual' > legacy.txt && cat >> main.tf <<'EOF'
+resource "local_file" "legacy" {
+  filename = "legacy.txt"
+  content  = "manual"
+}
+EOF
+cat > import.tf <<'EOF'
+import {
+  to = local_file.legacy
+  id = "legacy.txt"
+}
+EOF
+terraform plan -generate-config-out=generated.tf   # HCL сгенерирован!
+terraform apply && terraform plan                  # no changes — импорт успешен
+```
+
+### Шаг 4. Уничтожение и state-гигиена
+
+```bash
+terraform destroy && ls                    # файлов нет, стейт пуст
+terraform state list                       # []
+rm import.tf generated.tf
+# Проверь себя командой: terraform show → empty state
+```
+
+### Шаг 5. Проверь себя (ответы вслух до раскрытия)
+
+1. Чем plan опасен «на глаз»? Что покажет `-detailed-exitcode`?
+2. Почему `count` ломает индексы при удалении элемента списка?
+3. Кто выигрывает, если кто-то руками изменил файл: код или реальность?
+
+<details><summary>Ответы</summary>
+
+1. План читают построчно: каждый `-`/`+` — потенциальный инцидент. `-detailed-exitcode`: 0=нет изменений, 1=ошибка, 2=есть diff — база для CI-автоматизации.
+2. count использует индекс: удаление элемента сдвигает индексы всех последующих → пересоздание. for_each хранит по ключу.
+3. Реальность до apply: refresh покажет дрейф в плане; после apply — код перепишет ручные правки.
+</details>
 
 ## ✅ Чек-лист зрелости темы
 
 - [ ] Все изменения проходят через PR с обязательным review
+
+    ??? tip "Как закрыть пункт"
+        Branch protection + Atlantis/TFC plan на каждый MR. Никаких apply из ноутбука против shared-стейта — даже «срочных». Проверка: история apply'ев соответствует истории мержей.
+
 - [ ] Секреты никогда не хранятся в коде/стейте (Vault/SOPS/secret manager)
+
+    ??? tip "Как закрыть пункт"
+        Провайдер берёт креды из Vault OIDC/env; чувствительные outputs — sensitive=true; бэкенд зашифрован. Аудит: gitleaks по репозиторию + проверка, что стейт недоступен широкой группе.
+
 - [ ] Есть dry-run/plan этап и он виден в MR
+
+    ??? tip "Как закрыть пункт"
+        План публикуется комментарием/джобой прямо в MR, ревьюер видит diff инфраструктуры до approve. Артефакт плана используется для apply (не пересчитывается).
+
 - [ ] Откат воспроизводим одной командой (< 10 минут)
+
+    ??? tip "Как закрыть пункт"
+        Git revert MR + pipeline apply = откат. Проверено учением: таймер от решения до восстановления сервиса. Если откат требует ручных шагов — runbook их фиксирует.
+
 - [ ] Логи пайплайна содержат версии артефактов (image digest, commit SHA)
+
+    ??? tip "Как закрыть пункт"
+        В apply-джобе echo: TF версия, версии провайдеров, commit SHA, plan hash. Это связывает «что в проде» с «какой код» при разборе инцидентов.
+
+---
+
+## 🧭 Что дальше
+
+| Шаг | Материал |
+| :--- | :--- |
+| 🔬 Закрепить | [Lab 05: Terraform без облака](../16-guided-labs/05-lab-terraform-localstack.md) |
+| 💪 Практика | [Задачи по Terraform](../15-hands-on-practice/02-100-devops-practical-tasks-part2.md) |

@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://devops-handbook.example.com/07-ansible/01-ansible-architecture-and-playbooks/">
       
       
-        <link rel="prev" href="../../06-terraform/02-state-modules-and-terragrunt/">
+        <link rel="prev" href="../../06-terraform/03-terraform-testing-ci-and-state-ops/">
       
       
         <link rel="next" href="../02-roles-vault-and-best-practices/">
@@ -965,6 +965,8 @@
       
         
       
+        
+      
     
     
     
@@ -1111,6 +1113,34 @@
     
   
     Модель OSI, Протоколы и TLS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-linux-and-networking/05-linux-performance-diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Диагностика производительности
   
 
     
@@ -1460,6 +1490,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -1703,6 +1737,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-kubernetes/08-k8s-autoscaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Автоскейлинг (HPA, VPA, KEDA)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-kubernetes/09-k8s-cluster-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Эксплуатация: Апгрейды и etcd
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1718,6 +1808,10 @@
   
     
     
+      
+        
+      
+        
       
         
       
@@ -1826,6 +1920,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-gitops-and-cicd/03-gitlab-ci-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitLab CI Deep Dive: Runners, Rules, Cache
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-gitops-and-cicd/04-gitops-multienv-and-promotion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitOps Advanced: Multi-Env и Promotion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1841,6 +1991,8 @@
   
     
     
+      
+        
       
         
       
@@ -1949,6 +2101,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-terraform/03-terraform-testing-ci-and-state-ops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Тестирование, CI и Операции со Стейтом
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1966,6 +2146,8 @@
   
     
     
+      
+        
       
         
       
@@ -2186,13 +2368,74 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#-hands-on-lab" class="md-nav__link">
+  <a href="#-hands-on-lab-30-минут-плейбук-с-нуля-до-идемпотентности" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧪 Hands-on Lab
+        🧪 Hands-on Lab (30 минут): плейбук с нуля до идемпотентности
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="🧪 Hands-on Lab (30 минут): плейбук с нуля до идемпотентности">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#шаг-1-цель-и-первый-ad-hoc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Шаг 1. Цель и первый ad-hoc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#шаг-2-плейбук-с-шаблоном-handlerом-и-валидацией" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Шаг 2. Плейбук с шаблоном, handler'ом и валидацией
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#шаг-3-доказательство-идемпотентности-главный-тест" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Шаг 3. Доказательство идемпотентности (главный тест)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#шаг-4-ломаем-и-диагностируем" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Шаг 4. Ломаем и диагностируем
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#шаг-5-проверь-себя-ответы-вслух-до-раскрытия" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Шаг 5. Проверь себя (ответы вслух до раскрытия)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2201,6 +2444,17 @@
     <span class="md-ellipsis">
       
         ✅ Чек-лист зрелости темы
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-что-дальше" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧭 Что дальше
       
     </span>
   </a>
@@ -2244,6 +2498,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-ansible-collections-performance-and-awx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Collections, Производительность, AWX
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2259,6 +2541,8 @@
   
     
     
+      
+        
       
         
       
@@ -2367,6 +2651,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-programming-python-go/03-practice-projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Мини-проекты для портфолио
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2382,6 +2694,12 @@
   
     
     
+      
+        
+      
+        
+      
+        
       
         
       
@@ -2610,6 +2928,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observability/07-alloy-pipelines-cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Alloy Cookbook: Пайплайны Телеметрии
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observability/08-grafana-dashboards-as-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grafana as Code (дашборды)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-observability/09-monitoring-stack-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Архитектура Стека Мониторинга
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2625,6 +3027,8 @@
   
     
     
+      
+        
       
         
       
@@ -2763,6 +3167,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../10-security-and-cloud/04-supply-chain-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security (SBOM/cosign)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2778,6 +3210,8 @@
   
     
     
+      
+        
       
         
       
@@ -2976,6 +3410,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../11-data-and-storage/06-mongodb-replica-set-and-sharding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB Replica Set и Sharding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3147,6 +3609,8 @@
       
         
       
+        
+      
     
     
     
@@ -3222,6 +3686,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../13-disaster-recovery-and-tools/02-database-backups-and-dr-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Бэкапы БД и DR-план (PITR)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3237,6 +3729,8 @@
   
     
     
+      
+        
       
         
       
@@ -3405,6 +3899,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../14-interview-prep/05-system-design-tasks-bank/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Банк System Design задач (20 задач)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3543,6 +4065,12 @@
   
     
     
+      
+        
+      
+        
+      
+        
       
         
       
@@ -3801,6 +4329,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../16-guided-labs/08-lab-ansible-molecule/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab 08: Ansible роль + Molecule
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../16-guided-labs/09-lab-autoscaling-kind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab 09: Автоскейлинг в kind
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../16-guided-labs/10-lab-vault-end-to-end/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab 10: Vault end-to-end
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3816,6 +4428,12 @@
   
     
     
+      
+        
+      
+        
+      
+        
       
         
       
@@ -3894,6 +4512,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../17-break-fix/02-incident-simulations-part2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Партия №2 (автоскейлинг, etcd, PITR)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../17-break-fix/03-network-incident-simulations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Партия №3 сетевая (DNS, MTU, conntrack)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../17-break-fix/04-chaos-drills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chaos Drills (учения по скрипту)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3909,6 +4611,12 @@
   
     
     
+      
+        
+      
+        
+      
+        
       
         
       
@@ -4034,6 +4742,90 @@
     
   
     Observability и веб-серверы
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../18-templates/04-gitlab-ci-and-ansible/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitLab CI и Ansible (шаблоны)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../18-templates/05-production-readiness-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Production Readiness Review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../18-templates/06-hands-on-lab-standard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Стандарт лаб и чек-листов
   
 
     
@@ -4245,6 +5037,10 @@
   
     
     
+      
+        
+      
+        
       
         
       
@@ -4880,6 +5676,62 @@
     
   
     20.17 Хвосты стека (Linkerd, Locust, Grype, CRI-O)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../20-senior-stack/18-platform-engineering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20.18 Platform Engineering: IDP, Backstage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../20-senior-stack/19-finops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20.19 FinOps: управление затратами
   
 
     
@@ -5545,8 +6397,8 @@
 </span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">        </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/nginx/nginx.conf</span>
 </span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">        </span><span class="nt">owner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">root</span>
 </span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">        </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">root</span>
-</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">        </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="s">'0644'</span>
-</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">        </span><span class="nt">validate</span><span class="p">:</span><span class="w"> </span><span class="s">'nginx</span><span class="nv"> </span><span class="s">-t</span><span class="nv"> </span><span class="s">-c</span><span class="nv"> </span><span class="s">%s'</span><span class="w"> </span><span class="c1"># Валидация синтаксиса перед заменой!</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">        </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0644&#39;</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">        </span><span class="nt">validate</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;nginx</span><span class="nv"> </span><span class="s">-t</span><span class="nv"> </span><span class="s">-c</span><span class="nv"> </span><span class="s">%s&#39;</span><span class="w"> </span><span class="c1"># Валидация синтаксиса перед заменой!</span>
 </span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w">      </span><span class="nt">notify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reload Nginx</span><span class="w"> </span><span class="c1"># Вызовет handler только если файл РЕАЛЬНО изменился</span>
 </span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>
 </span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Гарантировать запуск и автозагрузку сервиса Nginx</span>
@@ -5568,7 +6420,7 @@
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>ansible<span class="w"> </span>all<span class="w"> </span>-i<span class="w"> </span>inventory.yaml<span class="w"> </span>-m<span class="w"> </span>ping
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Быстрый перезапуск сервиса на группе хостов</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>ansible<span class="w"> </span>webservers<span class="w"> </span>-i<span class="w"> </span>inventory.yaml<span class="w"> </span>-b<span class="w"> </span>-m<span class="w"> </span>systemd<span class="w"> </span>-a<span class="w"> </span><span class="s2">"name=nginx state=restarted"</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>ansible<span class="w"> </span>webservers<span class="w"> </span>-i<span class="w"> </span>inventory.yaml<span class="w"> </span>-b<span class="w"> </span>-m<span class="w"> </span>systemd<span class="w"> </span>-a<span class="w"> </span><span class="s2">&quot;name=nginx state=restarted&quot;</span>
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Проверка синтаксиса плейбука</span>
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory.yaml<span class="w"> </span>deploy_web.yaml<span class="w"> </span>--syntax-check
@@ -5577,7 +6429,7 @@
 </span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory.yaml<span class="w"> </span>deploy_web.yaml<span class="w"> </span>--check<span class="w"> </span>--diff
 </span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
 </span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="c1"># Запуск только с определенного шага (Step) или по тегам</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory.yaml<span class="w"> </span>deploy_web.yaml<span class="w"> </span>--tags<span class="w"> </span><span class="s2">"config"</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory.yaml<span class="w"> </span>deploy_web.yaml<span class="w"> </span>--tags<span class="w"> </span><span class="s2">&quot;config&quot;</span>
 </span></code></pre></div>
 <hr />
 <h2 id="-deep-dive-выполнение-плейбука-изнутри">🔬 Deep Dive: выполнение плейбука изнутри<a class="headerlink" href="#-deep-dive-выполнение-плейбука-изнутри" title="Permanent link">&para;</a></h2>
@@ -5590,15 +6442,15 @@
 <h3 id="управление-сложностью">Управление сложностью<a class="headerlink" href="#управление-сложностью" title="Permanent link">&para;</a></h3>
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Настроить веб-серверы поэтапно (rolling)</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webservers</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="s">"25%"</span><span class="w">                    </span><span class="c1"># батчами — живая половина всегда принимает трафик</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;25%&quot;</span><span class="w">                    </span><span class="c1"># батчами — живая половина всегда принимает трафик</span>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">max_fail_percentage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w">           </span><span class="c1"># остановиться при первой ошибке</span>
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">linear</span>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nt">vars_files</span><span class="p">:</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"vars/{{</span><span class="nv"> </span><span class="s">ansible_fqdn</span><span class="nv"> </span><span class="s">}}.yml"</span><span class="w">   </span><span class="c1"># переопределение per-host</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;vars/{{</span><span class="nv"> </span><span class="s">ansible_fqdn</span><span class="nv"> </span><span class="s">}}.yml&quot;</span><span class="w">   </span><span class="c1"># переопределение per-host</span>
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Проверить, что сервис отвечает до ухода ноды из LB</span>
 </span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">      </span><span class="nt">ansible.builtin.uri</span><span class="p">:</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">        </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">"http://{{</span><span class="nv"> </span><span class="s">inventory_hostname</span><span class="nv"> </span><span class="s">}}/healthz"</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">        </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://{{</span><span class="nv"> </span><span class="s">inventory_hostname</span><span class="nv"> </span><span class="s">}}/healthz&quot;</span>
 </span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">      </span><span class="nt">delegate_to</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
 </span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">health</span>
 </span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">      </span><span class="nt">until</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">health.status == 200</span>
@@ -5606,8 +6458,8 @@
 </span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">      </span><span class="nt">delay</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6</span>
 </span></code></pre></div>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ansible-inventory<span class="w"> </span>--graph<span class="w"> </span>--vars<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-40<span class="w">      </span><span class="c1"># что реально резолвится</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>ansible<span class="w"> </span>all<span class="w"> </span>-m<span class="w"> </span>setup<span class="w"> </span>-a<span class="w"> </span><span class="s1">'filter=ansible_memtotal_mb'</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>ansible-playbook<span class="w"> </span>site.yml<span class="w"> </span>--start-at-task<span class="o">=</span><span class="s2">"Install nginx"</span><span class="w"> </span>--step
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>ansible<span class="w"> </span>all<span class="w"> </span>-m<span class="w"> </span>setup<span class="w"> </span>-a<span class="w"> </span><span class="s1">&#39;filter=ansible_memtotal_mb&#39;</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>ansible-playbook<span class="w"> </span>site.yml<span class="w"> </span>--start-at-task<span class="o">=</span><span class="s2">&quot;Install nginx&quot;</span><span class="w"> </span>--step
 </span></code></pre></div>
 <p>!!! tip «Check mode»
     <code>--check</code> + <code>--diff</code>: dry-run с показом изменений файлов. Если роль не поддерживает check_mode — это техдолг, фиксируйте <code>check_mode: false</code> осознанно.</p>
@@ -5648,18 +6500,140 @@
 </table>
 <p>!!! warning «Идемпотентность — закон»
     Любой скрипт/плейбук/модуль должен быть безопасно перезапускаемым. Если второй прогон меняет состояние — это баг, который однажды уронит прод.</p>
-<h2 id="-hands-on-lab">🧪 Hands-on Lab<a class="headerlink" href="#-hands-on-lab" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ansible-inventory<span class="w"> </span>--graph<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>ansible<span class="w"> </span>all<span class="w"> </span>-m<span class="w"> </span>ping<span class="w"> </span>-o<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>ansible-playbook<span class="w"> </span>site.yml<span class="w"> </span>--syntax-check<span class="w"> </span>--list-tasks<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-30
+<h2 id="-hands-on-lab-30-минут-плейбук-с-нуля-до-идемпотентности">🧪 Hands-on Lab (30 минут): плейбук с нуля до идемпотентности<a class="headerlink" href="#-hands-on-lab-30-минут-плейбук-с-нуля-до-идемпотентности" title="Permanent link">&para;</a></h2>
+<div class="admonition abstract">
+<p class="admonition-title">Формат</p>
+<p><strong>Стенд:</strong> Docker-контейнер как цель (SSH не нужен). <strong>Легенда:</strong> ставим nginx на «сервер», ломаем, чиним, доказываем идемпотентность.</p>
+</div>
+<h3 id="шаг-1-цель-и-первый-ad-hoc">Шаг 1. Цель и первый ad-hoc<a class="headerlink" href="#шаг-1-цель-и-первый-ad-hoc" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>lab-target<span class="w"> </span>-p<span class="w"> </span><span class="m">2222</span>:22<span class="w"> </span>python:3.12-slim<span class="w"> </span>sleep<span class="w"> </span><span class="m">100000</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># Для простоты используем connection=local через inventory:</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>lab<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>lab/hosts.ini<span class="w"> </span><span class="s">&lt;&lt;&#39;EOF&#39;</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="s">[target]</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="s">lab-target ansible_connection=docker</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="s">EOF</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>cat<span class="w"> </span>&gt;<span class="w"> </span>lab/setup.yml<span class="w"> </span><span class="s">&lt;&lt;&#39;EOF&#39;</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="s">---</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="s">- hosts: target</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="s">  tasks:</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="s">    - name: Установить nginx (в slim-образе нет apt-кэша)</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="s">      ansible.builtin.raw: apt-get update &amp;&amp; apt-get install -y nginx procps</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="s">      args: { executable: /bin/bash }</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="s">      changed_when: true</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="s">EOF</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>lab/hosts.ini<span class="w"> </span>lab/setup.yml
 </span></code></pre></div>
+<details class="question">
+<summary>Почему здесь raw, а обычно package?</summary>
+<p><code>raw</code> работает без Python на цели — bootstrap-случай. После установки интерпретатора все следующие шаги должны использовать нормальные модули (package/apt) — иначе теряешь идемпотентность и проверки.</p>
+</details>
+<h3 id="шаг-2-плейбук-с-шаблоном-handlerом-и-валидацией">Шаг 2. Плейбук с шаблоном, handler'ом и валидацией<a class="headerlink" href="#шаг-2-плейбук-с-шаблоном-handlerом-и-валидацией" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>cat<span class="w"> </span>&gt;<span class="w"> </span>lab/nginx.conf.j2<span class="w"> </span><span class="s">&lt;&lt;&#39;EOF&#39;</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="s">server {</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="s">  listen {{ nginx_port }};</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="s">  location /healthz { return 200 &quot;ok\n&quot;; }</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="s">}</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="s">EOF</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>lab/setup.yml<span class="w"> </span><span class="s">&lt;&lt;&#39;EOF&#39;</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="s">    - name: Конфиг с валидацией перед применением</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="s">      ansible.builtin.template:</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="s">        src: nginx.conf.j2</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="s">        dest: /etc/nginx/conf.d/default.conf</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="s">        validate: nginx -t -c %s</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="s">      notify: Reload nginx</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="s">      vars: { nginx_port: 8080 }</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="s">  handlers:</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="s">    - name: Reload nginx</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="s">      ansible.builtin.service: { name: nginx, state: reloaded }</span>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="s">EOF</span>
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>lab/hosts.ini<span class="w"> </span>lab/setup.yml
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>lab-target<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>localhost:8080/healthz<span class="w">   </span><span class="c1"># ok</span>
+</span></code></pre></div>
+<h3 id="шаг-3-доказательство-идемпотентности-главный-тест">Шаг 3. Доказательство идемпотентности (главный тест)<a class="headerlink" href="#шаг-3-доказательство-идемпотентности-главный-тест" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>lab/hosts.ini<span class="w"> </span>lab/setup.yml<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;changed=&#39;</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="c1"># Ожидаем: changed=1 (только template? нет!) — если template тоже changed,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1"># значит модуль считает конфиг изменённым каждый раз — ищите ошибку.</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Третий прогон обязан дать changed=0 полностью.</span>
+</span></code></pre></div>
+<p><strong>Критерий успеха:</strong> второй прогон ≤1 changed (handler), третий — 0.</p>
+<h3 id="шаг-4-ломаем-и-диагностируем">Шаг 4. Ломаем и диагностируем<a class="headerlink" href="#шаг-4-ломаем-и-диагностируем" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;s/listen {{ nginx_port }}/listen {{ nginx_port };\n  broken/&#39;</span><span class="w"> </span>lab/nginx.conf.j2
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>lab/hosts.ini<span class="w"> </span>lab/setup.yml<span class="w">   </span><span class="c1"># FAIL на validate!</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1"># Вывод покажет вывод nginx -t — сломанный конфиг НЕ применился к серверу</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>git<span class="w"> </span>checkout<span class="w"> </span>--<span class="w"> </span>lab/nginx.conf.j2<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;/broken/d&#39;</span><span class="w"> </span>lab/nginx.conf.j2
+</span></code></pre></div>
+<h3 id="шаг-5-проверь-себя-ответы-вслух-до-раскрытия">Шаг 5. Проверь себя (ответы вслух до раскрытия)<a class="headerlink" href="#шаг-5-проверь-себя-ответы-вслух-до-раскрытия" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Чем handler отличается от обычной задачи и когда он выполнится?</li>
+<li><code>--check</code> показывает changes на пустом изменении — ошибка ли это?</li>
+<li>Почему validate критичен именно для конфигов сервисов?</li>
+</ol>
+<details><summary>Ответы</summary>
+
+1. Handler выполняется один раз в конце плея, только если его нотифицировали изменившиеся задачи; рестарты не «на всякий случай».
+2. Да: shell/command всегда changed без creates/changed_when. Это ложь в отчётах — чинить через creates или changed_when.
+3. Сервис с битым конфигом не стартует при рестарте — а validate ловит это на этапе деплоя, а не в 03:00.
+</details>
+
 <h2 id="-чек-лист-зрелости-темы">✅ Чек-лист зрелости темы<a class="headerlink" href="#-чек-лист-зрелости-темы" title="Permanent link">&para;</a></h2>
 <ul class="task-list">
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Все изменения проходят через PR с обязательным review</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Секреты никогда не хранятся в коде/стейте (Vault/SOPS/secret manager)</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Есть dry-run/plan этап и он виден в MR</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Откат воспроизводим одной командой (&lt; 10 минут)</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Логи пайплайна содержат версии артефактов (image digest, commit SHA)</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Все изменения проходят через PR с обязательным review</p>
+<details class="tip">
+<summary>Как закрыть пункт</summary>
+<p>Плейбуки — код: ветки, MR, обязательный прогон <code>ansible-lint</code> + <code>--syntax-check</code> в CI. Ручные запуски с ноутбука против прода запрещены политикой.</p>
+</details>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Секреты никогда не хранятся в коде/стейте (Vault/SOPS/secret manager)</p>
+<details class="tip">
+<summary>Как закрыть пункт</summary>
+<p>Vault + lookup-плагин или ansible-vault для файлов; gitleaks в pre-commit. Проверка: <code>grep -r password roles/</code> находит только ссылки на переменные, не значения.</p>
+</details>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Есть dry-run/plan этап и он виден в MR</p>
+<details class="tip">
+<summary>Как закрыть пункт</summary>
+<p>CI-джоба <code>ansible-playbook --check --diff</code> на каждый MR — ревьюер видит, какие файлы изменятся на целях. Для docker-целей можно гонять реально.</p>
+</details>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Откат воспроизводим одной командой (&lt; 10 минут)</p>
+<details class="tip">
+<summary>Как закрыть пункт</summary>
+<p>Git revert + повторный прогон = откат (роль вернёт прежний конфиг). Для миграций БД внутри ролей — down-миграции. Учение: откатить последний релиз по таймеру.</p>
+</details>
+</li>
+<li class="task-list-item">
+<p><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Логи пайплайна содержат версии артефактов (image digest, commit SHA)</p>
+<details class="tip">
+<summary>Как закрыть пункт</summary>
+<p>Джоба пишет: commit SHA, версию коллекций из requirements.yml, имя артефакта+хэш. При разборе инцидента вы точно знаете, какой код исполнялся на каких хостах.</p>
+</details>
+</li>
 </ul>
+<hr />
+<h2 id="-что-дальше">🧭 Что дальше<a class="headerlink" href="#-что-дальше" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Шаг</th>
+<th style="text-align: left;">Материал</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">🔬 Закрепить</td>
+<td style="text-align: left;"><a href="../../16-guided-labs/08-lab-ansible-molecule/">Lab 08: роль с нуля</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">💪 Практика</td>
+<td style="text-align: left;"><a href="../../15-hands-on-practice/02-100-devops-practical-tasks-part2/">Задачи по Ansible</a></td>
+</tr>
+</tbody>
+</table>
 <!-- Глобальные сниппеты для включения в документацию -->
 
 
@@ -5698,7 +6672,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Нижний колонтитул" >
         
           
-          <a href="../../06-terraform/02-state-modules-and-terragrunt/" class="md-footer__link md-footer__link--prev" aria-label="Назад: State, Модули и Terragrunt">
+          <a href="../../06-terraform/03-terraform-testing-ci-and-state-ops/" class="md-footer__link md-footer__link--prev" aria-label="Назад: Тестирование, CI и Операции со Стейтом">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -5708,7 +6682,7 @@
                 Назад
               </span>
               <div class="md-ellipsis">
-                State, Модули и Terragrunt
+                Тестирование, CI и Операции со Стейтом
               </div>
             </div>
           </a>

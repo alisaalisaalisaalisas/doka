@@ -1,6 +1,7 @@
-# 🎯 Тренажёр вопросов: 250 карточек по Senior Stack
+# 🎯 Тренажёр вопросов: 320 карточек по всему курсу
 
-> Все вопросы из раздела [20. Senior Stack](../20-senior-stack/00-senior-stack-summary.md) (подтемы 2.5 + три сводные проверки) — в двух форматах.
+> Вопросы собираются автоматически из всех разделов, где есть блоки формата
+> `**ВN. вопрос**` + спойлер «Ответ» (Senior Stack, MLOps, Python/Go и новые разделы).
 
 | Формат | Ссылка | Для чего |
 | :--- | :--- | :--- |
@@ -10,11 +11,23 @@
 
 | Тема | Вопросов |
 | :--- | ---: |
+| 02-database-backups-and-dr-plan | 5 |
+| 03-gitlab-ci-deep-dive | 5 |
+| 04-gitops-multienv-and-promotion | 5 |
+| 04-supply-chain-security | 5 |
 | 05-feature-store-feast | 5 |
+| 05-linux-performance-diagnostics | 5 |
 | 06-gpu-k8s | 5 |
+| 07-alloy-pipelines-cookbook | 5 |
 | 07-kubeflow-pipelines | 5 |
+| 08-grafana-dashboards-as-code | 5 |
+| 08-k8s-autoscaling | 5 |
 | 08-llmops-rag | 5 |
+| 09-k8s-cluster-operations | 5 |
 | 09-model-governance | 5 |
+| 09-monitoring-stack-architecture | 5 |
+| 18-platform-engineering | 5 |
+| 19-finops | 5 |
 | 20.1 Policy as Code (OPA/Kyverno) | 5 |
 | 20.10 CLI-арсенал | 5 |
 | 20.11 Jsonnet/CUE/Sentry | 5 |
@@ -32,10 +45,12 @@
 | 20.7 Network Edge | 5 |
 | 20.8 MinIO/etcd/Longhorn | 5 |
 | 20.9 Pulumi/Packer/Crossplane | 5 |
+| Go для DevOps | 5 |
 | MLOps 23.1 Введение и жизненный цикл | 5 |
 | MLOps 23.2 MLflow | 5 |
 | MLOps 23.3 DVC и пайплайны | 5 |
 | MLOps 23.4 Сервинг и мониторинг | 5 |
+| Python для DevOps | 5 |
 | Свод Части 1 | 40 |
 | Свод Части 2 | 40 |
 | Свод Части 3 | 40 |
@@ -52,7 +67,7 @@
 
 ## Пересборка тренажёра
 
-После изменения материалов раздела 20 перегенерируйте карточки:
+После изменения материалов любого раздела (блоки «ВN. вопрос» + «Ответ») перегенерируйте карточки:
 
 ```bash
 py tools/build_trainer.py

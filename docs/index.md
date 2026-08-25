@@ -26,10 +26,10 @@ flowchart TD
         E1["🗄️ Ceph · 📨 Kafka · ⚡ ClickHouse · 🐘 PostgreSQL HA · 🔴 Redis"]
     end
     subgraph S6["6️⃣ Эксплуатация"]
-        F1["📊 Prometheus, Loki, Grafana · 🔒 Vault, Kyverno · 🛟 Velero DR"]
+        F1["📊 Prometheus, Alloy, Loki, Grafana · 🔒 Vault, Kyverno · 🛟 Velero + DR-план"]
     end
     subgraph S7["7️⃣ Мастерство"]
-        G1["🧪 7 Labs · 🚑 10 инцидентов · 🎯 100 вопросов · 💼 Карьера"]
+        G1["🧪 9 Labs · 🚑 16 инцидентов · 🎯 100 вопросов · 💼 Карьера · 🧮 PRR"]
     end
 
     S1 --> S2
@@ -75,18 +75,24 @@ flowchart TD
 * 📄 [05. Внутреннее устройство контроллеров и Informer Pattern](04-kubernetes/05-k8s-controllers-and-internals.md)
 * 📄 [06. Глубокое погружение в сеть K8s: Путь сетевого пакета (Packet Flow)](04-kubernetes/06-k8s-networking-packet-flow.md)
 * 📄 [07. Полный справочник по контроллерам Kubernetes: Логика, Алгоритмы и Edge Cases](04-kubernetes/07-all-kubernetes-controllers-reference.md)
+* 📄 [08. Автоскейлинг: HPA, VPA, KEDA, Cluster Autoscaler](04-kubernetes/08-k8s-autoscaling.md)
+* 📄 [09. Эксплуатация кластера: апгрейды, etcd, замена узлов](04-kubernetes/09-k8s-cluster-operations.md)
 
 ### [05. GitOps и CI/CD](05-gitops-and-cicd/01-gitops-argocd-flux.md)
 * 📄 [01. Принципы GitOps: ArgoCD и FluxCD](05-gitops-and-cicd/01-gitops-argocd-flux.md)
 * 📄 [02. Паттерны построения пайплайнов (GitLab CI / GitHub Actions)](05-gitops-and-cicd/02-cicd-pipelines-patterns.md)
+* 📄 [03. GitLab CI Deep Dive: Runners, Rules, Cache, Vault OIDC](05-gitops-and-cicd/03-gitlab-ci-deep-dive.md)
+* 📄 [04. GitOps Advanced: Multi-Env, App-of-Apps, Promotion](05-gitops-and-cicd/04-gitops-multienv-and-promotion.md)
 
 ### [06. Инфраструктура как код: Terraform](06-terraform/01-terraform-fundamentals.md)
 * 📄 [01. Основы Terraform/OpenTofu, HCL и Провайдеры](06-terraform/01-terraform-fundamentals.md)
 * 📄 [02. Remote State, Модульность и Terragrunt](06-terraform/02-state-modules-and-terragrunt.md)
+* 📄 [03. Тестирование, CI и Операции со Стейтом (Atlantis, импорт, дрейф)](06-terraform/03-terraform-testing-ci-and-state-ops.md)
 
 ### [07. Управление конфигурациями: Ansible](07-ansible/01-ansible-architecture-and-playbooks.md)
 * 📄 [01. Архитектура Ansible, Inventory и Плейбуки](07-ansible/01-ansible-architecture-and-playbooks.md)
 * 📄 [02. Роли, Коллекции, Jinja2, Vault и Тестирование Molecule](07-ansible/02-roles-vault-and-best-practices.md)
+* 📄 [03. Collections, Производительность, ansible-pull и AWX](07-ansible/03-ansible-collections-performance-and-awx.md)
 
 ### [08. Языки автоматизации: Python и Go](08-programming-python-go/01-python-for-devops.md)
 * 📄 [01. Python для DevOps: Скрипты, API, Boto3 и K8s SDK](08-programming-python-go/01-python-for-devops.md)
@@ -99,11 +105,15 @@ flowchart TD
 * 📄 [04. Корпоративный мониторинг Zabbix: Архитектура, Агенты и LLD](09-observability/04-zabbix-enterprise-monitoring.md)
 * 📄 [05. Стек ELK / OpenSearch: Индексация, Sharding и Пайплайны](09-observability/05-elk-opensearch-stack.md)
 * 📄 [06. Построение дашбордов Grafana (RED/USE) и Архитектура Alertmanager](09-observability/06-alertmanager-and-dashboards-mastery.md)
+* 📄 [07. Grafana Alloy Cookbook: пайплайны метрик, логов и трейсов](09-observability/07-alloy-pipelines-cookbook.md)
+* 📄 [08. Grafana as Code: provisioning, Terraform, Library Panels](09-observability/08-grafana-dashboards-as-code.md)
+* 📄 [09. Архитектура стека мониторинга: масштаб, HA, кардинальность](09-observability/09-monitoring-stack-architecture.md)
 
 ### [10. Безопасность и Облачные сервисы](10-security-and-cloud/01-devsecops-and-secrets.md)
 * 📄 [01. DevSecOps: HashiCorp Vault, SOPS, Trivy, Kyverno](10-security-and-cloud/01-devsecops-and-secrets.md)
 * 📄 [02. Веб-серверы (Nginx/Traefik), SSL/TLS и Облачная инфраструктура](10-security-and-cloud/02-cloud-and-web-servers.md)
 * 📄 [03. HashiCorp Vault: Архитектура, Динамические секреты и PKI](10-security-and-cloud/03-hashicorp-vault-deep-dive.md)
+* 📄 [04. Supply Chain Security: SBOM, cosign, admission по подписи](10-security-and-cloud/04-supply-chain-security.md)
 
 ### [11. Базы данных, Брокеры и Хранилища](11-data-and-storage/01-ceph-storage-and-rook.md)
 * 📄 [01. Распределенное хранилище Ceph и Rook-Ceph](11-data-and-storage/01-ceph-storage-and-rook.md)
@@ -111,6 +121,7 @@ flowchart TD
 * 📄 [03. Колоночная СУБД ClickHouse: Архитектура и Эксплуатация](11-data-and-storage/03-clickhouse-architecture-and-ops.md)
 * 📄 [04. PostgreSQL High Availability: Patroni, pgBouncer и CloudNativePG](11-data-and-storage/04-postgresql-ha-and-patroni.md)
 * 📄 [05. Redis: Кэширование, Sentinel и Redis Cluster](11-data-and-storage/05-redis-sentinel-and-cluster.md)
+* 📄 [06. MongoDB: Replica Set, Sharding и Бэкапы](11-data-and-storage/06-mongodb-replica-set-and-sharding.md)
 
 ### [12. Продвинутые сети, Ingress и Service Mesh](12-advanced-networking-and-mesh/01-istio-service-mesh.md)
 * 📄 [01. Service Mesh: Istio, Envoy и Zero-Trust Безопасность](12-advanced-networking-and-mesh/01-istio-service-mesh.md)
@@ -119,6 +130,7 @@ flowchart TD
 
 ### [13. Disaster Recovery и Утилиты](13-disaster-recovery-and-tools/01-k8s-backups-velero.md)
 * 📄 [01. Disaster Recovery и бэкапы кластера: Velero](13-disaster-recovery-and-tools/01-k8s-backups-velero.md)
+* 📄 [02. Бэкапы БД и DR-план: PITR, RPO/RTO, Runbook'и](13-disaster-recovery-and-tools/02-database-backups-and-dr-plan.md)
 
 ### [14. Подготовка к собеседованиям DevOps / SRE (100+ Вопросов)](14-interview-prep/01-devops-interview-core-qa.md)
 * 📄 [01. Топ частых вопросов и эталонных ответов](14-interview-prep/01-devops-interview-core-qa.md)
@@ -138,14 +150,19 @@ flowchart TD
 * 📄 [Lab 05. Terraform с нуля (без облака)](16-guided-labs/05-lab-terraform-localstack.md)
 * 📄 [Lab 06. Мониторинг: Prometheus, Grafana, Loki, алерты в Telegram](16-guided-labs/06-lab-observability-stack.md)
 * 📄 [Lab 07. GitOps с ArgoCD](16-guided-labs/07-lab-gitops-argocd.md)
+* 📄 [Lab 08. Ansible-роль: идемпотентность, Vault, Molecule](16-guided-labs/08-lab-ansible-molecule.md)
+* 📄 [Lab 09. Автоскейлинг в kind: HPA, KEDA, нагрузочные тесты](16-guided-labs/09-lab-autoscaling-kind.md)
 
 ### [17. Break-Fix: инцидент-симуляции](17-break-fix/01-incident-simulations.md)
 * 📄 [10 сценариев «сломай и почини» с решениями и MTTR-целями](17-break-fix/01-incident-simulations.md)
+* 📄 [Партия №2: автоскейлинг, etcd, PITR, подписи образов — 6 новых инцидентов](17-break-fix/02-incident-simulations-part2.md)
 
 ### [18. Библиотека production-шаблонов](18-templates/01-containers-and-k8s.md)
 * 📄 [Контейнеры и Kubernetes: Dockerfile, Deployment+HPA+PDB, NetworkPolicy](18-templates/01-containers-and-k8s.md)
 * 📄 [Terraform, Ansible, CI/CD: структура репо, пайплайны с plan на PR](18-templates/02-iac-and-cicd.md)
 * 📄 [Observability и веб: правила алертов, Alertmanager, Alloy, Nginx hardening](18-templates/03-observability-and-web.md)
+* 📄 [GitLab CI и Ansible: каркасы приложения и деплой-плейбука](18-templates/04-gitlab-ci-and-ansible.md)
+* 📄 [Production Readiness Review: чек-лист готовности сервиса к проде](18-templates/05-production-readiness-review.md)
 
 ### [19. Карьера: от homelab до оффера](19-career/01-home-lab-setup.md)
 * 📄 [Home Lab: серверная дома за 0₽ / 30к / enterprise](19-career/01-home-lab-setup.md)
@@ -178,8 +195,8 @@ flowchart TD
 ### [21. Песочница: терминал и редактор кода](21-playground/index.md)
 * 🖥️ [Интерактивные сценарии: K8s CrashLoop, jq, MySQL, Docker, Terraform — прямо на сайте](21-playground/index.md)
 
-### [22. Тренажёр вопросов: 205 карточек](22-trainer/index.md)
-* 🎯 [Интерактивный квиз с прогрессом + Anki-колода для интервального повторения](22-trainer/index.md)
+### [22. Тренажёр вопросов: интервальное повторение (SRS)](22-trainer/index.md)
+* 🎯 [Интерактивный квиз с прогрессом — карточки собираются из всех разделов автоматически](22-trainer/index.md)
 
 ### [23. MLOps: введение в эксплуатацию ML](23-mlops/00-plan.md)
 * 📄 [План раздела и roadmap развития](23-mlops/00-plan.md)
