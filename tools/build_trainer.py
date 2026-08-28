@@ -102,6 +102,7 @@ button:hover{border-color:var(--acc)}
 main{max-width:860px;margin:0 auto;padding:20px 16px}
 #progress{font-size:13px;color:var(--dim);margin-bottom:6px}
 #due{font-size:13px;margin-bottom:10px}
+#streak{font-size:13px;color:var(--dim);margin-bottom:10px}
 .due-badge{color:var(--warn)}
 .bar{height:8px;background:#1c2530;border-radius:4px;overflow:hidden;margin-bottom:16px}
 .bar>div{height:100%;background:var(--acc);width:0;transition:width .3s}
@@ -118,19 +119,34 @@ main{max-width:860px;margin:0 auto;padding:20px 16px}
 #done{text-align:center;padding:40px;display:none}
 #done b{font-size:22px}
 .mode{font-size:13px;color:var(--dim);margin-bottom:8px}
+kbd{display:inline-block;font:11px ui-monospace,monospace;background:#1c2530;border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;padding:1px 5px;margin-left:6px;color:var(--dim)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+@media (prefers-color-scheme: light){
+  :root{--bg:#f6f8fa;--panel:#ffffff;--border:#d0d7de;--fg:#24292f;--dim:#57606a}
+  body{background:var(--bg);color:var(--fg)}
+  header{background:var(--panel)}
+  .card{background:var(--panel)}
+  .a{background:#f6f8fa}
+  kbd{background:#eaeef2}
+  .bar{background:#eaeef2}
+}
+
 </style></head><body>
 <header>
-  <h1>🎯 Тренажёр SRS: Senior DevOps Stack</h1>
+  <a href="../../" style="color:var(--acc);text-decoration:none;font-size:13px;border:1px solid var(--border);border-radius:6px;padding:5px 10px;background:#1c2530">← Назад к справочнику</a>
+  <h1 id="title">🎯 Тренажёр SRS: Senior DevOps Stack</h1>
   <select id="topic"><option value="">Все темы</option></select>
   <select id="mode">
     <option value="srs">Режим: Anki (по расписанию)</option>
     <option value="exam">Режим: экзамен (все подряд)</option>
   </select>
   <button id="shuffle">Перемешать</button>
+  <button id="undo" title="Отменить последнюю оценку (Z)">↩ Undo <kbd>Z</kbd></button>
   <button id="reset">Сбросить прогресс</button>
 </header>
 <main>
-  <div class="mode">Anki-режим: «Снова» — карточка вернётся сегодня; «Хорошо» — интервал ×2.5 (1→3→7→16→35→70 дней); «Легко» — ×3. Прогресс хранится в браузере.</div>
+  <div class="mode">Anki-режим: «Снова» — карточка вернётся сегодня; «Хорошо» — интервал ×2.5 (1→3→7→16→35→70 дней); «Легко» — ×3. Прогресс хранится в браузере. <span style="color:var(--dim)">Горячие клавиши: <kbd>Space</kbd> ответ · <kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> оценка · <kbd>←</kbd>/<kbd>→</kbd> undo/skip</span></div>
+  <div id="streak"></div>
   <div id="due"></div>
   <div id="progress"></div>
   <div class="bar"><div id="bar-fill"></div></div>
@@ -139,11 +155,11 @@ main{max-width:860px;margin:0 auto;padding:20px 16px}
     <div class="q" id="q"></div>
     <div class="a" id="a"></div>
     <div class="btns">
-      <button id="show" class="show">Показать ответ</button>
+      <button id="show" class="show">Показать ответ <kbd>Space</kbd></button>
       <span class="verdict" id="verdict" style="display:none">
-        <button class="again" id="again">✗ Снова</button>
-        <button class="good" id="good">✓ Хорошо</button>
-        <button class="easy" id="easy">⚡ Легко</button>
+        <button class="again" id="again">✗ Снова <kbd>1</kbd></button>
+        <button class="good" id="good">✓ Хорошо <kbd>2</kbd></button>
+        <button class="easy" id="easy">⚡ Легко <kbd>3</kbd></button>
       </span>
     </div>
   </div>
@@ -154,16 +170,19 @@ main{max-width:860px;margin:0 auto;padding:20px 16px}
 <script>
 const DATA = __DATA__;
 const KEY = "devops-handbook-srs-v2";
+const STATS_KEY = "devops-handbook-srs-stats-v1";
 const DAY = 86400000;
 const IVLS = [1,3,7,16,35,70];                 // дни для «Хорошо»
 const topicSel = document.getElementById("topic"),
       modeSel = document.getElementById("mode"),
       progressEl = document.getElementById("progress"),
       dueEl = document.getElementById("due"),
+      streakEl = document.getElementById("streak"),
       barFill = document.getElementById("bar-fill"),
       cardEl = document.getElementById("card"),
       doneEl = document.getElementById("done"),
       doneStats = document.getElementById("done-stats"),
+      titleEl = document.getElementById("title"),
       topicEl = document.getElementById("t"),
       qEl = document.getElementById("q"),
       aEl = document.getElementById("a"),
@@ -173,10 +192,38 @@ const topicSel = document.getElementById("topic"),
       goodBtn = document.getElementById("good"),
       easyBtn = document.getElementById("easy"),
       shuffleBtn = document.getElementById("shuffle"),
+      undoBtn = document.getElementById("undo"),
       resetBtn = document.getElementById("reset"),
       examNowBtn = document.getElementById("exam-now");
 let state = JSON.parse(localStorage.getItem(KEY) || "{}");  // hash -> {v, due, ivl}
 let deck = [], i = 0, shown = false, shuffled = false;
+let history = []; // last 20 grades for undo
+let stats = JSON.parse(localStorage.getItem(STATS_KEY) || "{}"); // {lastDay, streak, perDay: {day: count}}
+function saveStats(){
+  const today = new Date().toISOString().slice(0,10);
+  if(stats.lastDay !== today){
+    const yest = new Date(Date.now()-DAY).toISOString().slice(0,10);
+    if(stats.lastDay === yest) stats.streak = (stats.streak||0)+1;
+    else if(stats.lastDay) stats.streak = 1;
+    else stats.streak = 1;
+    stats.lastDay = today;
+  }
+  stats.perDay = stats.perDay || {};
+  stats.perDay[stats.lastDay] = (stats.perDay[stats.lastDay]||0)+1;
+  localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+}
+function renderStreak(){
+  if(!streakEl) return;
+  const today = new Date().toISOString().slice(0,10);
+  const weekAgo = Date.now()-7*DAY;
+  let weekNew = 0, weekRep = 0;
+  for(const [day,cnt] of Object.entries(stats.perDay||{})){
+    const ts = new Date(day).getTime();
+    if(ts >= weekAgo) { weekNew += cnt; }
+  }
+  const dueNow = DATA.filter(c=>{ const s=state[hash(c.q+c.t)]; return !s || (s.due||0) <= Date.now(); }).length;
+  streakEl.textContent = `📊 Streak: ${stats.streak||0} дней · новых за неделю: ${weekNew} · к повторению: ${dueNow}`;
+}
 
 const hash = s => { let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))|0; return "q"+h; };
 const isNew = c => !state[hash(c.q+c.t)];
@@ -201,6 +248,12 @@ function stats(pool){
   return {learned, due, mastered, total: pool.length};
 }
 function render(){
+  // dynamic title
+  if(titleEl){
+    const sel = topicSel.value || "все темы";
+    titleEl.textContent = `🎯 Тренажёр: ${sel} — ${DATA.length} карт.`;
+  }
+  renderStreak();
   const f = topicSel.value;
   const pool = DATA.map(c=>c).filter(c=>!f || c.t===f);
   const s = stats(pool);
@@ -227,19 +280,43 @@ showBtn.onclick = ()=>{ aEl.style.display="block"; shown=true; showBtn.style.dis
 function grade(kind){
   if(!shown) return;
   const c = deck[i], h = hash(c.q+c.t), now = Date.now();
+  const prev = state[h] ? JSON.parse(JSON.stringify(state[h])) : null;
+  history.push({idx:i, h, prev, deckSnapshot: deck.slice(), iSnapshot: i});
+  if(history.length>20) history.shift();
   if(kind==="again")      state[h] = {v:"no", due: now + 10*60000, ivl: 0};
   else if(kind==="easy")  state[h] = {v:"ok", due: now + Math.max(IVLS[2],(state[h]?.ivl||0)*3)*DAY, ivl: Math.max(IVLS[2],(state[h]?.ivl||0)*3)};
   else { const cur = (state[h]?.ivl)||0; const next = IVLS[IVLS.findIndex(x=>x>cur)]; if(next===-1||cur>=IVLS.at(-1)) state[h]={v:"ok",due:now+IVLS.at(-1)*DAY,ivl:IVLS.at(-1)}; else state[h]={v:"ok",due:now+next*DAY,ivl:next}; }
   localStorage.setItem(KEY, JSON.stringify(state));
+  saveStats();
   i++; render();
+}
+function undo(){
+  if(!history.length) return;
+  const last = history.pop();
+  if(last.prev) state[last.h]=last.prev; else delete state[last.h];
+  localStorage.setItem(KEY, JSON.stringify(state));
+  deck = last.deckSnapshot; i = last.iSnapshot;
+  render();
 }
 againBtn.onclick = ()=>grade("again");
 goodBtn.onclick = ()=>grade("good");
 easyBtn.onclick = ()=>grade("easy");
+undoBtn.onclick = ()=>undo();
 shuffleBtn.onclick = ()=>{ shuffled = true; rebuild(); };
-resetBtn.onclick = ()=>{ if(confirm("Сбросить весь SRS-прогресс?")){ state={}; localStorage.removeItem(KEY); shuffled=false; rebuild(); } };
+resetBtn.onclick = ()=>{ if(confirm("Сбросить весь SRS-прогресс?")){ state={}; history=[]; localStorage.removeItem(KEY); localStorage.removeItem(STATS_KEY); stats={}; shuffled=false; rebuild(); } };
 examNowBtn.onclick = ()=>{ modeSel.value="exam"; shuffled=true; rebuild(); };
 topicSel.onchange = rebuild; modeSel.onchange = rebuild;
+document.addEventListener("keydown", (e)=>{
+  if(e.target.tagName==="INPUT" || e.target.tagName==="TEXTAREA" || e.target.isContentEditable) return;
+  if(e.code==="Space" || e.key===" "){
+    e.preventDefault();
+    if(!shown) showBtn.click(); else goodBtn.click();
+  } else if(e.key==="1"){ if(shown) grade("again"); }
+  else if(e.key==="2"){ if(shown) grade("good"); }
+  else if(e.key==="3"){ if(shown) grade("easy"); }
+  else if(e.key==="ArrowLeft" || (e.ctrlKey&&e.key==="z") || e.key==="z" || e.key==="Z"){ e.preventDefault(); undo(); }
+  else if(e.key==="ArrowRight"){ if(shown) grade("good"); else showBtn.click(); }
+});
 rebuild();
 </script></body></html>
 """

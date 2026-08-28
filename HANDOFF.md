@@ -26,8 +26,12 @@
 | `docs/18-templates/` | production-шаблоны (K8s/IaC/Obs) |
 | `docs/19-career/` | homelab, портфолио, сертификаты, резюме |
 | `docs/20-senior-stack/` | **Senior Stack: 17 тем + 3 свода** (см. ниже) |
-| `docs/21-playground/` | **Песочница**: интерактивный терминал+редактор, 120 сценариев |
-| `docs/22-trainer/` | **Тренажёр SRS**: quiz.html (225 карточек) + Anki TSV |
+| `docs/21-playground/` | **Песочница**: терминал+Monaco, **1033 сценария** (2026-08, UX v1: прогресс, 🔗 копирование, optgroup, light/dark, a11y, focus-режим, печать) |
+| `docs/22-trainer/` | **Тренажёр SRS**: quiz.html (**831 карточка**, SRS, undo, Space/1-2-3/←→, streak, light/dark) + Anki TSV |
+| `docs/javascripts/answer-check.js` | фикс instant-nav для задач (Phase 2) |
+| `docs/stylesheets/extra.css` | тема, card-grid, badges, hero (Phase 3) |
+| `tools/build_home.py` | генератор статистики главной (Phase 4) |
+| `tools/check_nav_drift.py` | CI-чек дрейфа цифр (Phase 7) |
 | `docs/23-mlops/` | **MLOps**: план + 4 темы (intro, MLflow, DVC/пайплайны, сервинг) |
 | `tools/build_trainer.py` | генератор тренажёра (запуск: `py tools/build_trainer.py`) |
 | `tools/fold_solutions.py` | сворачивает решения 100 задач в details (идемпотентно) |
@@ -80,6 +84,17 @@ MLOps полный: 23.1–23.4 (база) + 23.5 Feast · 23.6 GPU/Kueue · 23.
 5. После правок: `mkdocs build --strict` + при изменении Q/A — `py tools/build_trainer.py`.
 6. Инструменты-генераторы: `tools/build_trainer.py`, `tools/fix_scenario_regex.py`, `tools/update_docs.py`, `tools/patch_engine.py` (последние два — разовые, можно удалить).
 
+## ✨ UX Redesign v1 (2026-08, готово, 7 фаз)
+
+- **Phase 0 Подготовка:** ветка `ux/redesign-v1`, `.gitignore` (site/.venv), `git rm --cached site/`, `mkdocs build --strict` ок.
+- **Phase 1 Quick wins:** скрыт `repo_url/edit_uri`, сняты `content.action.edit/view`, `205→831` в nav, `1.py/_sync_index.py → tools/legacy/`, `includes/mkdocs.md` UTF-8, удалён `tags` плагин, back-link `← Назад` в playground/quiz.
+- **Phase 2 Bug-fix instant-nav:** `docs/javascripts/answer-check.js` + `document$.subscribe(...)`, `extra_javascript`, удалены inline `<script>` из задач, стили в `answer-check.css`.
+- **Phase 3 Тема/навигация:** `extra.css` (CSS-переменные, :focus-visible, .card-grid/.badge), `toc.integrate` убран (вернулся правый ToC), `navigation.prune`, группировка мелких разделов в таб `Ещё` (10-13+18+19), шрифт fallback, `nav-stats.js`.
+- **Phase 4 Главная:** `overrides/home.html` hero + `handbook-hero` CTA (Roadmap/Playground/SRS) + поиск, карточки 6 разделов, авто-статистика `tools/build_home.py` (299 стр/12 лаб/4 блока/1033 сцена/831 карт), дрейф-чек.
+- **Phase 5 Песочница:** прогресс `playground-solved-v1` + ✓ в select + счётчик, 🔗 копировать ссылку `?scenario=id` + тост, light-тема, a11y (aria-live/label, focus-ring), focus-режим, `@media print`, стабильность Monaco/fallback + fix double-click.
+- **Phase 6 Тренажёр:** шорткаты Space/1/2/3/←→/Ctrl+Z, undo history 20, `undo` кнопка, streak `devops-handbook-srs-stats-v1` (`📊 Streak/неделя/повторы`), light+autodetect, динамический `<h1> Тренажёр: ${topic}`, kbd-badges, nav-метка авто (831).
+- **Phase 7 Полировка:** `search.stop_words` (RU), `theme.icon.admonition` кастом, `tools/check_nav_drift.py` + CI `.github/workflows/ci.yml` + `.pre-commit-config.yaml`, HANDOFF/USAGE обновлены. Валидация: `mkdocs build --strict` + `py tools/check_nav_drift.py` + ручная 6 страниц.
+
 ## Что НЕ сделано / кандидаты на продолжение
 
 - **Волна 6b (2026-08, готово): хвосты добиты.** +22 страницы получили самопроверки (k8s 05/06/07 internals, terraform 03, ansible 03, obs 03–06, security 02/03, clickhouse/mongodb, cilium-calico, traefik-nginx + финал: roadmap, practice-projects, все 5 страниц interview-prep). Покрытие «Проверь себя»: **127 из 127 (100%)**.
@@ -120,6 +135,12 @@ MLOps полный: 23.1–23.4 (база) + 23.5 Feast · 23.6 GPU/Kueue · 23.
 cd C:\Users\User\Desktop\papka\doka
 Get-Process mkdocs -ErrorAction SilentlyContinue | Stop-Process
 mkdocs serve            # → http://127.0.0.1:8000
-mkdocs build --strict   # проверка
-py tools/build_trainer.py   # перегенерация тренажёра
+mkdocs build --strict   # проверка (обязательно после Phase 1+)
+py tools/build_trainer.py   # перегенерация тренажёра (831 карт → обновляет nav + index.md)
+py tools/build_home.py      # пересчитать статистику главной (299 стр/1033 сцена/831 карт)
+py tools/check_nav_drift.py # CI-чек дрейфа цифр
+
+# UX-горячие клавиши (песочница/тренажёр):
+# Песочница: 🔗 копировать ссылку, ⛶ фокус, прогресс в localStorage playground-solved-v1
+# Тренажёр: Space→ответ, 1/2/3→оценка, Z/← undo, → skip, streak в devops-handbook-srs-stats-v1
 ```

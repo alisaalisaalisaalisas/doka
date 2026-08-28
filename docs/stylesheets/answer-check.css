@@ -1,0 +1,52 @@
+/* answer-check widget — used in 15-hands-on-practice pages */
+.answer-check {
+  display: block;
+  margin: 6px 0 14px 0;
+}
+.answer-check-input {
+  width: 75%;
+  max-width: 640px;
+  background: #0b0f14;
+  color: #cde3ea;
+  border: 1px solid #2a3441;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font: 13px 'JetBrains Mono', Consolas, monospace;
+  margin: 4px 0;
+  outline: none;
+  transition: border-color .2s;
+}
+.answer-check-input:focus {
+  border-color: #26c6da;
+  box-shadow: 0 0 0 2px rgba(38, 198, 218, .25);
+}
+.answer-check-input.is-ok {
+  border-color: #4ade80;
+}
+.answer-check-input.is-err {
+  border-color: #f87171;
+}
+.answer-check-btn {
+  margin-left: 8px;
+  cursor: pointer;
+  background: #1c2530;
+  color: #d5dde5;
+  border: 1px solid #2a3441;
+  border-radius: 6px;
+  padding: 7px 12px;
+  font: inherit;
+  transition: border-color .2s;
+}
+.answer-check-btn:hover {
+  border-color: #26c6da;
+}
+.answer-check-btn:focus-visible {
+  outline: 2px solid #26c6da;
+  outline-offset: 2px;
+}
+.answer-check-result {
+  margin-left: 10px;
+  font-size: 14px;
+}
+.answer-ok { color: #4ade80; }
+.answer-err { color: #f87171; }

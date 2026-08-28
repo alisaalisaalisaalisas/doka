@@ -1,0 +1,30 @@
+# Build artefacts
+/site/
+*.pyc
+__pycache__/
+*.egg-info/
+
+# Local environments
+/.venv/
+/venv/
+.env
+
+# Tooling
+/node_modules/
+/.playwright/
+/playwright-report/
+/test-results/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# One-shot / scratch (legacy — см. tools/legacy/)
+/1.py
+/_sync_index.py

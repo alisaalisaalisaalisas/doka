@@ -1244,29 +1244,4 @@ kubectl port-forward svc/postgres-service 5433:5432 -n database
 !!! tip "Практика > теория"
     Задача считается закрытой, если вы воспроизвели решение с нуля на чистой машине за отведенное время и можете объяснить каждый шаг.
 
-<script>
-(function(){
-  document.querySelectorAll(".answer-check").forEach(function(box){
-    if(box.dataset.ready) return; box.dataset.ready = "1";
-    var pat = box.getAttribute("data-answer");
-    var inp = document.createElement("input");
-    inp.placeholder = "✍️ Введите вашу команду/решение…";
-    inp.style.cssText = "width:75%;max-width:640px;background:#0b0f14;color:#cde3ea;border:1px solid #2a3441;border-radius:6px;padding:7px 10px;font:13px 'JetBrains Mono',Consolas,monospace;margin:4px 0";
-    var btn = document.createElement("button");
-    btn.textContent = "Проверить ответ";
-    btn.style.cssText = "margin-left:8px;cursor:pointer;background:#1c2530;color:#d5dde5;border:1px solid #2a3441;border-radius:6px;padding:7px 12px";
-    var res = document.createElement("span"); res.style.cssText = "margin-left:10px;font-size:14px";
-    box.appendChild(inp); box.appendChild(btn); box.appendChild(res);
-    function check(){
-      var ok = false;
-      try { ok = new RegExp(pat, "i").test(inp.value); } catch(e) {}
-      res.innerHTML = ok
-        ? '<span style="color:#4ade80">✓ Верно! Сверьте с эталонным решением ниже.</span>'
-        : '<span style="color:#f87171">✗ Пока не то — загляните в подсказку 💡</span>';
-      if(ok) inp.style.borderColor = "#4ade80";
-    }
-    btn.onclick = check;
-    inp.addEventListener("keydown", function(e){ if(e.key==="Enter") check(); });
-  });
-})();
-</script>
+

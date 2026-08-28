@@ -11,7 +11,7 @@
 | **Терминал** | ввод команд с историей (↑/↓), автодополнение (Tab), `clear`/`Ctrl+L`, цветной вывод как в реальном CLI |
 | **Редактор кода** | Monaco (движок VS Code) с подсветкой YAML/HCL/Shell; при отсутствии интернета — встроенный fallback-редактор |
 | **Проверка решения** | кнопка «Проверить решение» сверяет выполненные команды с целью (чек-лист ✓/✗); «Проверить код» валидирует написанное в редакторе |
-| **136 сценариев** по всем темам: Linux/Bash/Git/Сети · Docker/K8s/Helm · Terraform/Ansible/CI · Prometheus/Loki/Vault/Kyverno · Kafka/RabbitMQ/PG/Redis/CH · Istio/облака/Proxmox · **MLOps: MLflow/DVC/дрейф/GPU-Kueue/LLMOps-RAG** · **Labs: интерактивные версии всех 10 Guided Labs** |
+| **1033 сценария** по всем темам: Linux/Bash/Git/Сети · Docker/K8s/Helm · Terraform/Ansible/CI · Prometheus/Loki/Vault/Kyverno · Kafka/RabbitMQ/PG/Redis/CH · Istio/облака/Proxmox · **MLOps: MLflow/DVC/дрейф/GPU-Kueue/LLMOps-RAG** · **Labs: интерактивные версии всех 10 Guided Labs** · **Python OOP** |
 
 !!! tip "Глубокие ссылки из лаб"
     Каждая лаба раздела [16](../16-guided-labs/01-lab-linux-systemd-namespaces.md) содержит кнопку «Интерактивная версия» со ссылкой вида `playground.html?scenario=lab07` — песочница откроется сразу на нужном сценарии.

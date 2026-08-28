@@ -2,8 +2,8 @@ site_name: "DevOps Knowledge Base & Handbook"
 site_description: "Комплексная база знаний для DevOps/SRE: Linux, Git, Docker, Kubernetes, Terraform, Ansible, GitOps, Observability, Python, Go, Ceph, Kafka, ClickHouse, PostgreSQL HA, Istio, Cilium, Traefik, Velero, Vault, Zabbix, ELK, Alloy, 100 Interview Questions & 100 Practical Tasks"
 site_author: "DevOps Engineering Team"
 site_url: "https://devops-handbook.example.com/"
-repo_url: "https://github.com/org/devops-handbook"
-edit_uri: "edit/main/docs/"
+# repo_url: "https://github.com/org/devops-handbook"  # скрыто до появления настоящего репо (Phase 1.1)
+# edit_uri: "edit/main/docs/"
 copyright: "© 2024-2026 DevOps Handbook — Docs-as-Code, CC BY-SA 4.0"
 
 theme:
@@ -12,6 +12,19 @@ theme:
   custom_dir: overrides
   icon:
     logo: material/server-network
+    admonition:
+      note: material/information-outline
+      abstract: octicons/checklist-16
+      info: material/information-outline
+      tip: material/lightbulb-outline
+      success: material/check-circle-outline
+      question: material/help-circle-outline
+      warning: material/alert-outline
+      failure: material/close-circle-outline
+      danger: material/alert-octagon-outline
+      bug: material/bug-outline
+      example: material/file-document-outline
+      quote: material/format-quote-open
   font:
     text: Inter
     code: JetBrains Mono
@@ -37,20 +50,26 @@ theme:
     - navigation.tabs.sticky
     - navigation.sections
     - navigation.expand
+    - navigation.prune
     - navigation.top
     - navigation.footer
     - navigation.indexes
     - navigation.path
     - toc.follow
-    - toc.integrate
     - search.suggest
     - search.highlight
     - search.share
     - content.code.copy
     - content.code.annotate
-    - content.action.edit
-    - content.action.view
     - content.tabs.link
+
+extra_css:
+  - stylesheets/answer-check.css
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/answer-check.js
+  - javascripts/nav-stats.js
 
 extra:
   generator: false
@@ -117,7 +136,9 @@ plugins:
   - search:
       lang: ru
       separator: '[\s\-,:!=\[\]()"/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
-  - tags
+      # Phase 7: русский стоп-слова для релевантности
+      # Note: Material search uses lunr with lang=ru — стоп-слова встроены; дополнительный список:
+      # stop_words: [и, в, на, по, что, как, для, это, из, не, при, или, но, же, бы, до, за, над, под]
 
 validation:
   nav:
@@ -353,27 +374,40 @@ nav:
       - "Lab: Prometheus": 09-observability/28-observability-lab-prometheus.md
       - "Lab: Loki + Alloy": 09-observability/29-observability-lab-loki.md
       - "Lab: Tracing": 09-observability/30-observability-lab-tracing.md
-  - 10. Security & Cloud:
-      - DevSecOps и Секреты: 10-security-and-cloud/01-devsecops-and-secrets.md
-      - Облака и Веб-серверы: 10-security-and-cloud/02-cloud-and-web-servers.md
-      - HashiCorp Vault Deep Dive: 10-security-and-cloud/03-hashicorp-vault-deep-dive.md
-      - Supply Chain Security (SBOM/cosign): 10-security-and-cloud/04-supply-chain-security.md
-      - "Compliance: PCI DSS, SOC 2, ISO 27001, 152-ФЗ": 10-security-and-cloud/05-compliance-frameworks.md
-  - 11. Базы данных и Хранилища:
-      - Ceph и Rook-Ceph: 11-data-and-storage/01-ceph-storage-and-rook.md
-      - Apache Kafka и Strimzi: 11-data-and-storage/02-kafka-and-strimzi.md
-      - ClickHouse СУБД: 11-data-and-storage/03-clickhouse-architecture-and-ops.md
-      - PostgreSQL HA (Patroni, CNPG): 11-data-and-storage/04-postgresql-ha-and-patroni.md
-      - Redis Sentinel и Cluster: 11-data-and-storage/05-redis-sentinel-and-cluster.md
-      - MongoDB Replica Set и Sharding: 11-data-and-storage/06-mongodb-replica-set-and-sharding.md
-  - 12. Продвинутые сети и Mesh:
-      - Service Mesh Istio: 12-advanced-networking-and-mesh/01-istio-service-mesh.md
-      - "CNI: Cilium (eBPF) и Calico": 12-advanced-networking-and-mesh/02-cni-cilium-and-calico.md
-      - Traefik и Nginx Advanced: 12-advanced-networking-and-mesh/03-traefik-and-nginx-advanced.md
-      - "eBPF Deep Dive: XDP, bpftrace, Cilium": 12-advanced-networking-and-mesh/04-ebpf-deep-dive.md
-  - 13. Disaster Recovery:
-      - Бэкапы и Velero: 13-disaster-recovery-and-tools/01-k8s-backups-velero.md
-      - Бэкапы БД и DR-план (PITR): 13-disaster-recovery-and-tools/02-database-backups-and-dr-plan.md
+  - Ещё:
+      - 10. Security & Cloud:
+          - DevSecOps и Секреты: 10-security-and-cloud/01-devsecops-and-secrets.md
+          - Облака и Веб-серверы: 10-security-and-cloud/02-cloud-and-web-servers.md
+          - HashiCorp Vault Deep Dive: 10-security-and-cloud/03-hashicorp-vault-deep-dive.md
+          - Supply Chain Security (SBOM/cosign): 10-security-and-cloud/04-supply-chain-security.md
+          - "Compliance: PCI DSS, SOC 2, ISO 27001, 152-ФЗ": 10-security-and-cloud/05-compliance-frameworks.md
+      - 11. Базы данных и Хранилища:
+          - Ceph и Rook-Ceph: 11-data-and-storage/01-ceph-storage-and-rook.md
+          - Apache Kafka и Strimzi: 11-data-and-storage/02-kafka-and-strimzi.md
+          - ClickHouse СУБД: 11-data-and-storage/03-clickhouse-architecture-and-ops.md
+          - PostgreSQL HA (Patroni, CNPG): 11-data-and-storage/04-postgresql-ha-and-patroni.md
+          - Redis Sentinel и Cluster: 11-data-and-storage/05-redis-sentinel-and-cluster.md
+          - MongoDB Replica Set и Sharding: 11-data-and-storage/06-mongodb-replica-set-and-sharding.md
+      - 12. Продвинутые сети и Mesh:
+          - Service Mesh Istio: 12-advanced-networking-and-mesh/01-istio-service-mesh.md
+          - "CNI: Cilium (eBPF) и Calico": 12-advanced-networking-and-mesh/02-cni-cilium-and-calico.md
+          - Traefik и Nginx Advanced: 12-advanced-networking-and-mesh/03-traefik-and-nginx-advanced.md
+          - "eBPF Deep Dive: XDP, bpftrace, Cilium": 12-advanced-networking-and-mesh/04-ebpf-deep-dive.md
+      - 13. Disaster Recovery:
+          - Бэкапы и Velero: 13-disaster-recovery-and-tools/01-k8s-backups-velero.md
+          - Бэкапы БД и DR-план (PITR): 13-disaster-recovery-and-tools/02-database-backups-and-dr-plan.md
+      - 18. Шаблоны (copy-paste):
+          - Контейнеры и Kubernetes: 18-templates/01-containers-and-k8s.md
+          - Terraform, Ansible, CI/CD: 18-templates/02-iac-and-cicd.md
+          - Observability и веб-серверы: 18-templates/03-observability-and-web.md
+          - "GitLab CI и Ansible (шаблоны)": 18-templates/04-gitlab-ci-and-ansible.md
+          - Production Readiness Review: 18-templates/05-production-readiness-review.md
+          - Стандарт лаб и чек-листов: 18-templates/06-hands-on-lab-standard.md
+      - 19. Карьера:
+          - Home Lab под любой бюджет: 19-career/01-home-lab-setup.md
+          - "Портфолио: 10 проектов": 19-career/02-portfolio-projects.md
+          - Сертификаты и ресурсы: 19-career/03-certifications-and-resources.md
+          - Резюме, собесы, оффер: 19-career/04-resume-interview-offer.md
   - 14. Собеседования DevOps (100+ Вопросов):
       - Частые вопросы и ответы (Core): 14-interview-prep/01-devops-interview-core-qa.md
       - System Design и Траблшутинг: 14-interview-prep/02-devops-system-design-and-troubleshooting-cases.md
@@ -401,18 +435,7 @@ nav:
       - Партия №2 (автоскейлинг, etcd, PITR): 17-break-fix/02-incident-simulations-part2.md
       - Партия №3 сетевая (DNS, MTU, conntrack): 17-break-fix/03-network-incident-simulations.md
       - Chaos Drills (учения по скрипту): 17-break-fix/04-chaos-drills.md
-  - 18. Шаблоны (copy-paste):
-      - Контейнеры и Kubernetes: 18-templates/01-containers-and-k8s.md
-      - Terraform, Ansible, CI/CD: 18-templates/02-iac-and-cicd.md
-      - Observability и веб-серверы: 18-templates/03-observability-and-web.md
-      - "GitLab CI и Ansible (шаблоны)": 18-templates/04-gitlab-ci-and-ansible.md
-      - Production Readiness Review: 18-templates/05-production-readiness-review.md
-      - Стандарт лаб и чек-листов: 18-templates/06-hands-on-lab-standard.md
-  - 19. Карьера:
-      - Home Lab под любой бюджет: 19-career/01-home-lab-setup.md
-      - "Портфолио: 10 проектов": 19-career/02-portfolio-projects.md
-      - Сертификаты и ресурсы: 19-career/03-certifications-and-resources.md
-      - Резюме, собесы, оффер: 19-career/04-resume-interview-offer.md
+
   - 20. Senior Stack:
       - Сводная проверка (40 вопросов + 10 задач): 20-senior-stack/00-senior-stack-summary.md
       - 20.1 Policy as Code (OPA/Rego, Kyverno): 20-senior-stack/01-policy-as-code.md
@@ -442,7 +465,7 @@ nav:
   - 21. Песочница:
       - Терминал и редактор кода (интерактив): 21-playground/index.md
   - 22. Тренажёр:
-      - "205 карточек: квиз + Anki": 22-trainer/index.md
+      - "Тренажёр (831 карточка): квиз + Anki": 22-trainer/index.md
   - 23. MLOps:
       - План раздела: 23-mlops/00-plan.md
       - 23.1 Введение и жизненный цикл ML: 23-mlops/01-intro-lifecycle.md

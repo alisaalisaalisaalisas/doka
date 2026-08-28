@@ -1,0 +1,13 @@
+repos:
+  - repo: local
+    hooks:
+      - id: mkdocs-build-strict
+        name: mkdocs build --strict
+        entry: mkdocs build --strict
+        language: system
+        pass_filenames: false
+      - id: check-drift
+        name: check nav drift
+        entry: python tools/check_nav_drift.py
+        language: system
+        pass_filenames: false

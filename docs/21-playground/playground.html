@@ -61,17 +61,51 @@
   .pass{color:var(--ok)} .fail{color:var(--err)}
   #count{font-size:12px;color:var(--dim)}
   @media(max-width:900px){main{grid-template-columns:1fr;grid-template-rows:50% 50%;height:auto}#term{min-height:300px}#brief{max-height:35%}}
+
+  /* Phase 5: light theme via prefers-color-scheme */
+  @media (prefers-color-scheme: light) {
+    :root{--bg:#f6f8fa;--panel:#ffffff;--border:#d0d7de;--fg:#24292f;--dim:#57606a}
+    body{background:var(--bg);color:var(--fg)}
+    header{background:var(--panel)}
+    .pane{background:var(--panel)}
+    #brief,#term{background:var(--panel)}
+    textarea.code{background:#f6f8fa;color:var(--fg)}
+    select,button,input[type=search]{background:#f6f8fa;color:var(--fg)}
+    .editor-bar{background:var(--panel)}
+  }
+  /* a11y focus */
+  :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+  select:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+  /* toast */
+  #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1c2530;color:var(--fg);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;display:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  /* focus mode */
+  body.focus header{position:fixed;top:0;left:0;right:0;z-index:10}
+  body.focus main{height:100vh;padding-top:58px}
+  /* print */
+  @media print{
+    header, #hints-bar, #check-result, .term-line, .editor-bar, #file-tabs, #explorer, #breadcrumb{display:none !important}
+    main{display:block;height:auto}
+    .pane{border:none}
+    #brief{max-height:none;overflow:visible}
+    #solution-panel{display:block !important}
+  }
+
 </style>
 </head>
 <body>
 <header>
+  <a href="../../" style="color:var(--acc);text-decoration:none;font-size:13px;border:1px solid var(--border);border-radius:6px;padding:5px 10px;background:#1c2530">← Назад к справочнику</a>
   <h1>🧪 Песочница</h1>
   <select id="scenario"></select>
-  <input type="search" id="filter" placeholder="фильтр сценариев…" size="14">
+  <input type="search" id="filter" placeholder="фильтр сценариев…" size="14" aria-label="Фильтр сценариев">
   <span id="count"></span>
+  <span id="solved-count" style="font-size:12px;color:var(--ok);margin-left:4px"></span>
+  <button id="btn-copy-link" title="Копировать ссылку на сценарий">🔗 Копировать ссылку</button>
+  <button id="btn-focus" title="Фокус-режим (скрыть шапку)">⛶ Фокус</button>
   <button id="btn-reset">Сброс</button>
   <button id="btn-check" class="primary">Проверить решение</button>
 </header>
+<div id="toast" role="status" aria-live="polite"></div>
 <main>
   <section class="pane">
     <h2>Задание · файлы · редактор</h2>
@@ -99,8 +133,8 @@
   </section>
   <section class="pane">
     <h2>Терминал (Enter — выполнить, ↑/↓ — история, Tab — автодополнение, Ctrl+L — очистка)</h2>
-    <div id="term"></div>
-    <div class="term-line"><span class="prompt" id="prompt">ubuntu@lab:~$</span><input id="term-in" autocomplete="off" spellcheck="false"></div>
+    <div id="term" aria-live="polite" aria-label="Вывод терминала"></div>
+    <div class="term-line"><span class="prompt" id="prompt">ubuntu@lab:~$</span><input id="term-in" autocomplete="off" spellcheck="false" aria-label="Ввод команды терминала"></div>
     <div id="check-result"></div>
   </section>
 </main>
@@ -1162,9 +1196,8 @@ window.applySolution = function() {
   }
   renderFileTabs();
   print("📥 Решение загружено в редактор. Используйте «Проверить код» для валидации.", "ok");
-  // Re-render solution panel to show undo button
-  document.getElementById("btn-solution").click();
-  document.getElementById("btn-solution").click();
+  // Refresh panel: close and reopen to show undo button
+  const _panel=document.getElementById("solution-panel"); _panel.style.display="none"; setTimeout(()=>{ document.getElementById("btn-solution").click(); },10);
 };
 
 window.undoSolution = function() {
@@ -1177,9 +1210,113 @@ window.undoSolution = function() {
   }
   renderFileTabs();
   print("↩ Решение отменено. Файлы восстановлены.", "warn");
-  document.getElementById("btn-solution").click();
-  document.getElementById("btn-solution").click();
+  const _panel2=document.getElementById("solution-panel"); _panel2.style.display="none"; setTimeout(()=>{ document.getElementById("btn-solution").click(); },10);
 };
+
+
+/* ===== Phase 5 enhancements: progress, copy link, focus, toast ===== */
+const PROG_KEY = "playground-solved-v1";
+function loadProgress(){ try{ return JSON.parse(localStorage.getItem(PROG_KEY)||"{}"); }catch(e){ return {}; } }
+function saveProgress(p){ localStorage.setItem(PROG_KEY, JSON.stringify(p)); }
+let progress = loadProgress();
+function updateSolvedCount(){
+  const cnt = Object.keys(progress).length;
+  const el = document.getElementById("solved-count");
+  if(el) el.textContent = cnt ? `✓ ${cnt}/${ALL.length} пройдено` : "";
+}
+function markSolvedOptions(){
+  const opts = document.querySelectorAll("#scenario option");
+  opts.forEach(o=>{
+    const idx = parseInt(o.value,10);
+    const sc = ALL[idx];
+    if(sc && progress[sc.id]){
+      if(!o.textContent.includes("✓")) o.textContent = "✓ " + o.textContent;
+    }
+  });
+}
+function showToast(msg){
+  const toast=document.getElementById("toast");
+  if(!toast) return;
+  toast.textContent=msg;
+  toast.style.display="block";
+  setTimeout(()=>{ toast.style.display="none"; }, 1800);
+}
+// patch fillSelect to include solved marks and update count
+const _origFillSelect = fillSelect;
+fillSelect = function(){
+  _origFillSelect();
+  markSolvedOptions();
+  updateSolvedCount();
+};
+
+// copy link
+document.getElementById("btn-copy-link")?.addEventListener("click", ()=>{
+  if(!current) return;
+  const url = location.origin + location.pathname + "?scenario=" + current.id;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>showToast("🔗 Ссылка скопирована: " + current.id));
+  } else {
+    prompt("Скопируйте ссылку:", url);
+  }
+  history.replaceState(null, "", "?scenario=" + current.id);
+});
+// focus mode
+document.getElementById("btn-focus")?.addEventListener("click", ()=>{
+  document.body.classList.toggle("focus");
+  showToast(document.body.classList.contains("focus") ? "Фокус-режим включён" : "Фокус-режим выключен");
+});
+// deep-link via ?scenario=id already handled below but ensure history update on scenario change
+const _origLoadScenario = loadScenario;
+loadScenario = function(idx){
+  const prev = _origLoadScenario(idx);
+  // update URL without reload
+  if(current && current.id){
+    const u = new URL(location.href);
+    u.searchParams.set("scenario", current.id);
+    history.replaceState(null, "", u.toString());
+  }
+  // Restore progress marking after scenario switch? nothing
+  return prev;
+};
+// wrap checkSolution to save progress on success
+const _origCheckSolution = checkSolution;
+checkSolution = function(){
+  _origCheckSolution();
+  // check if all passed
+  const sol = current.solution||[];
+  const editorChecks = current.editorChecks||[];
+  const termAll = sol.length===0 || sol.every(s=>executed.some(c=>RE(s.re).test(c)));
+  let editorAll = true;
+  if(editorChecks.length){
+    const allCode = Object.values(vfs.allRelativeFiles()).join("\n");
+    editorAll = editorChecks.every(c=>RE(c.re).test(allCode));
+  }
+  const allPassed = (sol.length===0 || termAll) && (editorChecks.length===0 || editorAll);
+  if(allPassed && current && current.id){
+    if(!progress[current.id]){
+      progress[current.id]=true;
+      saveProgress(progress);
+      updateSolvedCount();
+      markSolvedOptions();
+      showToast("✓ Сценарий пройден и сохранён");
+    }
+  }
+};
+// initial solved count
+updateSolvedCount();
+// handle deep link on load (ensure after Monaco ready)
+(function(){
+  const params = new URLSearchParams(location.search);
+  const sid = params.get("scenario");
+  if(sid){
+    const idx = ALL.findIndex(s=>s.id===sid);
+    if(idx>=0){
+      // defer until editorReady
+      const tryLoad = ()=>{ if(window.SCENARIOS && ALL.length) { document.getElementById("scenario").value = idx; loadScenario(idx); } else setTimeout(tryLoad, 200); };
+      setTimeout(tryLoad, 300);
+    }
+  }
+})();
 
 /* ======================= CHECKS ======================= */
 function checkSolution(){
