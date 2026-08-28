@@ -170,7 +170,10 @@ flowchart TD
 | **07 Ansible** | Vault, Molecule, AWX | [Ansible](07-ansible/01-ansible-architecture-and-playbooks.md) |
 | **08 Python/Go** | Kopf, client-go, FastAPI | [Python/Go](08-programming-python-go/01-python-for-devops.md) |
 | **09 Observability** | Prometheus, Loki, Tempo | [Obs](09-observability/01-prometheus-and-grafana.md) |
-| **10-13 Ещё** | Security, Data, Mesh, DR | [Ещё](10-security-and-cloud/01-devsecops-and-secrets.md) |
+| **10 Security** | DevSecOps, Vault, Supply Chain | [Security](10-security-and-cloud/01-devsecops-and-secrets.md) |
+| **11 Data** | Ceph, Kafka, PG, Redis, Mongo | [Data](11-data-and-storage/01-ceph-storage-and-rook.md) |
+| **12 Mesh** | Istio, Cilium, eBPF, Traefik | [Mesh](12-advanced-networking-and-mesh/01-istio-service-mesh.md) |
+| **13 DR** | Velero, PITR, RPO/RTO | [DR](13-disaster-recovery-and-tools/01-k8s-backups-velero.md) |
 | **14 Interview** | 100 Q + system design | [Interview](14-interview-prep/01-devops-interview-core-qa.md) |
 | **15 Practice** | 100 задач с решениями | [Practice](15-hands-on-practice/01-100-devops-practical-tasks-part1.md) |
 | **18 Templates** | PRR, Helm, CI | [Templates](18-templates/01-containers-and-k8s.md) |
