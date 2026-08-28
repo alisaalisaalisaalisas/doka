@@ -142,6 +142,29 @@ nav:
       - Диагностика производительности: 01-linux-and-networking/05-linux-performance-diagnostics.md
       - Файловые системы и Хранилище: 01-linux-and-networking/06-linux-filesystems-and-storage.md
       - "Логирование: journald, rsyslog, logrotate": 01-linux-and-networking/07-linux-logging-journald-rsyslog.md
+      - Ядро, userspace и загрузка: 01-linux-and-networking/08-kernel-userspace-and-boot.md
+      - Процессы, потоки и планировщик: 01-linux-and-networking/09-processes-threads-and-scheduling.md
+      - Cgroups v2 и systemd slices: 01-linux-and-networking/10-cgroups-v2-and-systemd-slices.md
+      - Namespaces и контейнеры: 01-linux-and-networking/11-namespaces-and-containers.md
+      - Сигналы и OOM Killer: 01-linux-and-networking/12-signals-and-oom-killer.md
+      - Виртуальная память и swap: 01-linux-and-networking/13-memory-virtual-and-oom.md
+      - Page cache и sync: 01-linux-and-networking/14-page-cache-and-sync.md
+      - ext4 и mkfs: 01-linux-and-networking/15-ext4-internals-and-mkfs.md
+      - XFS и Btrfs: 01-linux-and-networking/16-xfs-and-btrfs.md
+      - Mount, fstab и automount: 01-linux-and-networking/17-mount-fstab-and-automount.md
+      - LVM и RAID: 01-linux-and-networking/18-lvm-and-raid.md
+      - OverlayFS и tmpfs: 01-linux-and-networking/19-overlayfs-and-tmpfs.md
+      - TCP/IP и iptables: 01-linux-and-networking/20-tcp-ip-stack-and-iptables.md
+      - Диагностика TCP и BBR: 01-linux-and-networking/21-tcp-diagnostics-and-bbr.md
+      - DNS и CoreDNS: 01-linux-and-networking/22-dns-and-coredns.md
+      - HTTP, TLS и mTLS: 01-linux-and-networking/23-http-tls-and-mtls.md
+      - SSH ключи и агент: 01-linux-and-networking/24-ssh-keys-and-agent.md
+      - IPv6 и conntrack: 01-linux-and-networking/25-ipv6-and-conntrack.md
+      - MTU, MSS и фрагментация: 01-linux-and-networking/26-mtu-mss-and-fragmentation.md
+      - eBPF и трассировка: 01-linux-and-networking/27-ebpf-and-tracing.md
+      - Systemd углублённо: 01-linux-and-networking/28-systemd-advanced.md
+      - Logrotate и rsyslog: 01-linux-and-networking/29-logrotate-and-rsyslog-deep.md
+      - Хардининг и лимиты: 01-linux-and-networking/30-linux-hardening-and-limits.md
   - 2. Git:
       - Архитектура и Workflows: 02-git/01-git-internals-and-workflows.md
       - Cheat Sheet, Rebase и Hooks: 02-git/02-git-cheatsheet-and-rebase.md
@@ -153,11 +176,57 @@ nav:
       - Большие репозитории и LFS: 02-git/08-large-repos-performance-lfs.md
       - Подписи коммитов и Секреты: 02-git/09-security-signing-secret-scanning.md
       - "Археология: bisect, worktree, filter-repo": 02-git/10-git-archaeology-bisect-worktree-filter-repo.md
+      - Объекты и ссылки: 02-git/11-objects-and-refs.md
+      - Индекс и рабочее дерево: 02-git/12-index-and-working-tree.md
+      - Packfiles и GC: 02-git/13-packfiles-and-gc.md
+      - cat-file и fsck: 02-git/14-git-cat-file-and-fsck.md
+      - Ветвление глубоко: 02-git/15-branching-deep.md
+      - Merge vs Rebase: 02-git/16-merge-vs-rebase.md
+      - Интерактивный rebase: 02-git/17-interactive-rebase.md
+      - Cherry-pick и revert: 02-git/18-cherry-pick-and-revert.md
+      - Reset и restore: 02-git/19-reset-and-restore.md
+      - Bisect и blame: 02-git/20-bisect-and-blame.md
+      - Worktree: 02-git/21-worktree-deep.md
+      - Submodules продвинуто: 02-git/22-submodules-advanced.md
+      - Git LFS глубоко: 02-git/23-git-lfs-deep.md
+      - Хуки продвинуто: 02-git/24-hooks-advanced.md
+      - Подписанные коммиты: 02-git/25-signed-commits-and-tags.md
+      - Git maintenance: 02-git/26-git-maintenance.md
+      - Оптимизация больших репо: 02-git/27-large-repo-optimization.md
+      - Troubleshooting: 02-git/28-git-troubleshooting.md
+      - Сервер и протоколы: 02-git/29-git-server-and-protocols.md
+      - Продвинутые workflows: 02-git/30-git-workflows-advanced.md
   - 3. Docker:
       - Архитектура и CLI: 03-docker/01-docker-architecture-and-cli.md
       - Dockerfile Best Practices: 03-docker/02-dockerfile-best-practices.md
       - Docker Compose и Сети: 03-docker/03-docker-compose-and-networking.md
       - Как устроен Docker под капотом (Deep Internals): 03-docker/04-docker-deep-internals-and-engine.md
+      - containerd и runc: 03-docker/05-containerd-and-runc.md
+      - OCI и namespaces: 03-docker/06-oci-and-namespaces.md
+      - Cgroups, capabilities, seccomp: 03-docker/07-cgroups-capabilities-seccomp.md
+      - Образы и слои: 03-docker/08-images-and-layers.md
+      - Overlay2 и драйверы: 03-docker/09-overlay2-and-storage-drivers.md
+      - Регистры и манифесты: 03-docker/10-registries-and-manifests.md
+      - Dockerfile глубоко: 03-docker/11-dockerfile-deep.md
+      - Мультистейдж и кеш: 03-docker/12-multistage-and-cache.md
+      - BuildKit и buildx: 03-docker/13-buildkit-and-buildx.md
+      - Distroless и slim: 03-docker/14-distroless-and-slim.md
+      - Безопасность образов: 03-docker/15-image-security-and-secrets.md
+      - Тома и bind mounts: 03-docker/16-volumes-and-bind-mounts.md
+      - Сети Docker: 03-docker/17-docker-networking-deep.md
+      - Bridge сети: 03-docker/18-bridge-and-user-defined-networks.md
+      - Compose глубоко: 03-docker/19-docker-compose-deep.md
+      - Rootless и Podman: 03-docker/20-rootless-and-podman.md
+      - Healthchecks и лимиты: 03-docker/21-healthchecks-and-limits.md
+      - Логи и мониторинг: 03-docker/22-logging-and-monitoring.md
+      - Troubleshooting: 03-docker/23-docker-troubleshooting.md
+      - Хардининг production: 03-docker/24-production-hardening.md
+      - API и события: 03-docker/25-docker-api-and-events.md
+      - Оптимизация образов: 03-docker/26-image-optimization.md
+      - Аутентификация регистра: 03-docker/27-registry-auth-and-mirrors.md
+      - Profiles и extends: 03-docker/28-compose-profiles-and-extends.md
+      - Жизненный цикл: 03-docker/29-container-lifecycle.md
+      - Docker vs Podman vs CRI-O: 03-docker/30-docker-vs-podman-vs-crio.md
   - 4. Kubernetes:
       - Архитектура и Workloads: 04-kubernetes/01-k8s-architecture-and-workloads.md
       - Сети и Хранилища: 04-kubernetes/02-k8s-networking-and-storage.md
@@ -171,6 +240,24 @@ nav:
       - "Serverless: Knative и OpenFaaS": 04-kubernetes/10-serverless-knative-openfaas.md
       - "RBAC, ServiceAccount и Pod Security": 04-kubernetes/11-k8s-rbac-and-pss.md
       - "Gateway API: Замена Ingress для Прода": 04-kubernetes/12-k8s-gateway-api.md
+      - API Server и etcd: 04-kubernetes/13-api-server-and-etcd.md
+      - Scheduler и контроллеры: 04-kubernetes/14-scheduler-and-controllers.md
+      - Kubelet и CRI: 04-kubernetes/15-kubelet-and-cri.md
+      - Pods глубоко: 04-kubernetes/16-pods-deep.md
+      - Deployments и ReplicaSets: 04-kubernetes/17-deployments-and-replicasets.md
+      - StatefulSets и DaemonSets: 04-kubernetes/18-statefulsets-and-daemonsets.md
+      - Jobs и CronJobs: 04-kubernetes/19-jobs-and-cronjobs.md
+      - Services и EndpointSlice: 04-kubernetes/20-services-and-endpointslice.md
+      - DNS и CoreDNS: 04-kubernetes/21-dns-and-coredns-deep.md
+      - CNI и NetworkPolicy: 04-kubernetes/22-cni-and-networkpolicy.md
+      - Ingress и Gateway API: 04-kubernetes/23-ingress-and-gateway-api.md
+      - Хранилище и CSI: 04-kubernetes/24-storage-and-csi.md
+      - RBAC глубоко: 04-kubernetes/25-rbac-deep.md
+      - PSS и SecurityContext: 04-kubernetes/26-pss-and-securitycontext.md
+      - HPA, VPA и KEDA: 04-kubernetes/27-hpa-vpa-and-keda.md
+      - Автоскейлинг кластера: 04-kubernetes/28-cluster-autoscaling.md
+      - Troubleshooting: 04-kubernetes/29-k8s-troubleshooting-deep.md
+      - Хардининг: 04-kubernetes/30-k8s-security-hardening.md
   - 5. GitOps и CI/CD:
       - ArgoCD и Flux: 05-gitops-and-cicd/01-gitops-argocd-flux.md
       - Паттерны CI/CD пайплайнов: 05-gitops-and-cicd/02-cicd-pipelines-patterns.md
@@ -179,6 +266,29 @@ nav:
       - "Progressive Delivery: Argo Rollouts, Flagger": 05-gitops-and-cicd/05-progressive-delivery.md
       - "Argo Workflows и Tekton: CI в кластере": 05-gitops-and-cicd/06-argo-workflows-tekton.md
       - "FluxCD Deep Dive: Toolkit и Image Automation": 05-gitops-and-cicd/07-flux-deep-dive.md
+      - Runner executors: 05-gitops-and-cicd/08-gitlab-runner-executors.md
+      - Артефакты и кеш: 05-gitops-and-cicd/09-pipeline-artifacts-and-cache.md
+      - Окружения: 05-gitops-and-cicd/10-environments-and-deployments.md
+      - Принципы GitOps: 05-gitops-and-cicd/11-gitops-principles.md
+      - ArgoCD архитектура: 05-gitops-and-cicd/12-argocd-architecture.md
+      - ApplicationSet: 05-gitops-and-cicd/13-argocd-applicationset.md
+      - Проекты и RBAC: 05-gitops-and-cicd/14-argocd-projects-and-rbac.md
+      - Sync и health: 05-gitops-and-cicd/15-argocd-sync-and-health.md
+      - Уведомления: 05-gitops-and-cicd/16-argocd-notifications.md
+      - Flux архитектура: 05-gitops-and-cicd/17-flux-architecture.md
+      - HelmRelease: 05-gitops-and-cicd/18-flux-helmrelease.md
+      - Image automation: 05-gitops-and-cicd/19-flux-image-automation.md
+      - Flux vs ArgoCD: 05-gitops-and-cicd/20-flux-vs-argocd.md
+      - Progressive delivery: 05-gitops-and-cicd/21-progressive-delivery-flux.md
+      - GitLab CI продвинуто: 05-gitops-and-cicd/22-gitlab-ci-advanced.md
+      - Autoscaling Runner: 05-gitops-and-cicd/23-runner-autoscaling.md
+      - Секреты и переменные: 05-gitops-and-cicd/24-secrets-and-variables.md
+      - Оптимизация пайплайна: 05-gitops-and-cicd/25-pipeline-optimization.md
+      - Защита окружений: 05-gitops-and-cicd/26-environments-protection.md
+      - Troubleshooting: 05-gitops-and-cicd/27-gitops-troubleshooting.md
+      - "Lab: Flux": 05-gitops-and-cicd/28-flux-lab.md
+      - "Lab: ArgoCD": 05-gitops-and-cicd/29-argocd-lab.md
+      - Безопасность CI/CD: 05-gitops-and-cicd/30-cicd-security.md
   - 6. Terraform:
       - Основы и HCL: 06-terraform/01-terraform-fundamentals.md
       - State, Модули и Terragrunt: 06-terraform/02-state-modules-and-terragrunt.md
@@ -198,6 +308,7 @@ nav:
       - "Python: FastAPI для платформенных API": 08-programming-python-go/08-python-fastapi-services.md
       - "Python: Boto3 deep dive + Moto": 08-programming-python-go/09-python-boto3-moto-deep.md
       - "Python: Профилирование и перфоманс": 08-programming-python-go/10-python-performance-profiling.md
+      - "Python OOP Deep Dive": 08-programming-python-go/13-python-oop-deep-dive.md
       - Go для DevOps: 08-programming-python-go/02-go-for-devops.md
       - "Go: Fundamentals — типы, интерфейсы, ошибки": 08-programming-python-go/02-go-fundamentals-deep.md
       - "Go: Конкурентность — channels, context, errgroup": 08-programming-python-go/03-go-concurrency-patterns.md
@@ -211,7 +322,6 @@ nav:
       - Мини-проекты для портфолио: 08-programming-python-go/03-practice-projects.md
       - "Python vs Go: выбор для DevOps": 08-programming-python-go/11-python-vs-go-comparison.md
       - "DevOps паттерны и Testing Matrix": 08-programming-python-go/12-devops-patterns-and-testing-matrix.md
-      - "Python OOP Deep Dive": 08-programming-python-go/13-python-oop-deep-dive.md
   - 9. Observability:
       - Prometheus и Grafana: 09-observability/01-prometheus-and-grafana.md
       - Сбор логов и Трассировка: 09-observability/02-logging-loki-and-tracing.md
@@ -223,6 +333,26 @@ nav:
       - Grafana as Code (дашборды): 09-observability/08-grafana-dashboards-as-code.md
       - Архитектура Стека Мониторинга: 09-observability/09-monitoring-stack-architecture.md
       - "SRE-процессы: инциденты и on-call": 09-observability/10-sre-practices-incident-management.md
+      - PromQL основы: 09-observability/11-promql-fundamentals.md
+      - PromQL продвинуто: 09-observability/12-promql-advanced.md
+      - Recording и alerting rules: 09-observability/13-recording-and-alerting-rules.md
+      - Alertmanager глубоко: 09-observability/14-alertmanager-deep.md
+      - Grafana глубоко: 09-observability/15-grafana-deep.md
+      - Grafana alerting as code: 09-observability/16-grafana-alerting-and-dashboards-as-code.md
+      - Loki глубоко: 09-observability/17-loki-deep.md
+      - LogQL и пайплайны: 09-observability/18-logql-and-pipelines.md
+      - Grafana Alloy глубоко: 09-observability/19-grafana-alloy-deep.md
+      - OpenTelemetry глубоко: 09-observability/20-opentelemetry-deep.md
+      - Tempo и Jaeger: 09-observability/21-tempo-and-jaeger.md
+      - ELK глубоко: 09-observability/22-elk-deep.md
+      - OpenSearch глубоко: 09-observability/23-opensearch-deep.md
+      - Thanos глубоко: 09-observability/24-thanos-deep.md
+      - VictoriaMetrics и Mimir: 09-observability/25-victoriametrics-and-mimir.md
+      - SRE основы: 09-observability/26-sre-fundamentals.md
+      - Управление инцидентами: 09-observability/27-incident-management.md
+      - "Lab: Prometheus": 09-observability/28-observability-lab-prometheus.md
+      - "Lab: Loki + Alloy": 09-observability/29-observability-lab-loki.md
+      - "Lab: Tracing": 09-observability/30-observability-lab-tracing.md
   - 10. Security & Cloud:
       - DevSecOps и Секреты: 10-security-and-cloud/01-devsecops-and-secrets.md
       - Облака и Веб-серверы: 10-security-and-cloud/02-cloud-and-web-servers.md
