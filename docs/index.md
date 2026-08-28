@@ -15,7 +15,7 @@
 [🎯 Тренажёр SRS](22-trainer/quiz.html){ .cta secondary }
 </div>
 
-<input class="hero-search" placeholder="🔍 Поиск по handbook…  (нажмите / )" onclick="window.location.href='../search/'" readonly>
+<input class="hero-search" placeholder="🔍 Поиск по handbook…  (нажмите / )" onclick="(function(){var q=document.querySelector('[data-md-component=search-query]'); if(q){q.focus(); q.click();} else {var b=document.querySelector('[data-md-component=search]'); if(b) b.click();}})()" readonly style="cursor:pointer">
 
 </div>
 
