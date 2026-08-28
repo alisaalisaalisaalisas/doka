@@ -119,14 +119,14 @@ commit ──> tree ──> blob (файл)
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Git workflows — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| «Работало вчера» после обновления | Дрейф конфигурации вне Git | `git diff` по инфра-репозиторию + `drift detection` |
-| Падение под нагрузкой без ошибок в логах | Исчерпание лимитов (`ulimit`, conntrack, fds) | `dmesg -T \| grep -i denied`, `conntrack -S` |
-| Медленный деплой | Отсутствие кэша слоев/артефактов | Включить layer cache, артефакт-репозиторий |
-| «Плавающие» 502 раз в сутки | Health-check гонки при rolling update | `preStop sleep` + корректный `readinessProbe` |
+| `! [rejected] main → main (fetch first)` | Локальная ветка отстала | `git pull --rebase`, `git status` перед push |
+| `CONFLICT add/add` на `common.conf` | Долго жили feature ветки без rebase | `git rebase main` часто, `git rerere` |
+| `detached HEAD` после `checkout <sha>` | Checkout коммита, не ветки | `git switch -c hotfix <sha>` |
+| `Large files rejected` на push | Большой бинарь без LFS | `git lfs track "*.psd"`, `git lfs migrate` |
 
 !!! warning "Правило пяти почему"
     Каждый инцидент заканчивается не фиксом, а **post-mortem** с 5×Why и action items в бэклоге. Иначе грабли возвращаются через квартал — но уже в пятницу вечером.

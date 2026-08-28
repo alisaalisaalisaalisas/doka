@@ -129,14 +129,14 @@ Sampling стратегия: head-based 10% для трафика + **всегд
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Loki — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Алерты не приходят / приходят пачкой | `group_wait`/`repeat_interval` настроены вслепую | Разобрать routing tree на бумаге, тест через `amtool` |
-| Дашборд врет относительно реальности | Стейтмент без фильтра по job/instance | Проверить label matching, добавить legend format |
-| Рост кардинальности метрик убивает Prometheus | user_id/path в labels | Ограничить cardinality, relabel drop |
-| Логи «исчезают» | retention/индекс ротация | Проверить ILM/compactor настройки и объем hot-хранилища |
+| `LogQL: rate({...} |= "error" [5m])` 0 | Нет `| json` парсинга перед фильтром | `{app="myapp"} | json | level="error" | rate` |
+| Кардинальность `__stream` взрывается | Высокий `label` `request_id` в `stream` | `label` только `app/env`, `request_id` в `detected_fields` |
+| `ingester: too many outstanding requests` | `chunk_target_size` мал / `replication_factor` 3 перегруз | `ingester.chunk_target_size: 1.5MB`, `limits_config.ingestion_rate_mb` |
+| `Loki: failed to flush chunks` диск | `table_manager` retention vs `compactor` retention mismatch | `compactor.retention_enabled: true`, `limits_config.retention_period: 30d` |
 
 !!! warning «Сначала SLI, потом дашборды»
     Дашборд без определенного SLO — это арт. Определите SLI (какие запросы считаем хорошими), цель (99.9%), error budget — и только затем рисуйте панели.

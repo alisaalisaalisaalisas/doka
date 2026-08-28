@@ -205,14 +205,14 @@ pmap -x $(pidof myapp) | sort -k3 -n | tail
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (systemd — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| «Работало вчера» после обновления | Дрейф конфигурации вне Git | `git diff` по инфра-репозиторию + `drift detection` |
-| Падение под нагрузкой без ошибок в логах | Исчерпание лимитов (`ulimit`, conntrack, fds) | `dmesg -T \| grep -i denied`, `conntrack -S` |
-| Медленный деплой | Отсутствие кэша слоев/артефактов | Включить layer cache, артефакт-репозиторий |
-| «Плавающие» 502 раз в сутки | Health-check гонки при rolling update | `preStop sleep` + корректный `readinessProbe` |
+| `Failed at step EXEC spawning ... No such file` | `ExecStart` без `+x` или опечатка пути | `journalctl -u myapp -n 20`, `ls -l /opt/myapp/bin/server`, `chmod +x`, `daemon-reload` |
+| `activating (auto-restart)` цикл, `status=9/KILL` | `MemoryMax=10M` → OOM внутри cgroup | `journalctl -u myapp -p warning`, `systemctl show myapp -p MemoryMax,NRestarts`, поднять `MemoryMax=200M` |
+| Изменение unit не применяется | Забыли `daemon-reload` | `systemctl daemon-reload && systemctl restart myapp` |
+| `TasksMax` / `Too many open files` | Лимит `TasksMax=64` / `LimitNOFILE=1024` исчерпан | `systemctl show myapp -p TasksMax,LimitNOFILE`, `ls /proc/$PID/task | wc -l`, `LimitNOFILE=65535` |
 
 !!! warning "Правило пяти почему"
     Каждый инцидент заканчивается не фиксом, а **post-mortem** с 5×Why и action items в бэклоге. Иначе грабли возвращаются через квартал — но уже в пятницу вечером.

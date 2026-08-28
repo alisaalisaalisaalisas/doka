@@ -1,11 +1,11 @@
-# 🎯 Тренажёр вопросов: 678 карточек по всему курсу
+# 🎯 Тренажёр вопросов: 831 карточек по всему курсу
 
 > Вопросы собираются автоматически из всех разделов, где есть блоки формата
 > `**ВN. вопрос**` + спойлер «Ответ» (Senior Stack, MLOps, Python/Go и новые разделы).
 
 | Формат | Ссылка | Для чего |
 | :--- | :--- | :--- |
-| **Интерактивный SRS-тренажёр** | [quiz.html](quiz.html) | Браузер: Anki-алгоритм (Снова/Хорошо/Легко, интервалы 1→3→7→16→35→70 дней), фильтр по темам, прогресс в localStorage. Всё работает на сайте, внешние приложения не нужны |
+| **Интерактивный SRS-тренажёр** | [quiz.html](quiz.html) | Браузер: Anki-алгоритм (Снова/Хорошо/Легко, интервалы 1→3→7→16→35→70 дней), фильтр по темам, прогресс в localStorage |
 
 ## Статистика по темам
 
@@ -27,11 +27,11 @@
 | 02-devops-system-design-and-troubleshooting-cases | 4 |
 | 02-dockerfile-best-practices | 5 |
 | 02-git-cheatsheet-and-rebase | 5 |
-| 02-go-fundamentals-deep | 5 |
+| 02-go-fundamentals-deep | 10 |
 | 02-k8s-networking-and-storage | 5 |
 | 02-kafka-and-strimzi | 4 |
 | 02-logging-loki-and-tracing | 4 |
-| 02-python-environments-packaging | 5 |
+| 02-python-environments-packaging | 10 |
 | 02-roles-vault-and-best-practices | 5 |
 | 02-state-modules-and-terragrunt | 5 |
 | 03-100-devops-interview-questions-bank-part1 | 4 |
@@ -41,12 +41,12 @@
 | 03-docker-compose-and-networking | 5 |
 | 03-git-internals-deep-dive | 5 |
 | 03-gitlab-ci-deep-dive | 5 |
-| 03-go-concurrency-patterns | 5 |
+| 03-go-concurrency-patterns | 10 |
 | 03-grafana-alloy-telemetry | 3 |
 | 03-hashicorp-vault-deep-dive | 4 |
 | 03-helm-and-kustomize | 5 |
-| 03-practice-projects | 4 |
-| 03-python-testing-pytest | 5 |
+| 03-practice-projects | 6 |
+| 03-python-testing-pytest | 10 |
 | 03-terraform-testing-ci-and-state-ops | 5 |
 | 03-traefik-and-nginx-advanced | 4 |
 | 04-100-devops-interview-questions-bank-part2 | 4 |
@@ -54,55 +54,63 @@
 | 04-docker-deep-internals-and-engine | 5 |
 | 04-ebpf-deep-dive | 5 |
 | 04-gitops-multienv-and-promotion | 5 |
-| 04-go-testing-benchmarks | 5 |
+| 04-go-testing-benchmarks | 10 |
 | 04-k8s-troubleshooting-handbook | 5 |
-| 04-osi-model-and-network-protocols | 5 |
+| 04-osi-model-and-network-protocols | 10 |
 | 04-postgresql-ha-and-patroni | 4 |
-| 04-python-asyncio-concurrency | 5 |
+| 04-python-asyncio-concurrency | 10 |
 | 04-supply-chain-security | 5 |
 | 04-zabbix-enterprise-monitoring | 4 |
 | 05-compliance-frameworks | 5 |
 | 05-elk-opensearch-stack | 4 |
 | 05-feature-store-feast | 5 |
-| 05-go-modules-dependencies | 5 |
+| 05-go-modules-dependencies | 10 |
 | 05-k8s-controllers-and-internals | 4 |
 | 05-linux-performance-diagnostics | 5 |
 | 05-merge-rebase-conflicts-masterclass | 5 |
 | 05-progressive-delivery | 5 |
-| 05-python-typing-mypy-ruff | 5 |
+| 05-python-typing-mypy-ruff | 10 |
 | 05-redis-sentinel-and-cluster | 4 |
 | 05-system-design-tasks-bank | 4 |
 | 06-alertmanager-and-dashboards-mastery | 4 |
 | 06-argo-workflows-tekton | 5 |
-| 06-go-cli-cobra-goreleaser | 5 |
+| 06-go-cli-cobra-goreleaser | 10 |
 | 06-gpu-k8s | 5 |
 | 06-hooks-automation-pre-commit | 5 |
 | 06-k8s-networking-packet-flow | 4 |
+| 06-linux-filesystems-and-storage | 5 |
 | 06-mongodb-replica-set-and-sharding | 4 |
-| 06-python-cli-apps | 5 |
+| 06-python-cli-apps | 10 |
 | 07-all-kubernetes-controllers-reference | 4 |
 | 07-alloy-pipelines-cookbook | 5 |
-| 07-go-k8s-client-go | 5 |
+| 07-flux-deep-dive | 5 |
+| 07-go-k8s-client-go | 10 |
 | 07-kubeflow-pipelines | 5 |
-| 07-python-kubernetes-kopf-operators | 5 |
+| 07-linux-logging-journald-rsyslog | 5 |
+| 07-python-kubernetes-kopf-operators | 10 |
 | 07-submodules-subtrees-monorepo | 5 |
-| 08-go-operators-kubebuilder | 5 |
+| 08-go-operators-kubebuilder | 10 |
 | 08-grafana-dashboards-as-code | 5 |
 | 08-k8s-autoscaling | 5 |
 | 08-large-repos-performance-lfs | 5 |
 | 08-llmops-rag | 5 |
-| 08-python-fastapi-services | 5 |
-| 09-go-http-grpc-services | 5 |
+| 08-python-fastapi-services | 10 |
+| 09-go-http-grpc-services | 10 |
 | 09-k8s-cluster-operations | 5 |
 | 09-model-governance | 5 |
 | 09-monitoring-stack-architecture | 5 |
-| 09-python-boto3-moto-deep | 5 |
+| 09-python-boto3-moto-deep | 10 |
 | 09-security-signing-secret-scanning | 5 |
 | 10-git-archaeology-bisect-worktree-filter-repo | 5 |
-| 10-go-performance-tooling | 5 |
-| 10-python-performance-profiling | 5 |
+| 10-go-performance-tooling | 10 |
+| 10-python-performance-profiling | 10 |
 | 10-serverless-knative-openfaas | 5 |
 | 10-sre-practices-incident-management | 5 |
+| 11-k8s-rbac-and-pss | 5 |
+| 11-python-vs-go-comparison | 5 |
+| 12-devops-patterns-and-testing-matrix | 4 |
+| 12-k8s-gateway-api | 5 |
+| 13-python-oop-deep-dive | 7 |
 | 18-platform-engineering | 5 |
 | 19-finops | 5 |
 | 20-alternatives-enterprise | 5 |
@@ -123,12 +131,13 @@
 | 20.7 Network Edge | 5 |
 | 20.8 MinIO/etcd/Longhorn | 5 |
 | 20.9 Pulumi/Packer/Crossplane | 5 |
-| Go для DevOps | 5 |
+| 21-crio-and-runtimes | 5 |
+| Go для DevOps | 10 |
 | MLOps 23.1 Введение и жизненный цикл | 5 |
 | MLOps 23.2 MLflow | 5 |
 | MLOps 23.3 DVC и пайплайны | 5 |
 | MLOps 23.4 Сервинг и мониторинг | 5 |
-| Python для DevOps | 5 |
+| Python для DevOps | 10 |
 | Свод Части 1 | 40 |
 | Свод Части 2 | 40 |
 | Свод Части 3 | 40 |

@@ -967,6 +967,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -1141,6 +1145,62 @@
     
   
     Диагностика производительности
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-linux-and-networking/06-linux-filesystems-and-storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Файловые системы и Хранилище
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-linux-and-networking/07-linux-logging-journald-rsyslog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Логирование: journald, rsyslog, logrotate
   
 
     
@@ -1736,6 +1796,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -2063,6 +2127,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-kubernetes/11-k8s-rbac-and-pss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RBAC, ServiceAccount и Pod Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-kubernetes/12-k8s-gateway-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway API: Замена Ingress для Прода
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2078,6 +2198,8 @@
   
     
     
+      
+        
       
         
       
@@ -2293,6 +2415,34 @@
     
   
     Argo Workflows и Tekton: CI в кластере
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-gitops-and-cicd/07-flux-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FluxCD Deep Dive: Toolkit и Image Automation
   
 
     
@@ -2672,6 +2822,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -2894,10 +3050,21 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#ограничение-параллелизма-семафор" class="md-nav__link">
+  <a href="#event-loop--что-это" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Ограничение параллелизма: семафор
+        Event loop — что это
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ограничение-параллелизма-семафор-и-очереди" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ограничение параллелизма: семафор и очереди
       
     </span>
   </a>
@@ -2909,6 +3076,17 @@
     <span class="md-ellipsis">
       
         Таймауты и отмена — обязательны
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gather-vs-taskgroup-vs-as_completed--выбор" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gather vs TaskGroup vs as_completed — выбор
       
     </span>
   </a>
@@ -2954,10 +3132,71 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#-пять-вопросов-для-самопроверки" class="md-nav__link">
+  <a href="#-тестирование-async-кода" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ❓ Пять вопросов для самопроверки
+        🧪 Тестирование async-кода
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 Тестирование async-кода">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#дополнительные-паттерны-очереди-стриминг-бэкпрессура" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Дополнительные паттерны: очереди, стриминг, бэкпрессура
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subinterpreters-и-free-threaded-python--что-ждать" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subinterpreters и free-threaded Python — что ждать
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#профилирование-async-кода" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Профилирование async-кода
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#чеклист-выбора-модели--таблица-решений" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Чеклист выбора модели — таблица решений
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-десять-вопросов-для-самопроверки" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ❓ Десять вопросов для самопроверки
       
     </span>
   </a>
@@ -2972,6 +3211,45 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-лаборатория-найди-блокировку-и-внедри-backpressure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧪 Лаборатория: найди блокировку и внедри backpressure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 Лаборатория: найди блокировку и внедри backpressure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#задание-3-failure-injection--уроните-fd-лимит" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Задание 3: failure injection — уроните FD лимит
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#чеклист-production-async-сервиса" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Чеклист production async-сервиса
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -3447,6 +3725,90 @@
     
   
     Мини-проекты для портфолио
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-python-vs-go-comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python vs Go: выбор для DevOps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-devops-patterns-and-testing-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DevOps паттерны и Testing Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-python-oop-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python OOP Deep Dive
   
 
     
@@ -4957,6 +5319,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -5271,6 +5637,62 @@
     
   
     Lab 10: Vault end-to-end
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../16-guided-labs/11-lab-flux-gitops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab 11: GitOps с FluxCD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../16-guided-labs/12-lab-e2e-production-track/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab 12: Сквозной E2E Production Track
   
 
     
@@ -5955,6 +6377,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -6569,6 +6995,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../20-senior-stack/21-crio-and-runtimes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21. CRI-O и Контейнерные Runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../20-senior-stack/18-platform-engineering/" class="md-nav__link">
         
   
@@ -6633,6 +7087,34 @@
     
   
     20.20 Nomad, Windows-ноды, AD/LDAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../20-senior-stack/22-p2-supplement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22. P2 Supplement: зазоры
   
 
     
@@ -7240,140 +7722,745 @@
 
 
 <h1 id="-04-python-asyncio-gil-и-конкурентность">⚡ 04. Python: Asyncio, GIL и Конкурентность<a class="headerlink" href="#-04-python-asyncio-gil-и-конкурентность" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Уровень: Senior. Цель: выбрать правильную модель параллелизма, не заморозить прод, диагностировать зависания. I/O-bound vs CPU-bound vs GIL.</p>
+</blockquote>
 <h2 id="-карта-выбора-потоки-процессы-asyncio">🗺️ Карта выбора: потоки, процессы, asyncio<a class="headerlink" href="#-карта-выбора-потоки-процессы-asyncio" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>flowchart TD
     Q{"Что делает задача?"} --&gt;|"ждёт сеть/диск&lt;br/&gt;I/O-bound"| IO{"Много тысяч соединений?"}
     Q --&gt;|"жмёт CPU&lt;br/&gt;CPU-bound"| CPU["multiprocessing / ProcessPool"]
-    IO --&gt;|"да, HTTP/K8s API"| ASYNC["asyncio + aiohttp/httpx"]
-    IO --&gt;|"десятки"| THR["ThreadPoolExecutor"]
-    CPU --&gt; NUMPY["...или numpy/pandas: GIL отпускается внутри C"]</code></pre>
+    IO --&gt;|"да, 1k+ HTTP/K8s API"| ASYNC["asyncio + aiohttp/httpx.AsyncClient"]
+    IO --&gt;|"десятки, блокирующие SDK"| THR["ThreadPoolExecutor"]
+    CPU --&gt; NUMPY["...или numpy/pandas: GIL отпускается внутри C&lt;br/&gt;потоки тоже ускорят"]
+    CPU --&gt; FREETHREAD["Python 3.13 free-threaded&lt;br/&gt;эксперимент, пока не прод"]</code></pre>
 <table>
 <thead>
 <tr>
 <th>Модель</th>
 <th>Переключение</th>
+<th>Память</th>
 <th>Подходит</th>
 <th>Не подходит</th>
+<th>Оверхед задачи</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Потоки</td>
+<td>Потоки (<code>threading</code>)</td>
 <td>вытесняющее, GIL на байткоде</td>
-<td>I/O, блокирующие SDK</td>
+<td>общая (осторожно!)</td>
+<td>I/O, блокирующие SDK (boto3)</td>
 <td>CPU-нагрузка</td>
+<td>~50KB стек</td>
 </tr>
 <tr>
-<td>Процессы</td>
-<td>нет общей памяти</td>
+<td>Процессы (<code>multiprocessing</code>)</td>
+<td>нет общей памяти (pickle)</td>
+<td>изолированная</td>
 <td>парсинг логов, хэширование</td>
-<td>лёгкие задачи (overhead fork)</td>
+<td>лёгкие задачи (fork cost)</td>
+<td>~10MB процесс</td>
 </tr>
 <tr>
 <td>asyncio</td>
-<td>кооперативное</td>
+<td>кооперативное (<code>await</code>)</td>
+<td>общая, но без гонок если без <code>await</code> внутри</td>
 <td>10k+ сетевых операций</td>
 <td>блокирующие вызовы без обёрток</td>
+<td>~3KB корутина</td>
+</tr>
+<tr>
+<td><code>subinterpreters</code> (3.12+)</td>
+<td>изоляция GIL</td>
+<td>изолированная</td>
+<td>эксперимент CPU-параллелизма</td>
+<td>незрелый API</td>
+<td>—</td>
 </tr>
 </tbody>
 </table>
-<p><strong>GIL:</strong> глобальная блокировка интерпретатора — один поток исполняет байткод Python. При I/O GIL освобождается (поэтому потоки помогают), при чистом CPU — нет. В Python 3.13 есть экспериментальный free-threaded build, в 3.12+ — <code>subinterpreters</code>; в проде пока считаем GIL данным.</p>
+<p><strong>GIL — глубоко:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># GIL: глобальная блокировка интерпретатора — один поток исполняет байткод Python.</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># При I/O GIL освобождается (поэтому потоки помогают для сети/диска), при чистом CPU — нет.</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># В Python 3.13 есть экспериментальный free-threaded build (--disable-gil), в 3.12+ — subinterpreters;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># в проде пока считаем GIL данным.</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">threading</span><span class="o">,</span><span class="w"> </span><span class="nn">time</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">cpu_bound</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">s</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="n">s</span> <span class="o">+=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">i</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="k">return</span> <span class="n">s</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="c1"># Потоки НЕ ускорят CPU-bound:</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="n">threads</span> <span class="o">=</span> <span class="p">[</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">cpu_bound</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="mi">5_000_00</span><span class="p">,))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"threads </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="o">-</span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="c1"># Процессы — ускорят:</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessPoolExecutor</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="k">with</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="nb">list</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">cpu_bound</span><span class="p">,</span> <span class="p">[</span><span class="mi">5_000_00</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span><span class="p">))</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"processes </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="o">-</span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="c1"># Но: fork на Linux копирует память (CoW), на macOS/Windows — spawn (перезапуск)!</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="c1"># GIL отпускается внутри C-расширений на больших буферах:</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="c1"># hashlib.sha256(data) — GIL освобождается на время хеширования C-кодом,</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="c1"># поэтому ThreadPool для хешей больших файлов ТОЖЕ даёт ускорение (нюанс!)</span>
+</span></code></pre></div>
+<pre class="mermaid"><code>sequenceDiagram
+    participant T1 as Поток 1 (байткод)
+    participant GIL as GIL
+    participant T2 as Поток 2 (байткод)
+    participant C as C-расширение (hashlib)
+    T1-&gt;&gt;GIL: acquire
+    T1-&gt;&gt;GIL: release каждые 5ms (sys.getswitchinterval)
+    T2-&gt;&gt;GIL: acquire
+    T2-&gt;&gt;C: sha256(1GB) — GIL released!
+    T1-&gt;&gt;GIL: acquire параллельно</code></pre>
+<hr />
 <h2 id="-asyncio-основы-и-типовые-паттерны">🔄 Asyncio: основы и типовые паттерны<a class="headerlink" href="#-asyncio-основы-и-типовые-паттерны" title="Permanent link">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span><span class="o">,</span><span class="w"> </span><span class="nn">httpx</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check_url</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="k">return</span> <span class="n">url</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"https://svc-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.local/health"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">)]</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>            <span class="o">*</span><span class="p">(</span><span class="n">check_url</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">),</span> <span class="n">return_exceptions</span><span class="o">=</span><span class="kc">True</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="p">)</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">ok</span> <span class="o">=</span> <span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">)]</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"healthy </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">urls</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
-</span></code></pre></div>
-<h3 id="ограничение-параллелизма-семафор">Ограничение параллелизма: семафор<a class="headerlink" href="#ограничение-параллелизма-семафор" title="Permanent link">&para;</a></h3>
-<p>500 одновременных соединений уронят сервис или упрутся в ulimit:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">sem</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span><span class="o">,</span><span class="w"> </span><span class="nn">httpx</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">bounded</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">sem</span><span class="p">:</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="k">return</span> <span class="k">await</span> <span class="n">check_url</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check_url</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="k">return</span> <span class="n">url</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Или батчами через очередь-пул воркеров:</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">worker</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="n">url</span> <span class="o">=</span> <span class="k">await</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="k">try</span><span class="p">:</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="k">await</span> <span class="n">check_url</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">url</span><span class="p">))</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="k">finally</span><span class="p">:</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>            <span class="n">queue</span><span class="o">.</span><span class="n">task_done</span><span class="p">()</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"https://svc-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.local/health"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">)]</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>            <span class="o">*</span><span class="p">(</span><span class="n">check_url</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">),</span> <span class="n">return_exceptions</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="p">)</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">ok</span> <span class="o">=</span> <span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">)]</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"healthy </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">urls</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pool</span><span class="p">(</span><span class="n">urls</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="n">q</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>          <span class="c1"># backpressure!</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="o">...</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </span></code></pre></div>
+<h3 id="event-loop--что-это">Event loop — что это<a class="headerlink" href="#event-loop--что-это" title="Permanent link">&para;</a></h3>
+<p><strong>Что:</strong> один поток, цикл <code>while True: достать готовую задачу → выполнить до await → отдать управление</code>. <code>await</code> — точка где корутина добровольно отдаёт управление loop'у.</p>
+<p><strong>Internals:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">demo</span><span class="p">():</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"start"</span><span class="p">)</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># отдаёт управление loop'у на 1с</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"after 1s"</span><span class="p">)</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="c1"># await fetch() — аналогично, но ждёт сеть</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="c1"># asyncio.run() — создаёт новый loop, запускает корутину, закрывает loop</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">demo</span><span class="p">())</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="c1"># Внутри: loop = asyncio.new_event_loop(); loop.run_until_complete(demo())</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="c1"># Корутина — объект, а не результат! Без await она не исполнится:</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">foo</span><span class="p">():</span> <span class="k">return</span> <span class="mi">42</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="n">coro</span> <span class="o">=</span> <span class="n">foo</span><span class="p">()</span>  <span class="c1"># &lt;coroutine object&gt;</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="nb">print</span><span class="p">(</span><span class="n">coro</span><span class="p">)</span>   <span class="c1"># не 42!</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="c1"># await coro  # только так получим 42</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="c1"># Забытый await — RuntimeWarning: coroutine was never awaited</span>
+</span></code></pre></div>
+<p><strong>Почему кооперативность — и сила и риск:</strong> переключение только на <code>await</code>. Если в корутине нет <code>await</code> 100ms — весь loop стоит (все 10k соединений ждут). Диагностика: <code>python -X dev</code> + <code>asyncio.run(..., debug=True)</code>.</p>
+<h3 id="ограничение-параллелизма-семафор-и-очереди">Ограничение параллелизма: семафор и очереди<a class="headerlink" href="#ограничение-параллелизма-семафор-и-очереди" title="Permanent link">&para;</a></h3>
+<p>500 одновременных соединений уронят сервис или упрутся в ulimit:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span><span class="o">,</span><span class="w"> </span><span class="nn">httpx</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">sem</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">bounded</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">sem</span><span class="p">:</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="k">return</span> <span class="k">await</span> <span class="n">check_url</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main_bounded</span><span class="p">(</span><span class="n">urls</span><span class="p">):</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">httpx</span><span class="o">.</span><span class="n">Limits</span><span class="p">(</span><span class="n">max_connections</span><span class="o">=</span><span class="mi">50</span><span class="p">))</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">bounded</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">),</span> <span class="n">return_exceptions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</span></code></pre></div>
+<p><strong>Пул воркеров через Queue — с backpressure:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">worker</span><span class="p">(</span><span class="n">queue</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        <span class="n">url</span> <span class="o">=</span> <span class="k">await</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="k">if</span> <span class="n">url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># sentinel — сигнал остановки</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>            <span class="n">queue</span><span class="o">.</span><span class="n">task_done</span><span class="p">()</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>            <span class="k">break</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="k">await</span> <span class="n">check_url</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">url</span><span class="p">))</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">url</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>        <span class="k">finally</span><span class="p">:</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>            <span class="n">queue</span><span class="o">.</span><span class="n">task_done</span><span class="p">()</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pool</span><span class="p">(</span><span class="n">urls</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    <span class="n">q</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>  <span class="c1"># backpressure! продюсер ждёт если очередь полна</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    <span class="n">results</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>        <span class="c1"># запустить воркеров:</span>
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>        <span class="n">ws</span> <span class="o">=</span> <span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">worker</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="n">results</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">workers</span><span class="p">)]</span>
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>        <span class="c1"># наполнить очередь:</span>
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>            <span class="k">await</span> <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>        <span class="c1"># дождаться обработки:</span>
+</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>        <span class="k">await</span> <span class="n">q</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>        <span class="c1"># остановить воркеров:</span>
+</span><span id="__span-4-28"><a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">ws</span><span class="p">:</span>
+</span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>            <span class="k">await</span> <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="__span-4-30"><a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">ws</span><span class="p">)</span>
+</span><span id="__span-4-31"><a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a>    <span class="k">return</span> <span class="n">results</span>
+</span><span id="__span-4-32"><a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>
+</span><span id="__span-4-33"><a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="c1"># Альтернатива — asyncio.TaskGroup (3.11+) с автоотменой:</span>
+</span><span id="__span-4-34"><a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">with_taskgroup</span><span class="p">(</span><span class="n">urls</span><span class="p">):</span>
+</span><span id="__span-4-35"><a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a>    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-4-36"><a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TaskGroup</span><span class="p">()</span> <span class="k">as</span> <span class="n">tg</span><span class="p">:</span>
+</span><span id="__span-4-37"><a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a>        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+</span><span id="__span-4-38"><a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a>            <span class="n">tg</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">fetch_one</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">results</span><span class="p">))</span>
+</span><span id="__span-4-39"><a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a>    <span class="c1"># TaskGroup ждёт всех; если один упал — остальные отменяются автоматически</span>
+</span><span id="__span-4-40"><a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a>    <span class="c1"># vs gather(return_exceptions=False) — первое исключение, остальные «осиротевшие»</span>
+</span></code></pre></div>
+<p><strong>Таблица — как ограничить:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Способ</th>
+<th>Где лимит</th>
+<th>Плюс</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Semaphore(50)</code></td>
+<td>в коде</td>
+<td>просто, точно 50 одновременно</td>
+</tr>
+<tr>
+<td><code>httpx.Limits(max_connections=50)</code></td>
+<td>в клиенте</td>
+<td>пул соединений + keep-alive</td>
+</tr>
+<tr>
+<td><code>Queue(maxsize=100)</code></td>
+<td>между продюсером и воркерами</td>
+<td>backpressure, не копим 10k задач в памяти</td>
+</tr>
+<tr>
+<td><code>asyncio.TaskGroup</code></td>
+<td>группа тасок</td>
+<td>автоотмена siblings при ошибке</td>
+</tr>
+</tbody>
+</table>
 <h3 id="таймауты-и-отмена--обязательны">Таймауты и отмена — обязательны<a class="headerlink" href="#таймауты-и-отмена--обязательны" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">async</span> <span class="k">with</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>              <span class="c1"># Python 3.11+</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fetch_all</span><span class="p">()</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Гонка «кто быстрее» (fallback-зеркало):</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="n">primary</span><span class="p">(),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Отмена каскадная: cancel() бросает CancelledError внутрь корутины;</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1"># корутина обязана её не глотать, а подчистить ресурсы:</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="k">try</span><span class="p">:</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="k">await</span> <span class="n">long_op</span><span class="p">()</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="k">await</span> <span class="n">cleanup</span><span class="p">()</span>                          <span class="c1"># без await после этого — сразу raise</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="k">raise</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">demo_timeouts</span><span class="p">():</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>              <span class="c1"># Python 3.11+ (заменяет wait_for для блоков)</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fetch_all</span><span class="p">()</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="c1"># Гонка «кто быстрее» (fallback-зеркало):</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="n">primary</span><span class="p">(),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="k">except</span> <span class="ne">TimeoutError</span><span class="p">:</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fallback</span><span class="p">()</span>  <span class="c1"># primary не успела — берём fallback</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>    <span class="c1"># Отмена каскадная: cancel() бросает CancelledError внутрь корутины;</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>    <span class="c1"># корутина обязана её не глотать, а подчистить ресурсы:</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>        <span class="k">await</span> <span class="n">long_op</span><span class="p">()</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>    <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>        <span class="k">await</span> <span class="n">cleanup</span><span class="p">()</span>                          <span class="c1"># без await после этого — сразу raise</span>
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>        <span class="k">raise</span>
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>    <span class="c1"># Shield — защитить критичную операцию от отмены:</span>
+</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">shield</span><span class="p">(</span><span class="n">save_to_db</span><span class="p">())</span>  <span class="c1"># даже если внешний Task отменён, save завершится</span>
+</span><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>
+</span><span id="__span-5-24"><a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="c1"># wait_for vs timeout:</span>
+</span><span id="__span-5-25"><a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="c1"># wait_for — оборачивает одну корутину, отменяет её при таймауте</span>
+</span><span id="__span-5-26"><a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="c1"># timeout — контекстный менеджер для блока, читаемее для нескольких await</span>
 </span></code></pre></div>
+<p><strong>Failure — глотание CancelledError:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span><span class="o">,</span><span class="w"> </span><span class="nn">logging</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">demo_cancel_handling</span><span class="p">():</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="c1"># ❌ Убивает отмену — таска никогда не завершится:</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="k">await</span> <span class="n">long_op</span><span class="p">()</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"cancelled, ignoring"</span><span class="p">)</span>  <span class="c1"># не перебросили — TaskGroup/gather повиснет!</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="k">raise</span>  <span class="c1"># даже в «плохом» примере перебрасываем для компилируемости</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="c1"># ✅ Всегда перебрасывайте:</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>        <span class="k">await</span> <span class="n">long_op</span><span class="p">()</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>        <span class="k">await</span> <span class="n">cleanup</span><span class="p">()</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>        <span class="k">raise</span>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>    <span class="c1"># Или не ловите CancelledError вообще — finally достаточно:</span>
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>        <span class="k">await</span> <span class="n">long_op</span><span class="p">()</span>
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>    <span class="k">finally</span><span class="p">:</span>
+</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>        <span class="k">await</span> <span class="n">cleanup</span><span class="p">()</span>  <span class="c1"># выполнится и при отмене, и при успехе</span>
+</span></code></pre></div>
+<h3 id="gather-vs-taskgroup-vs-as_completed--выбор">Gather vs TaskGroup vs as_completed — выбор<a class="headerlink" href="#gather-vs-taskgroup-vs-as_completed--выбор" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"bad 3"</span><span class="p">)</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">return</span> <span class="n">n</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">demo_gather</span><span class="p">():</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="c1"># gather — все сразу, результат в порядке входа:</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">fetch</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">fetch</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">fetch</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">return_exceptions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>    <span class="c1"># [1, 2, ValueError] — порядок сохранён, ошибки как значения</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>    <span class="c1"># gather без return_exceptions — первое исключение вылетает, остальные «осиротевшие»:</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">fetch</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">fetch</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>        <span class="k">pass</span>  <span class="c1"># fetch(1) уже завершился, но gather не отменил его</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>    <span class="c1"># TaskGroup — структурированная конкурентность (3.11+):</span>
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>        <span class="k">async</span> <span class="k">with</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TaskGroup</span><span class="p">()</span> <span class="k">as</span> <span class="n">tg</span><span class="p">:</span>
+</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>            <span class="n">tg</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">fetch</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="__span-7-24"><a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>            <span class="n">tg</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">fetch</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>  <span class="c1"># упадёт → tg отменит fetch(1) если он ещё идёт</span>
+</span><span id="__span-7-25"><a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>    <span class="k">except</span><span class="o">*</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">eg</span><span class="p">:</span>  <span class="c1"># ExceptionGroup!</span>
+</span><span id="__span-7-26"><a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">eg</span><span class="o">.</span><span class="n">exceptions</span><span class="p">)</span>
+</span><span id="__span-7-27"><a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>
+</span><span id="__span-7-28"><a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a>    <span class="c1"># as_completed — обрабатывать по мере готовности (стриминг):</span>
+</span><span id="__span-7-29"><a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a>    <span class="k">for</span> <span class="n">coro</span> <span class="ow">in</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">as_completed</span><span class="p">([</span><span class="n">fetch</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span> <span class="n">fetch</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)]):</span>
+</span><span id="__span-7-30"><a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a>        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">coro</span>  <span class="c1"># первым придёт fetch(2) (0.1с)</span>
+</span><span id="__span-7-31"><a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</span><span id="__span-7-32"><a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a>
+</span><span id="__span-7-33"><a id="__codelineno-7-33" name="__codelineno-7-33" href="#__codelineno-7-33"></a>    <span class="c1"># wait — низкоуровневый контроль:</span>
+</span><span id="__span-7-34"><a id="__codelineno-7-34" name="__codelineno-7-34" href="#__codelineno-7-34"></a>    <span class="n">done</span><span class="p">,</span> <span class="n">pending</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span>
+</span><span id="__span-7-35"><a id="__codelineno-7-35" name="__codelineno-7-35" href="#__codelineno-7-35"></a>        <span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">fetch</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">fetch</span><span class="p">(</span><span class="mi">2</span><span class="p">))],</span>
+</span><span id="__span-7-36"><a id="__codelineno-7-36" name="__codelineno-7-36" href="#__codelineno-7-36"></a>        <span class="n">timeout</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">return_when</span><span class="o">=</span><span class="n">asyncio</span><span class="o">.</span><span class="n">FIRST_COMPLETED</span>
+</span><span id="__span-7-37"><a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a>    <span class="p">)</span>
+</span><span id="__span-7-38"><a id="__codelineno-7-38" name="__codelineno-7-38" href="#__codelineno-7-38"></a>    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">pending</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>  <span class="c1"># не дождались — отменяем</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Паттерн</th>
+<th>Порядок</th>
+<th>Ошибки</th>
+<th>Отмена siblings</th>
+<th>Когда</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gather(return_exceptions=False)</code></td>
+<td>входной</td>
+<td>первая вылетает</td>
+<td>нет (осиротевшие)</td>
+<td>когда все должны успеть</td>
+</tr>
+<tr>
+<td><code>gather(return_exceptions=True)</code></td>
+<td>входной</td>
+<td>как значения</td>
+<td>нет</td>
+<td>массовые проверки (500 URL)</td>
+</tr>
+<tr>
+<td><code>TaskGroup</code></td>
+<td>нет</td>
+<td>ExceptionGroup</td>
+<td>да (авто)</td>
+<td>структурированные задачи</td>
+</tr>
+<tr>
+<td><code>as_completed</code></td>
+<td>готовности</td>
+<td>вылетают по одной</td>
+<td>вручную</td>
+<td>стриминг результатов</td>
+</tr>
+<tr>
+<td><code>wait(FIRST_COMPLETED)</code></td>
+<td>готовности</td>
+<td>в done</td>
+<td>вручную</td>
+<td>гонки/таймауты</td>
+</tr>
+</tbody>
+</table>
+<hr />
 <h2 id="-ловушки-async-кода">⚠️ Ловушки async-кода<a class="headerlink" href="#-ловушки-async-кода" title="Permanent link">&para;</a></h2>
 <ol>
 <li><strong>Блокирующий вызов замораживает весь loop.</strong></li>
 </ol>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>          <span class="c1"># ❌ стоит весь event loop</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># ✅</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>       <span class="c1"># ❌</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">await</span> <span class="n">httpx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>    <span class="c1"># ✅</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># Старая блокирующая библиотека? Выносим в поток:</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">boto3_client</span><span class="o">.</span><span class="n">list_buckets</span><span class="p">)</span>     <span class="c1"># ✅ стандартный мост</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">blocking_fn</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>           <span class="c1"># эквивалент вручную</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="o">,</span><span class="w"> </span><span class="nn">asyncio</span><span class="o">,</span><span class="w"> </span><span class="nn">httpx</span><span class="o">,</span><span class="w"> </span><span class="nn">requests</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">demo_blocking</span><span class="p">():</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>          <span class="c1"># ❌ стоит весь event loop (10с ни одна корутина не идёт)</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># ✅ отдаёт управление</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://example.com"</span><span class="p">)</span>       <span class="c1"># ❌ блокирует loop на секунды</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>        <span class="k">await</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://example.com"</span><span class="p">)</span>    <span class="c1"># ✅</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="c1"># await httpx.get(...)    # ❌ httpx.get — синхронный! нужен AsyncClient</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="c1"># Старая блокирующая библиотека? Выносим в поток:</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">boto3_client</span><span class="o">.</span><span class="n">list_buckets</span><span class="p">)</span>     <span class="c1"># ✅ стандартный мост (3.9+)</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">blocking_fn</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>     <span class="c1"># эквивалент вручную (старее)</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>    <span class="c1"># CPU в async — тоже в executor:</span>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">hash_file</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>  <span class="c1"># иначе loop стоит пока хешируется</span>
 </span></code></pre></div>
 <ol start="2">
-<li><strong>Забытый <code>await</code></strong> — корутина создана, но не запущена (<code>RuntimeWarning: coroutine was never awaited</code>). Включайте <code>-W error::RuntimeWarning</code> в CI.</li>
-<li><strong>Общая мутабельная память</strong> между корутинами: переключения непредсказуемы; для критичных секций <code>asyncio.Lock</code>, а не «и так сойдёт».</li>
+<li>
+<p><strong>Забытый <code>await</code></strong> — корутина создана, но не запущена (<code>RuntimeWarning: coroutine was never awaited</code>). Включайте <code>-W error::RuntimeWarning</code> в CI. <code>ruff</code> правило <code>ASYNC100</code>/<code>ASYNC109</code> ловит часть случаев.</p>
+</li>
+<li>
+<p><strong>Общая мутабельная память</strong> между корутинами: переключения только на <code>await</code>, но если <code>await</code> внутри — гонка.</p>
+</li>
 </ol>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># ❌ Гонка: две корутины одновременно читают-пишут:</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">inc</span><span class="p">():</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="k">global</span> <span class="n">counter</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">tmp</span> <span class="o">=</span> <span class="n">counter</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># переключение — другая корутина меняет counter!</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="n">counter</span> <span class="o">=</span> <span class="n">tmp</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="c1"># ✅ Lock для критичных секций:</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="n">lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">inc_safe</span><span class="p">():</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="k">global</span> <span class="n">counter</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">lock</span><span class="p">:</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>        <span class="n">tmp</span> <span class="o">=</span> <span class="n">counter</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>        <span class="n">counter</span> <span class="o">=</span> <span class="n">tmp</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="c1"># Но лучше — без разделяемого состояния: Queue, возвращаемые значения, gather</span>
+</span></code></pre></div>
+<ol start="4">
+<li><strong>Незакрытые ресурсы — <code>ResourceWarning</code>:</strong></li>
+</ol>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span><span class="o">,</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">demo_resources</span><span class="p">():</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="c1"># ❌ Клиент не закрыт:</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://example.com"</span><span class="p">)</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">aclose</span><span class="p">()</span>  <span class="c1"># забыли — утечка соединений (для примера закрыли)</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="c1"># ✅ Контекстный менеджер:</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client2</span><span class="p">:</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>        <span class="k">await</span> <span class="n">client2</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://example.com"</span><span class="p">)</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    <span class="c1"># или try/finally с aclose</span>
+</span></code></pre></div>
+<hr />
 <h2 id="-потоки-и-процессы-когда-они-правильный-ответ">🧵 Потоки и процессы: когда они правильный ответ<a class="headerlink" href="#-потоки-и-процессы-когда-они-правильный-ответ" title="Permanent link">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span><span class="p">,</span> <span class="n">ProcessPoolExecutor</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># Блокирующие SDK (boto3, kubernetes-client) → пул потоков:</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">ex</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">describe_instance</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">instance_ids</span><span class="p">):</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="n">process</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1"># CPU-работа (хэши, парсинг гигабайтов) → процессы:</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="k">with</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="k">for</span> <span class="n">digest</span> <span class="ow">in</span> <span class="n">ex</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">hash_file</span><span class="p">,</span> <span class="n">files</span><span class="p">):</span>      <span class="c1"># map сохраняет порядок</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>        <span class="n">store</span><span class="p">(</span><span class="n">digest</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span><span class="p">,</span> <span class="n">ProcessPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1"># Блокирующие SDK (boto3, kubernetes-client) → пул потоков:</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">ex</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">describe_instance</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">instance_ids</span><span class="p">):</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        <span class="n">process</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="c1"># CPU-работа (хэши, парсинг гигабайтов) → процессы:</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="k">with</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    <span class="k">for</span> <span class="n">digest</span> <span class="ow">in</span> <span class="n">ex</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">hash_file</span><span class="p">,</span> <span class="n">files</span><span class="p">):</span>      <span class="c1"># map сохраняет порядок</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>        <span class="n">store</span><span class="p">(</span><span class="n">digest</span><span class="p">)</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="c1"># as_completed — стриминг по готовности:</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>    <span class="n">futures</span> <span class="o">=</span> <span class="p">{</span><span class="n">ex</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">describe_instance</span><span class="p">,</span> <span class="n">nid</span><span class="p">):</span> <span class="n">nid</span> <span class="k">for</span> <span class="n">nid</span> <span class="ow">in</span> <span class="n">instance_ids</span><span class="p">}</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>    <span class="k">for</span> <span class="n">fut</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">):</span>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>        <span class="n">nid</span> <span class="o">=</span> <span class="n">futures</span><span class="p">[</span><span class="n">fut</span><span class="p">]</span>
+</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>            <span class="nb">print</span><span class="p">(</span><span class="n">nid</span><span class="p">,</span> <span class="n">fut</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+</span><span id="__span-11-20"><a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-11-21"><a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nid</span><span class="si">}</span><span class="s2"> failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </span></code></pre></div>
-<p>Аргументы процессов пикливаются — передаваемые объекты должны быть serializable; общие данные — через <code>multiprocessing.Manager</code>/<code>SharedMemory</code> (избегать без нужды).</p>
+<p><strong>Детали и failure modes:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># ThreadPool — GIL, но I/O отпускает GIL → ускорение есть:</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="c1"># ProcessPool — pickle аргументов/результатов → объекты должны быть serializable:</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># ❌ Не сериализуемо — упадёт в ProcessPool:</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="c1"># ex.submit(lambda: x)  # lambda не пиклится (в общем случае)</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="c1"># ex.submit(open)        # файловый объект не пиклится</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="c1"># ✅ Топ-левел функции + простые типы:</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="k">def</span><span class="w"> </span><span class="nf">hash_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="c1"># Общие данные — через Manager/SharedMemory (избегать без нужды):</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Manager</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="k">with</span> <span class="n">Manager</span><span class="p">()</span> <span class="k">as</span> <span class="n">m</span><span class="p">:</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>    <span class="n">shared</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>    <span class="c1"># но это медленно (IPC) — лучше map/reduce</span>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="c1"># Размер пула — формула:</span>
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="c1"># I/O-bound threads: 2-4 × CPU cores, или лимит API (20-50)</span>
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="c1"># CPU-bound processes: CPU cores (или cores-1 чтобы не забить хост)</span>
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>  <span class="c1"># подсказка для max_workers</span>
+</span><span id="__span-12-24"><a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>
+</span><span id="__span-12-25"><a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a><span class="c1"># Graceful shutdown — обработка Ctrl+C:</span>
+</span><span id="__span-12-26"><a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
+</span><span id="__span-12-27"><a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a><span class="c1"># ThreadPoolExecutor — демонические потоки не мешают выходу, но могут оборваться mid-task</span>
+</span><span id="__span-12-28"><a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a><span class="c1"># ProcessPoolExecutor — SIGTERM дочерним, нужен try/except KeyboardInterrupt вокруг map</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>ThreadPool</th>
+<th>ProcessPool</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Общение</td>
+<td>общая память (GIL)</td>
+<td>pickle через pipe</td>
+</tr>
+<tr>
+<td>Стартовый cost</td>
+<td>микросекунды</td>
+<td>миллисекунды (fork/spawn)</td>
+</tr>
+<tr>
+<td>Утечка памяти</td>
+<td>общая — одна утечка на всех</td>
+<td>изолированная</td>
+</tr>
+<tr>
+<td>Отладка</td>
+<td>стек общий</td>
+<td>стек отдельный, <code>py-spy</code> на PID</td>
+</tr>
+<tr>
+<td>Когда</td>
+<td>boto3, DB, API</td>
+<td>CPU, изоляция падений</td>
+</tr>
+</tbody>
+</table>
+<hr />
 <h2 id="-диагностика-живого-процесса">🔬 Диагностика живого процесса<a class="headerlink" href="#-диагностика-живого-процесса" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>py-spy<span class="w"> </span>dump<span class="w"> </span>--pid<span class="w"> </span><span class="m">1234</span><span class="w">            </span><span class="c1"># стек всех потоков БЕЗ остановки сервиса</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>py-spy<span class="w"> </span>record<span class="w"> </span>-p<span class="w"> </span><span class="m">1234</span><span class="w"> </span>-o<span class="w"> </span>profile.svg<span class="w"> </span>--duration<span class="w"> </span><span class="m">30</span><span class="w">   </span><span class="c1"># flamegraph</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>py-spy<span class="w"> </span>top<span class="w"> </span>-p<span class="w"> </span><span class="m">1234</span><span class="w">                </span><span class="c1"># live-топ функций</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># Внутри asyncio: где зависла корутина?</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>python<span class="w"> </span>-X<span class="w"> </span>dev<span class="w"> </span>app.py<span class="w">               </span><span class="c1"># debug-mode: медленные колбэки &gt;100ms, незакрытые ресурсы</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>asyncio.run<span class="o">(</span>main<span class="o">()</span>,<span class="w"> </span><span class="nv">debug</span><span class="o">=</span>True<span class="o">)</span><span class="w">    </span><span class="c1"># то же программно</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>py-spy<span class="w"> </span>dump<span class="w"> </span>--pid<span class="w"> </span><span class="m">1234</span><span class="w">            </span><span class="c1"># стек всех потоков БЕЗ остановки сервиса</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>py-spy<span class="w"> </span>record<span class="w"> </span>-p<span class="w"> </span><span class="m">1234</span><span class="w"> </span>-o<span class="w"> </span>profile.svg<span class="w"> </span>--duration<span class="w"> </span><span class="m">30</span><span class="w">   </span><span class="c1"># flamegraph</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>py-spy<span class="w"> </span>top<span class="w"> </span>-p<span class="w"> </span><span class="m">1234</span><span class="w">                </span><span class="c1"># live-топ функций (htop для Python)</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="c1"># Внутри asyncio: где зависла корутина?</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>python<span class="w"> </span>-X<span class="w"> </span>dev<span class="w"> </span>app.py<span class="w">               </span><span class="c1"># debug-mode: медленные колбэки &gt;100ms, незакрытые ресурсы</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="c1"># или программно:</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>asyncio.run<span class="o">(</span>main<span class="o">()</span>,<span class="w"> </span><span class="nv">debug</span><span class="o">=</span>True<span class="o">)</span><span class="w">    </span><span class="c1"># то же</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="c1"># Переменные окружения:</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="nv">PYTHONASYNCIODEBUG</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>python<span class="w"> </span>app.py
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="nv">PYTHONTRACEMALLOC</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>python<span class="w"> </span>app.py<span class="w">  </span><span class="c1"># трассировка аллокаций</span>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>
+</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="c1"># Логирование медленных колбэков:</span>
+</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>import<span class="w"> </span>logging,<span class="w"> </span>asyncio
+</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>logging.basicConfig<span class="o">(</span><span class="nv">level</span><span class="o">=</span>logging.DEBUG<span class="o">)</span>
+</span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>async<span class="w"> </span>def<span class="w"> </span>slow<span class="o">()</span>:
+</span><span id="__span-13-17"><a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="w">    </span>await<span class="w"> </span>asyncio.sleep<span class="o">(</span><span class="m">0</span>.2<span class="o">)</span><span class="w">  </span><span class="c1"># debug-mode предупредит если колбэк &gt;100ms</span>
 </span></code></pre></div>
-<p>Типовой разбор инцидента «сервис перестал отвечать»: <code>py-spy dump</code> показывает стек в <code>sock.recv</code> из синхронной библиотеки, вызванной прямо в корутине → мостик <code>to_thread</code>.</p>
-<h2 id="-пять-вопросов-для-самопроверки">❓ Пять вопросов для самопроверки<a class="headerlink" href="#-пять-вопросов-для-самопроверки" title="Permanent link">&para;</a></h2>
+<p>Типовой разбор инцидента «сервис перестал отвечать»: <code>py-spy dump</code> показывает стек в <code>sock.recv</code> из синхронной библиотеки, вызванной прямо в корутине → мостик <code>to_thread</code> + <code>timeout</code>.</p>
+<p><strong>Чеклист инцидента:</strong></p>
+<pre class="mermaid"><code>flowchart TD
+    A["Сервис не отвечает"] --&gt; B["py-spy dump --pid"]
+    B --&gt;|"стек в requests.get / time.sleep"| C["Блокирующий вызов в loop&lt;br/&gt;→ to_thread / AsyncClient"]
+    B --&gt;|"стек в await semaphore"| D["Deadlock / исчерпан пул&lt;br/&gt;→ увеличить лимит / убрать ожидание внутри lock"]
+    B --&gt;|"много корутин в pending"| E["Нет backpressure&lt;br/&gt;→ Queue maxsize / Semaphore"]
+    B --&gt;|"GIL 100%"| F["CPU-bound в loop&lt;br/&gt;→ ProcessPool"]</code></pre>
+<hr />
+<h2 id="-тестирование-async-кода">🧪 Тестирование async-кода<a class="headerlink" href="#-тестирование-async-кода" title="Permanent link">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span><span class="o">,</span><span class="w"> </span><span class="nn">asyncio</span><span class="o">,</span><span class="w"> </span><span class="nn">httpx</span><span class="o">,</span><span class="w"> </span><span class="nn">respx</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="c1"># pytest-asyncio — маркер для async тестов:</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_check_url</span><span class="p">():</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>        <span class="c1"># respx для httpx:</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>        <span class="k">with</span> <span class="n">respx</span><span class="o">.</span><span class="n">mock</span><span class="p">:</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>            <span class="n">respx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://svc.local/health"</span><span class="p">)</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="n">return_value</span><span class="o">=</span><span class="n">httpx</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>            <span class="n">url</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="k">await</span> <span class="n">check_url</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">"https://svc.local/health"</span><span class="p">)</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>            <span class="k">assert</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">200</span>
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>
+</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="c1"># Таймаут на тест — защита от зависших корутин:</span>
+</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+</span><span id="__span-14-15"><a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="__span-14-16"><a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_with_timeout</span><span class="p">():</span>
+</span><span id="__span-14-17"><a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</span><span id="__span-14-18"><a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>    <span class="k">assert</span> <span class="kc">True</span>
+</span><span id="__span-14-19"><a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>
+</span><span id="__span-14-20"><a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="c1"># Мок async-функции:</span>
+</span><span id="__span-14-21"><a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncMock</span><span class="p">,</span> <span class="n">patch</span>
+</span><span id="__span-14-22"><a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>
+</span><span id="__span-14-23"><a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="nd">@patch</span><span class="p">(</span><span class="s2">"app.fetch"</span><span class="p">,</span> <span class="n">new_callable</span><span class="o">=</span><span class="n">AsyncMock</span><span class="p">)</span>
+</span><span id="__span-14-24"><a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+</span><span id="__span-14-25"><a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_mocked</span><span class="p">(</span><span class="n">mock_fetch</span><span class="p">):</span>
+</span><span id="__span-14-26"><a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a>    <span class="n">mock_fetch</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"ok"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+</span><span id="__span-14-27"><a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a>    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fetch_with_retry</span><span class="p">()</span>
+</span><span id="__span-14-28"><a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a>    <span class="n">mock_fetch</span><span class="o">.</span><span class="n">assert_awaited</span><span class="p">()</span>
+</span><span id="__span-14-29"><a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a>
+</span><span id="__span-14-30"><a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a><span class="c1"># Проверка что корутина отменилась:</span>
+</span><span id="__span-14-31"><a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+</span><span id="__span-14-32"><a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_cancel</span><span class="p">():</span>
+</span><span id="__span-14-33"><a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a>    <span class="n">task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+</span><span id="__span-14-34"><a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a>    <span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+</span><span id="__span-14-35"><a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a>    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">):</span>
+</span><span id="__span-14-36"><a id="__codelineno-14-36" name="__codelineno-14-36" href="#__codelineno-14-36"></a>        <span class="k">await</span> <span class="n">task</span>
+</span></code></pre></div>
+<p><strong>Failure — <code>pytest-asyncio</code> mode:</strong> с 0.23 <code>asyncio_mode = auto</code> (в <code>pyproject.toml</code>) позволяет не ставить <code>@pytest.mark.asyncio</code> на каждый тест. Без него — тест соберётся как <code>async def</code>, но не запустится (warning).</p>
+<h3 id="дополнительные-паттерны-очереди-стриминг-бэкпрессура">Дополнительные паттерны: очереди, стриминг, бэкпрессура<a class="headerlink" href="#дополнительные-паттерны-очереди-стриминг-бэкпрессура" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span><span class="o">,</span><span class="w"> </span><span class="nn">json</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1"># Паттерн: producer → queue → consumers (fan-out)</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">producer</span><span class="p">(</span><span class="n">queue</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>        <span class="k">await</span> <span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>  <span class="c1"># столько sentinel, сколько воркеров</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>        <span class="k">await</span> <span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">consumer</span><span class="p">(</span><span class="n">queue</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>        <span class="n">item</span> <span class="o">=</span> <span class="k">await</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>        <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>            <span class="n">queue</span><span class="o">.</span><span class="n">task_done</span><span class="p">()</span>
+</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>            <span class="k">break</span>
+</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>            <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">)</span>
+</span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>        <span class="k">finally</span><span class="p">:</span>
+</span><span id="__span-15-20"><a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>            <span class="n">queue</span><span class="o">.</span><span class="n">task_done</span><span class="p">()</span>
+</span><span id="__span-15-21"><a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>
+</span><span id="__span-15-22"><a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fanout</span><span class="p">(</span><span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+</span><span id="__span-15-23"><a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>    <span class="n">q</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span><span id="__span-15-24"><a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-15-25"><a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>    <span class="n">prod</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">producer</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">files</span><span class="p">))</span>
+</span><span id="__span-15-26"><a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a>    <span class="n">cons</span> <span class="o">=</span> <span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">consumer</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">out</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+</span><span id="__span-15-27"><a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">prod</span><span class="p">,</span> <span class="o">*</span><span class="n">cons</span><span class="p">)</span>
+</span><span id="__span-15-28"><a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a>    <span class="k">await</span> <span class="n">q</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</span><span id="__span-15-29"><a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a>    <span class="k">return</span> <span class="n">out</span>
+</span><span id="__span-15-30"><a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a>
+</span><span id="__span-15-31"><a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a><span class="c1"># Паттерн: стрим результатов по мере готовности (async generator):</span>
+</span><span id="__span-15-32"><a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stream_results</span><span class="p">(</span><span class="n">urls</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+</span><span id="__span-15-33"><a id="__codelineno-15-33" name="__codelineno-15-33" href="#__codelineno-15-33"></a>    <span class="n">sem</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+</span><span id="__span-15-34"><a id="__codelineno-15-34" name="__codelineno-15-34" href="#__codelineno-15-34"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch_one</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="__span-15-35"><a id="__codelineno-15-35" name="__codelineno-15-35" href="#__codelineno-15-35"></a>        <span class="k">async</span> <span class="k">with</span> <span class="n">sem</span><span class="p">:</span>
+</span><span id="__span-15-36"><a id="__codelineno-15-36" name="__codelineno-15-36" href="#__codelineno-15-36"></a>            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>  <span class="c1"># имитация сети</span>
+</span><span id="__span-15-37"><a id="__codelineno-15-37" name="__codelineno-15-37" href="#__codelineno-15-37"></a>            <span class="k">return</span> <span class="n">url</span><span class="p">,</span> <span class="mi">200</span>
+</span><span id="__span-15-38"><a id="__codelineno-15-38" name="__codelineno-15-38" href="#__codelineno-15-38"></a>    <span class="c1"># as_completed — отдаём клиенту сразу, не ждём всех:</span>
+</span><span id="__span-15-39"><a id="__codelineno-15-39" name="__codelineno-15-39" href="#__codelineno-15-39"></a>    <span class="k">for</span> <span class="n">coro</span> <span class="ow">in</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">as_completed</span><span class="p">([</span><span class="n">fetch_one</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">]):</span>
+</span><span id="__span-15-40"><a id="__codelineno-15-40" name="__codelineno-15-40" href="#__codelineno-15-40"></a>        <span class="k">yield</span> <span class="k">await</span> <span class="n">coro</span>
+</span><span id="__span-15-41"><a id="__codelineno-15-41" name="__codelineno-15-41" href="#__codelineno-15-41"></a>
+</span><span id="__span-15-42"><a id="__codelineno-15-42" name="__codelineno-15-42" href="#__codelineno-15-42"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">demo_stream</span><span class="p">():</span>
+</span><span id="__span-15-43"><a id="__codelineno-15-43" name="__codelineno-15-43" href="#__codelineno-15-43"></a>    <span class="k">async</span> <span class="k">for</span> <span class="n">url</span><span class="p">,</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">stream_results</span><span class="p">([</span><span class="sa">f</span><span class="s2">"https://svc-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.local"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]):</span>
+</span><span id="__span-15-44"><a id="__codelineno-15-44" name="__codelineno-15-44" href="#__codelineno-15-44"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="subinterpreters-и-free-threaded-python--что-ждать">Subinterpreters и free-threaded Python — что ждать<a class="headerlink" href="#subinterpreters-и-free-threaded-python--что-ждать" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Python 3.12+ — subinterpreters (PEP 684): каждый интерпретатор со своим GIL</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="c1"># Пока экспериментальны, API через concurrent.interpreters (3.13+)</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1"># import concurrent.interpreters  # 3.13</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># interp = concurrent.interpreters.create()</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="c1"># interp.exec('x = 42')</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Python 3.13 free-threaded (--disable-gil):</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="c1"># - GIL отключается, потоки реально параллелят CPU</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="c1"># - Цена: медленнее однопоточный код (~10%), новые гонки внутри C-расширений</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="c1"># - В проде — ждать 3.14+ и поддержки numpy/pandas</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="c1"># Практический вывод на 2026:</span>
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="c1"># - CPU-bound → ProcessPool (стабильно)</span>
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="c1"># - I/O-bound много соединений → asyncio (стабильно)</span>
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="c1"># - Эксперименты с free-threaded — только для бенчмарков, не для прод-деплойментов</span>
+</span></code></pre></div>
+<h3 id="профилирование-async-кода">Профилирование async-кода<a class="headerlink" href="#профилирование-async-кода" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Бенчмарк разных моделей на одной задаче (500 healthchecks):</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>hyperfine<span class="w"> </span>--warmup<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="s1">'python sync_fetch.py'</span><span class="w"> </span><span class="s1">'python async_fetch.py'</span><span class="w"> </span><span class="s1">'python threaded_fetch.py'</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># yappi — профилирование с поддержкой async:</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>pip<span class="w"> </span>install<span class="w"> </span>yappi
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>python<span class="w"> </span>-m<span class="w"> </span>yappi<span class="w"> </span>-o<span class="w"> </span>callgrind.out<span class="w"> </span>async_fetch.py
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>py-spy<span class="w"> </span>record<span class="w"> </span>-o<span class="w"> </span>flame.svg<span class="w"> </span>--<span class="w"> </span>python<span class="w"> </span>async_fetch.py<span class="w">  </span><span class="c1"># flamegraph с async-стеками</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="c1"># Метрики в проде — счётчики:</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="c1"># - queue.qsize() — длина очереди (бэкпрессура)</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="c1"># - semaphore._value — свободные слоты</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="c1"># - asyncio.all_tasks() — число живых задач (утечка если растёт бесконечно)</span>
+</span></code></pre></div>
+<h3 id="чеклист-выбора-модели--таблица-решений">Чеклист выбора модели — таблица решений<a class="headerlink" href="#чеклист-выбора-модели--таблица-решений" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Задача</th>
+<th>Объём</th>
+<th>Рекомендация</th>
+<th>Почему</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10 HTTP-запросов</td>
+<td>мало</td>
+<td><code>httpx.Client</code> sync</td>
+<td>проще, без async</td>
+</tr>
+<tr>
+<td>500 HTTP-запросов</td>
+<td>много</td>
+<td><code>asyncio + Semaphore(50)</code></td>
+<td>10× быстрее, контроль лимита</td>
+</tr>
+<tr>
+<td>10k WebSocket</td>
+<td>очень много</td>
+<td><code>asyncio + uvloop</code></td>
+<td>uvloop быстрее stdlib loop</td>
+</tr>
+<tr>
+<td>Хеши 1M файлов</td>
+<td>CPU</td>
+<td><code>ProcessPool(cores)</code></td>
+<td>GIL, изоляция падений</td>
+</tr>
+<tr>
+<td>Парсинг гигабайта логов</td>
+<td>CPU+I/O</td>
+<td><code>ProcessPool</code> + <code>mmap</code></td>
+<td>параллельный парсинг</td>
+</tr>
+<tr>
+<td>boto3 вызовы</td>
+<td>I/O блокирующий</td>
+<td><code>ThreadPool(20)</code></td>
+<td>boto3 sync, GIL отпускается</td>
+</tr>
+<tr>
+<td>Смешанная (API+CPU)</td>
+<td>—</td>
+<td><code>asyncio</code> + <code>to_thread</code>/<code>ProcessPool</code></td>
+<td>loop для I/O, пулы для тяжёлого</td>
+</tr>
+</tbody>
+</table>
+<p><strong>uvloop — ускорение event loop:</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>pip<span class="w"> </span>install<span class="w"> </span>uvloop
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>import<span class="w"> </span>asyncio,<span class="w"> </span>uvloop
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>asyncio.set_event_loop_policy<span class="o">(</span>uvloop.EventLoopPolicy<span class="o">())</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># uvloop быстрее stdlib на 2-4× для большого числа соединений (на epoll/kqueue)</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="c1"># Нюанс: uvloop не на Windows, не в free-threaded</span>
+</span></code></pre></div>
+<hr />
+<h2 id="-десять-вопросов-для-самопроверки">❓ Десять вопросов для самопроверки<a class="headerlink" href="#-десять-вопросов-для-самопроверки" title="Permanent link">&para;</a></h2>
 <hr />
 <h2 id="-проверь-себя">✅ Проверь себя<a class="headerlink" href="#-проверь-себя" title="Permanent link">&para;</a></h2>
 <blockquote>
@@ -7381,29 +8468,170 @@
 </blockquote>
 <p><strong>В1. Почему ThreadPool не ускоряет вычисление SHA-256 по миллиону файлов, а ProcessPool ускоряет?</strong></p>
 <details><summary>Ответ</summary>
-Хэширование — чистый CPU, GIL разрешает исполнять байткод только одному потоку. Процессы имеют независимые интерпретаторы и ядра. Нюанс: hashlib для больших буферов отпускает GIL внутри C — на очень больших файлах потоки тоже дадут ускорение.
+Хэширование малыми блоками — чистый Python-байткод + GIL (один поток исполняет байткод). Процессы имеют независимые интерпретаторы и ядра, GIL на процесс свой. Нюанс: hashlib для больших буферов отпускает GIL внутри C — на очень больших файлах (GB) потоки тоже дадут ускорение, т.к. время в C без GIL.
 </details>
 
 <p><strong>В2. Как правильно вызвать блокирующую библиотеку (boto3) внутри async-кода?</strong></p>
 <details><summary>Ответ</summary>
-`await asyncio.to_thread(fn)` или run_in_executor: вызов уходит в поток, event loop продолжает обслуживать другие корутины. Прямой вызов заблокирует ВСЕ соединения приложения.
+`await asyncio.to_thread(fn, *args)` или `await loop.run_in_executor(None, fn, arg)`: вызов уходит в поток из пула, event loop продолжает обслуживать другие корутины. Прямой вызов `boto3.client.list_buckets()` заблокирует ВСЕ соединения приложения на секунды.
 </details>
 
 <p><strong>В3. Что произойдёт без <code>return_exceptions=True</code> в asyncio.gather?</strong></p>
 <details><summary>Ответ</summary>
-Первое исключение немедленно выбросится из gather, остальные таски продолжат жить «осиротевшими» (не отменёнными автоматически до завершения gather). Для массовых проверок это теряет результаты и может подвесить выход — либо return_exceptions, либо TaskGroup (автоотмена siblings).
+Первое исключение немедленно выбросится из gather, остальные таски продолжат жить «осиротевшими» (не отменёнными автоматически до завершения gather). Для массовых проверок это теряет результаты и может подвесить выход — либо return_exceptions=True, либо TaskGroup (автоотмена siblings через ExceptionGroup).
 </details>
 
 <p><strong>В4. Зачем ограничивать параллелизм Semaphore'ом, если loop и так один?</strong></p>
 <details><summary>Ответ</summary>
-Однопоточность не спасает от 10k открытых сокетов и исчерпания файловых дескрипторов/пула БД/лимитов API цели. Семафор (или max_connections клиента) задаёт backpressure — устойчивую пропускную способность вместо лавины таймаутов.
+Однопоточность не спасает от 10k открытых сокетов и исчерпания файловых дескрипторов (ulimit -n 1024 по умолчанию), пула БД/лимитов API цели. Семафор (или max_connections клиента, или Queue maxsize) задаёт backpressure — устойчивую пропускную способность вместо лавины таймаутов и OOM.
 </details>
 
 <p><strong>В5. Сервис на FastAPI периодически «замирает». Первые три команды диагностики?</strong></p>
 <details><summary>Ответ</summary>
-1) `py-spy dump --pid` — стеки потоков (ищем блокирующий вызов в event-loop-потоке); 2) перезапуск с `-X dev`/debug=True — предупреждения о медленных колбэках и незакрытых ресурсах; 3) метрики пула соединений/семафоров. Классическая причина — sync-вызов (requests, time.sleep, тяжёлый SQL) в async-обработчике.
+1) `py-spy dump --pid` — стеки всех потоков (ищем блокирующий вызов в event-loop-потоке: requests, time.sleep, тяжёлый SQL); 2) перезапуск с `python -X dev` / `asyncio.run(debug=True)` — предупреждения о медленных колбэках >100ms и незакрытых ресурсах; 3) метрики пула соединений/семафоров + `py-spy top`. Классическая причина — sync-вызов в async-обработчике.
 </details>
 
+<p><strong>В6. Чем <code>asyncio.gather</code> отличается от <code>asyncio.TaskGroup</code> при ошибке одной из задач?</strong></p>
+<details><summary>Ответ</summary>
+gather без return_exceptions — бросает первое исключение, но остальные задачи продолжают работу «осиротевшими». TaskGroup — при ошибке одной задачи автоматически отменяет все sibling-задачи и собирает исключения в ExceptionGroup (except*). TaskGroup — структурированная конкурентность, gather — «запустить и собрать».
+</details>
+
+<p><strong>В7. Почему <code>await asyncio.sleep(0)</code> может исправить гонку, но не является правильным решением?</strong></p>
+<details><summary>Ответ</summary>
+`sleep(0)` отдаёт управление loop'у, позволяя другим корутинам выполниться, но порядок остаётся недетерминированным — гонка лишь маскируется. Правильно: `asyncio.Lock` для критичной секции, или `Queue` для передачи данных, или отсутствие shared mutable state вообще.
+</details>
+
+<p><strong>В8. Что утечёт если не закрыть <code>httpx.AsyncClient</code> и как это поймать в тестах?</strong></p>
+<details><summary>Ответ</summary>
+Соединения (сокеты) и пул коннектов останутся открытыми — утечка FD, `ResourceWarning: unclosed transport`. Ловится `python -W error::ResourceWarning` или `PYTHONASYNCIODEBUG=1`, или `pytest` с `filterwarnings = ["error::ResourceWarning"]`. Фикс: `async with AsyncClient() as client:` или `try/finally: await client.aclose()`.
+</details>
+
+<p><strong>В9. Когда <code>ProcessPoolExecutor</code> упадёт с <code>PicklingError</code>, а <code>ThreadPoolExecutor</code> — нет?</strong></p>
+<details><summary>Ответ</summary>
+Процессы передают аргументы/результаты через pickle между интерпретаторами: lambda, локальные функции, открытые файлы, threading.Lock — не пиклятся. Потоки делят память и не пиклят — им можно передавать любые объекты. Фикс: вынести функцию на верхний уровень модуля, передавать только сериализуемые типы (str, int, bytes, dataclass без файлов).
+</details>
+
+<p><strong>В10. Как реализовать «гонку с таймаутом» — primary 2с, иначе fallback — без утечки зависшей primary?</strong></p>
+<details><summary>Ответ</summary>
+`try: result = await asyncio.wait_for(primary(), timeout=2) except TimeoutError: result = await fallback()` — wait_for отменит primary при таймауте (бросит CancelledError внутрь). Альтернатива: `async with asyncio.timeout(2):` (3.11+). Без отмены зависшая primary останется висеть и держать ресурсы; shield не нужен тут, т.к. отмена желательна.
+</details>
+
+<hr />
+<h2 id="-лаборатория-найди-блокировку-и-внедри-backpressure">🧪 Лаборатория: найди блокировку и внедри backpressure<a class="headerlink" href="#-лаборатория-найди-блокировку-и-внедри-backpressure" title="Permanent link">&para;</a></h2>
+<p><strong>Цель:</strong> воспроизвести и починить замерзший loop.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># lab_blocking.py — запустите и диагностируйте</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span><span class="o">,</span><span class="w"> </span><span class="nn">time</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">bad_fetch</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># ❌ блокирует loop — все 10 задач идут 5с последовательно</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>    <span class="k">return</span> <span class="n">n</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">good_fetch</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># ✅ параллельно — 10 задач за 0.5с</span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>    <span class="k">return</span> <span class="n">n</span>
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="c1"># Замер:</span>
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">t</span>
+</span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>    <span class="n">start</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+</span><span id="__span-19-16"><a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">bad_fetch</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)))</span>
+</span><span id="__span-19-17"><a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"bad: </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="o">-</span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>  <span class="c1"># ~2.5с</span>
+</span><span id="__span-19-18"><a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a>
+</span><span id="__span-19-19"><a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a>    <span class="n">start</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+</span><span id="__span-19-20"><a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">good_fetch</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)))</span>
+</span><span id="__span-19-21"><a id="__codelineno-19-21" name="__codelineno-19-21" href="#__codelineno-19-21"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"good: </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="o">-</span><span class="n">start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>  <span class="c1"># ~0.5с</span>
+</span><span id="__span-19-22"><a id="__codelineno-19-22" name="__codelineno-19-22" href="#__codelineno-19-22"></a>
+</span><span id="__span-19-23"><a id="__codelineno-19-23" name="__codelineno-19-23" href="#__codelineno-19-23"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</span><span id="__span-19-24"><a id="__codelineno-19-24" name="__codelineno-19-24" href="#__codelineno-19-24"></a><span class="c1"># Запустите с: python -X dev lab_blocking.py  — увидите предупреждение о блокировке</span>
+</span></code></pre></div>
+<p><strong>Задание 2 — Semaphore:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># lab_semaphore.py — без лимита уроните лимит FD</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span><span class="o">,</span><span class="w"> </span><span class="nn">httpx</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch_many</span><span class="p">(</span><span class="n">urls</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="n">sem</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">bounded</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>        <span class="k">async</span> <span class="k">with</span> <span class="n">sem</span><span class="p">:</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>            <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>                <span class="c1"># имитация сети:</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>                <span class="k">return</span> <span class="n">url</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">bounded</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">))</span>
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>
+</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a><span class="c1"># Попробуйте limit=1000 с 10000 urls — увидите OSError: too many open files</span>
+</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a><span class="c1"># Поставьте limit=50 — стабильно.</span>
+</span></code></pre></div>
+<p><strong>Проверь себя:</strong> <code>bad</code> в 5× медленнее <code>good</code> из-за <code>time.sleep</code>; <code>good</code> с <code>Semaphore</code> не превышает лимит FD.</p>
+<h3 id="задание-3-failure-injection--уроните-fd-лимит">Задание 3: failure injection — уроните FD лимит<a class="headerlink" href="#задание-3-failure-injection--уроните-fd-лимит" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># lab_fd_limit.py — покажите что без Semaphore падаем</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span><span class="o">,</span><span class="w"> </span><span class="nn">resource</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># Узнайте лимит:</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="n">soft</span><span class="p">,</span> <span class="n">hard</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">getrlimit</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">RLIMIT_NOFILE</span><span class="p">)</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"FD limit soft=</span><span class="si">{</span><span class="n">soft</span><span class="si">}</span><span class="s2"> hard=</span><span class="si">{</span><span class="n">hard</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># обычно 1024</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="c1"># Симулируйте открытие 2000 соединений без лимита:</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">open_many</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>    <span class="n">sem</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span> <span class="k">if</span> <span class="n">limit</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fake_conn</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>        <span class="k">if</span> <span class="n">sem</span><span class="p">:</span>
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>            <span class="k">async</span> <span class="k">with</span> <span class="n">sem</span><span class="p">:</span>
+</span><span id="__span-21-14"><a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
+</span><span id="__span-21-15"><a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-21-16"><a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a>            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
+</span><span id="__span-21-17"><a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a>        <span class="k">return</span> <span class="n">i</span>
+</span><span id="__span-21-18"><a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">fake_conn</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+</span><span id="__span-21-19"><a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a>
+</span><span id="__span-21-20"><a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a><span class="c1"># Без лимита — OSError: too many open files (на реальном httpx)</span>
+</span><span id="__span-21-21"><a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a><span class="c1"># С лимитом — стабильно:</span>
+</span><span id="__span-21-22"><a id="__codelineno-21-22" name="__codelineno-21-22" href="#__codelineno-21-22"></a><span class="c1"># asyncio.run(open_many(2000, limit=100))</span>
+</span><span id="__span-21-23"><a id="__codelineno-21-23" name="__codelineno-21-23" href="#__codelineno-21-23"></a>
+</span><span id="__span-21-24"><a id="__codelineno-21-24" name="__codelineno-21-24" href="#__codelineno-21-24"></a><span class="c1"># Проверка метрики:</span>
+</span><span id="__span-21-25"><a id="__codelineno-21-25" name="__codelineno-21-25" href="#__codelineno-21-25"></a><span class="c1"># watch 'ls /proc/$(pgrep -f lab_fd)/fd | wc -l'  — число открытых FD</span>
+</span></code></pre></div>
+<p><strong>Разбор:</strong> FD-лимит 1024 — классическая причина <code>OSError</code> при массовых опросах K8s API. Semaphore = защита, <code>ulimit -n 4096</code> — временный костыль, правильнее — бэкпрессура.</p>
+<h3 id="чеклист-production-async-сервиса">Чеклист production async-сервиса<a class="headerlink" href="#чеклист-production-async-сервиса" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Пункт</th>
+<th>Проверка</th>
+<th>Инструмент</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Нет блокировок в loop</td>
+<td><code>python -X dev</code> чист</td>
+<td><code>-W error::ResourceWarning</code></td>
+</tr>
+<tr>
+<td>Backpressure везде</td>
+<td>Queue maxsize / Semaphore</td>
+<td>метрики <code>qsize</code>, <code>sem._value</code></td>
+</tr>
+<tr>
+<td>Таймауты на всё</td>
+<td><code>timeout</code>/<code>wait_for</code></td>
+<td><code>asyncio.timeout</code></td>
+</tr>
+<tr>
+<td>Graceful shutdown</td>
+<td><code>TaskGroup</code> + <code>cancel</code></td>
+<td><code>signal</code> handler</td>
+</tr>
+<tr>
+<td>Лимит соединений</td>
+<td><code>httpx.Limits</code></td>
+<td><code>max_connections</code></td>
+</tr>
+<tr>
+<td>Мониторинг</td>
+<td><code>all_tasks()</code> не растёт</td>
+<td>Prometheus gauge</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <p><em>Что дальше:</em> <a href="../05-python-typing-mypy-ruff/">05. Типизация mypy/ruff</a> · <a href="../06-python-cli-apps/">06. CLI-приложения</a></p>
 <!-- Глобальные сниппеты для включения в документацию -->

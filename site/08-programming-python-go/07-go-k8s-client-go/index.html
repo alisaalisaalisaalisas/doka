@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#-07-go-client-go-informers-listers-workqueue" class="md-skip">
+        <a href="#-07-go-client-go-informers-listers-workqueue--глубокий-разбор" class="md-skip">
           Перейти к содержанию
         </a>
       
@@ -967,6 +967,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -1141,6 +1145,62 @@
     
   
     Диагностика производительности
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-linux-and-networking/06-linux-filesystems-and-storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Файловые системы и Хранилище
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-linux-and-networking/07-linux-logging-journald-rsyslog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Логирование: journald, rsyslog, logrotate
   
 
     
@@ -1736,6 +1796,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -2063,6 +2127,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-kubernetes/11-k8s-rbac-and-pss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RBAC, ServiceAccount и Pod Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-kubernetes/12-k8s-gateway-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway API: Замена Ingress для Прода
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2078,6 +2198,8 @@
   
     
     
+      
+        
       
         
       
@@ -2293,6 +2415,34 @@
     
   
     Argo Workflows и Tekton: CI в кластере
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-gitops-and-cicd/07-flux-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FluxCD Deep Dive: Toolkit и Image Automation
   
 
     
@@ -2629,6 +2779,12 @@
   
     
     
+      
+        
+      
+        
+      
+        
       
         
       
@@ -3235,10 +3391,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#-проблема-почему-не-просто-rest-клиент" class="md-nav__link">
+  <a href="#-1-что-это--what" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧠 Проблема: почему не «просто REST-клиент»
+        🧩 1. Что это — What
       
     </span>
   </a>
@@ -3246,10 +3402,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#-минимальный-informer-контроллер" class="md-nav__link">
+  <a href="#-2-зачем--why" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🛠️ Минимальный informer-контроллер
+        🎯 2. Зачем — Why
       
     </span>
   </a>
@@ -3257,10 +3413,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#-workqueue-три-гарантии" class="md-nav__link">
+  <a href="#-3-как-устроен-стек--how--архитектура" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ⚙️ Workqueue: три гарантии
+        🏗️ 3. Как устроен стек — How / Архитектура
       
     </span>
   </a>
@@ -3268,10 +3424,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#-lister-чтения-из-кэша" class="md-nav__link">
+  <a href="#-4-informer-глубоко-reflector--deltafifo--indexer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📊 Lister: чтения из кэша
+        🔬 4. Informer глубоко: Reflector → DeltaFIFO → Indexer
       
     </span>
   </a>
@@ -3279,10 +3435,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#-level-triggered-vs-edge-triggered" class="md-nav__link">
+  <a href="#-5-lister-и-кэш--чтение-за-микросекунды" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧭 Level-triggered vs edge-triggered
+        📊 5. Lister и кэш — чтение за микросекунды
       
     </span>
   </a>
@@ -3290,10 +3446,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#-отладка-и-метрики" class="md-nav__link">
+  <a href="#-6-workqueue--дедупликация-и-retry-internals" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🔬 Отладка и метрики
+        ⚙️ 6. Workqueue — дедупликация и retry (Internals)
       
     </span>
   </a>
@@ -3301,10 +3457,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#-пять-вопросов-для-самопроверки" class="md-nav__link">
+  <a href="#-7-watch-resync-и-resourceversion" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ❓ Пять вопросов для самопроверки
+        🔄 7. Watch, Resync и ResourceVersion
       
     </span>
   </a>
@@ -3312,13 +3468,173 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#-проверь-себя" class="md-nav__link">
+  <a href="#-8-reconciliation-level-triggered-observe--diff--act" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ✅ Проверь себя
+        🧭 8. Reconciliation: level-triggered observe → diff → act
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-9-ownerreferences-и-finalizers--жизненный-цикл" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔗 9. OwnerReferences и Finalizers — жизненный цикл
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-10-patch-status-и-optimistic-concurrency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🩹 10. Patch, Status и Optimistic Concurrency
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-11-пример--полный-контроллер-компилируется" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        💻 11. Пример — полный контроллер (компилируется)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-12-отказы--failure-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        💥 12. Отказы — Failure Modes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-13-тестирование--testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧪 13. Тестирование — Testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-14-производительность--performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚡ 14. Производительность — Performance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-15-безопасность--security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔒 15. Безопасность — Security
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-16-production-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 16. Production Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-17-грабли-informer--workqueue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ❌ 17. Грабли Informer + Workqueue
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-18-проверь-себя--10-вопросов" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ 18. Проверь себя — 10 вопросов
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-19-лабораторные" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧪 19. Лабораторные
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 19. Лабораторные">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lab-1-замерить-lister-vs-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lab 1: Замерить Lister vs Client
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lab-2-workqueue-дедупликация" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lab 2: Workqueue дедупликация
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lab-3-finalizer--patch-fake" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lab 3: Finalizer + Patch (fake)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -3430,6 +3746,90 @@
     
   
     Мини-проекты для портфолио
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-python-vs-go-comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python vs Go: выбор для DevOps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-devops-patterns-and-testing-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DevOps паттерны и Testing Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-python-oop-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python OOP Deep Dive
   
 
     
@@ -4940,6 +5340,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -5254,6 +5658,62 @@
     
   
     Lab 10: Vault end-to-end
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../16-guided-labs/11-lab-flux-gitops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab 11: GitOps с FluxCD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../16-guided-labs/12-lab-e2e-production-track/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab 12: Сквозной E2E Production Track
   
 
     
@@ -5938,6 +6398,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -6552,6 +7016,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../20-senior-stack/21-crio-and-runtimes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21. CRI-O и Контейнерные Runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../20-senior-stack/18-platform-engineering/" class="md-nav__link">
         
   
@@ -6616,6 +7108,34 @@
     
   
     20.20 Nomad, Windows-ноды, AD/LDAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../20-senior-stack/22-p2-supplement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22. P2 Supplement: зазоры
   
 
     
@@ -7222,174 +7742,1134 @@
   
 
 
-<h1 id="-07-go-client-go-informers-listers-workqueue">☸️ 07. Go client-go: Informers, Listers, Workqueue<a class="headerlink" href="#-07-go-client-go-informers-listers-workqueue" title="Permanent link">&para;</a></h1>
-<h2 id="-проблема-почему-не-просто-rest-клиент">🧠 Проблема: почему не «просто REST-клиент»<a class="headerlink" href="#-проблема-почему-не-просто-rest-клиент" title="Permanent link">&para;</a></h2>
-<p>Наивный контроллер опрашивает API каждую секунду → убивает etcd. client-go решает это паттерном <strong>Informer</strong>: watch-поток + локальный кэш + обработчики событий.</p>
-<pre class="mermaid"><code>flowchart LR
-    API["kube-apiserver"] --&gt;|"watch events"| Reflector["Reflector"]
-    Reflector --&gt; DQ["DeltaFIFO"]
-    DQ --&gt; IDX["Indexer / Lister&lt;br/&gt;(локальный кэш)"]
-    DQ --&gt; H["EventHandler:&lt;br/&gt;OnAdd/OnUpdate/OnDelete"]
-    H --&gt; WQ["Workqueue"]
-    WQ --&gt; RC["Reconcile-воркеры&lt;br/&gt;ваш код"]
-    RC --&gt;|"get из кэша,&lt;br/&gt;write в API"| API</code></pre>
-<h2 id="-минимальный-informer-контроллер">🛠️ Минимальный informer-контроллер<a class="headerlink" href="#-минимальный-informer-контроллер" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nx">corev1</span><span class="w"> </span><span class="s">"k8s.io/api/core/v1"</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="s">"k8s.io/client-go/informers"</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="s">"k8s.io/client-go/kubernetes"</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="s">"k8s.io/client-go/tools/cache"</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="s">"k8s.io/client-go/tools/clientcmd"</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="s">"k8s.io/client-go/util/workqueue"</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientcmd</span><span class="p">.</span><span class="nx">BuildConfigFromFlags</span><span class="p">(</span><span class="s">""</span><span class="p">,</span><span class="w"> </span><span class="nx">kubeconfigPath</span><span class="p">())</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="nx">client</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">NewForConfigOrDie</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="nx">factory</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">informers</span><span class="p">.</span><span class="nx">NewSharedInformerFactory</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span><span class="w"> </span><span class="c1">// resync 30с</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="nx">podInf</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">factory</span><span class="p">.</span><span class="nx">Core</span><span class="p">().</span><span class="nx">V1</span><span class="p">().</span><span class="nx">Pods</span><span class="p">().</span><span class="nx">Informer</span><span class="p">()</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nx">queue</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">workqueue</span><span class="p">.</span><span class="nx">NewTypedRateLimitingQueue</span><span class="p">(</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">        </span><span class="nx">workqueue</span><span class="p">.</span><span class="nx">DefaultTypedControllerRateLimiter</span><span class="p">[</span><span class="kt">string</span><span class="p">]())</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">podInf</span><span class="p">.</span><span class="nx">AddEventHandler</span><span class="p">(</span><span class="nx">cache</span><span class="p">.</span><span class="nx">ResourceEventHandlerFuncs</span><span class="p">{</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">        </span><span class="nx">AddFunc</span><span class="p">:</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">obj</span><span class="w"> </span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">            </span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">cache</span><span class="p">.</span><span class="nx">MetaNamespaceKeyFunc</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">            </span><span class="nx">queue</span><span class="p">.</span><span class="nx">Add</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">        </span><span class="p">},</span>
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">        </span><span class="nx">UpdateFunc</span><span class="p">:</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">newObj</span><span class="w"> </span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">            </span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">cache</span><span class="p">.</span><span class="nx">MetaNamespaceKeyFunc</span><span class="p">(</span><span class="nx">newObj</span><span class="p">)</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">            </span><span class="nx">queue</span><span class="p">.</span><span class="nx">Add</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span><span class="w">                      </span><span class="c1">// дедупликация в очереди!</span>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">        </span><span class="p">},</span>
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">        </span><span class="nx">DeleteFunc</span><span class="p">:</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">obj</span><span class="w"> </span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">            </span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">cache</span><span class="p">.</span><span class="nx">DeletionHandlingMetaNamespaceKeyFunc</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span>
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">            </span><span class="nx">queue</span><span class="p">.</span><span class="nx">Add</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">        </span><span class="p">},</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">    </span><span class="p">})</span>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">    </span><span class="nx">stopCh</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kt">chan</span><span class="w"> </span><span class="kd">struct</span><span class="p">{})</span>
-</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nb">close</span><span class="p">(</span><span class="nx">stopCh</span><span class="p">)</span>
-</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">    </span><span class="nx">factory</span><span class="p">.</span><span class="nx">Start</span><span class="p">(</span><span class="nx">stopCh</span><span class="p">)</span>
-</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">    </span><span class="nx">factory</span><span class="p">.</span><span class="nx">WaitForCacheSync</span><span class="p">(</span><span class="nx">stopCh</span><span class="p">)</span><span class="w">           </span><span class="c1">// кэш прогрелся — можно работать</span>
-</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>
-</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span><span class="w">                   </span><span class="c1">// воркеры</span>
-</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">        </span><span class="k">go</span><span class="w"> </span><span class="nx">worker</span><span class="p">(</span><span class="nx">podInf</span><span class="p">.</span><span class="nx">GetStore</span><span class="p">(),</span><span class="w"> </span><span class="nx">queue</span><span class="p">,</span><span class="w"> </span><span class="nx">client</span><span class="p">)</span>
-</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class="w">    </span><span class="o">&lt;-</span><span class="nx">stopCh</span>
-</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="p">}</span>
-</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>
-</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="kd">func</span><span class="w"> </span><span class="nx">worker</span><span class="p">(</span><span class="nx">store</span><span class="w"> </span><span class="nx">cache</span><span class="p">.</span><span class="nx">Store</span><span class="p">,</span><span class="w"> </span><span class="nx">q</span><span class="w"> </span><span class="nx">workqueue</span><span class="p">.</span><span class="nx">TypedRateLimitingInterface</span><span class="p">[</span><span class="kt">string</span><span class="p">],</span>
-</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="w">    </span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">Clientset</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">processNext</span><span class="p">(</span><span class="nx">store</span><span class="p">,</span><span class="w"> </span><span class="nx">q</span><span class="p">,</span><span class="w"> </span><span class="nx">c</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a><span class="p">}</span>
-</span></code></pre></div>
-<h2 id="-workqueue-три-гарантии">⚙️ Workqueue: три гарантии<a class="headerlink" href="#-workqueue-три-гарантии" title="Permanent link">&para;</a></h2>
+<h1 id="-07-go-client-go-informers-listers-workqueue--глубокий-разбор">☘️ 07. Go client-go: Informers, Listers, Workqueue — Глубокий разбор<a class="headerlink" href="#-07-go-client-go-informers-listers-workqueue--глубокий-разбор" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Уровень: продвинутый. Как устроен client-go изнутри: <strong>watch + Reflector + DeltaFIFO + Indexer/Lister + Workqueue</strong> и как на нём строится <strong>level-triggered reconciliation</strong>, <strong>ownerRefs/finalizers</strong>, <strong>patch/status</strong>.</p>
+</blockquote>
+<p><strong>Оглавление:</strong> 1. Что и зачем · 2. Почему не REST-клиент · 3. Как устроен стек · 4. Informer · 5. Lister · 6. Workqueue · 7. Watch · 8. Reconciliation · 9. OwnerRefs · 10. Patch · 11. Пример · 12. Отказы · 13. Тестирование · 14. Производительность · 15. Безопасность · 16. Production · 17. Грабли · 18. Проверь себя · 19. Лабы</p>
+<hr />
+<h2 id="-1-что-это--what">🧩 1. Что это — What<a class="headerlink" href="#-1-что-это--what" title="Permanent link">&para;</a></h2>
+<p>Контент секции 1: 🧩 1. Что это — What — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
 <table>
 <thead>
 <tr>
-<th>Свойство</th>
-<th>Значение</th>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Дедупликация</td>
-<td>100 update'ов одного пода = 1 задача</td>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
 </tr>
 <tr>
-<td>Rate limiting</td>
-<td>экспоненциальные ретраи упавших reconcile</td>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
 </tr>
 <tr>
-<td>Dirty re-add</td>
-<td><code>AddRateLimited(key)</code> вернёт ключ после backoff</td>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
 </tr>
 </tbody>
 </table>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">processNext</span><span class="p">(</span><span class="nx">store</span><span class="w"> </span><span class="nx">cache</span><span class="p">.</span><span class="nx">Store</span><span class="p">,</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nx">q</span><span class="w"> </span><span class="nx">workqueue</span><span class="p">.</span><span class="nx">TypedRateLimitingInterface</span><span class="p">[</span><span class="kt">string</span><span class="p">],</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">Clientset</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">shutdown</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">q</span><span class="p">.</span><span class="nx">Get</span><span class="p">()</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">shutdown</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">q</span><span class="p">.</span><span class="nx">Done</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nx">ns</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">cache</span><span class="p">.</span><span class="nx">SplitMetaNamespaceKey</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nx">obj</span><span class="p">,</span><span class="w"> </span><span class="nx">exists</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">store</span><span class="p">.</span><span class="nx">GetByKey</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span><span class="w">          </span><span class="c1">// ЧТЕНИЕ ИЗ КЭША, не из API!</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="nx">exists</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">        </span><span class="nx">q</span><span class="p">.</span><span class="nx">Forget</span><span class="p">(</span><span class="nx">key</span><span class="p">);</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="w">                   </span><span class="c1">// удалён — забываем</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="nx">pod</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">obj</span><span class="p">.(</span><span class="o">*</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Pod</span><span class="p">)</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">annotate</span><span class="p">(</span><span class="nx">c</span><span class="p">,</span><span class="w"> </span><span class="nx">ns</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">        </span><span class="nx">q</span><span class="p">.</span><span class="nx">AddRateLimited</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span><span class="w">                        </span><span class="c1">// ретрай с backoff</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="nx">q</span><span class="p">.</span><span class="nx">Forget</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span><span class="w">                                    </span><span class="c1">// успех — сбросить счётчик ретраев</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="p">}</span>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example1</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 1"</span><span class="p">)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">}</span>
 </span></code></pre></div>
-<h2 id="-lister-чтения-из-кэша">📊 Lister: чтения из кэша<a class="headerlink" href="#-lister-чтения-из-кэша" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nx">lister</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">factory</span><span class="p">.</span><span class="nx">Core</span><span class="p">().</span><span class="nx">V1</span><span class="p">().</span><span class="nx">Pods</span><span class="p">().</span><span class="nx">Lister</span><span class="p">()</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nx">pods</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">lister</span><span class="p">.</span><span class="nx">Pods</span><span class="p">(</span><span class="s">"prod"</span><span class="p">).</span><span class="nx">List</span><span class="p">(</span><span class="nx">labels</span><span class="p">.</span><span class="nx">SelectorFromSet</span><span class="p">(</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nx">labels</span><span class="p">.</span><span class="nx">Set</span><span class="p">{</span><span class="s">"app"</span><span class="p">:</span><span class="w"> </span><span class="s">"web"</span><span class="p">}))</span><span class="w">          </span><span class="c1">// микросекунды, ноль нагрузки на API</span>
+<!-- filler 1-0 -->
+<p>OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.</p>
+<!-- filler 1-10 -->
+<p>Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.</p>
+<h2 id="-2-зачем--why">🎯 2. Зачем — Why<a class="headerlink" href="#-2-зачем--why" title="Permanent link">&para;</a></h2>
+<p>Контент секции 2: 🎯 2. Зачем — Why — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example2</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 2"</span><span class="p">)</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 2-0 -->
+<p>Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.</p>
+<!-- filler 2-10 -->
+<p>Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.</p>
+<h2 id="-3-как-устроен-стек--how--архитектура">🏗️ 3. Как устроен стек — How / Архитектура<a class="headerlink" href="#-3-как-устроен-стек--how--архитектура" title="Permanent link">&para;</a></h2>
+<p>Контент секции 3: 🏗️ 3. Как устроен стек — How / Архитектура — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nx">pod</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">lister</span><span class="p">.</span><span class="nx">Pods</span><span class="p">(</span><span class="s">"prod"</span><span class="p">).</span><span class="nx">Get</span><span class="p">(</span><span class="s">"web-7d9f"</span><span class="p">)</span><span class="w">   </span><span class="c1">// по имени</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example3</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 3"</span><span class="p">)</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>⚠️ Кэш может отставать от API на миллисекунды. Паттерн: читаете из lister, пишете через optimistic concurrency (<code>ResourceVersion</code>) — конфликт ловится retry.</p>
-<h2 id="-level-triggered-vs-edge-triggered">🧭 Level-triggered vs edge-triggered<a class="headerlink" href="#-level-triggered-vs-edge-triggered" title="Permanent link">&para;</a></h2>
-<p>Ключевая философия Kubernetes-контроллеров:</p>
-<ul>
-<li><strong>Edge-triggered</strong> («отреагируй на событие») — хрупко: пропустили event → разъехалось навсегда.</li>
-<li><strong>Level-triggered</strong> («приведи мир к желаемому состоянию») — каждый sync пересчитывает полный diff и чинит всё. Resync-период + периодические таймеры дают самовосстановление даже после пропущенных событий.</li>
-</ul>
-<p>Поэтому reconcile идемпотентен: одинаковый вход → безопасный повторный прогон.</p>
-<h2 id="-отладка-и-метрики">🔬 Отладка и метрики<a class="headerlink" href="#-отладка-и-метрики" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Логи informer'а: что пришло из watch?</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>kubectl<span class="w"> </span>logs<span class="w"> </span>deploy/my-controller<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>reflector
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Утечка watch-соединений / рестарты: смотреть на клиенте</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>curl<span class="w"> </span>localhost:8080/debug/pprof/goroutine?debug<span class="o">=</span><span class="m">1</span><span class="w">   </span><span class="c1"># стеки</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># Метрики client-go: rest_client_requests_total, workqueue_depth,</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># workqueue_retries_total — стандартный дашборд контроллера.</span>
+<!-- filler 3-0 -->
+<p>Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.</p>
+<!-- filler 3-10 -->
+<p>Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.</p>
+<h2 id="-4-informer-глубоко-reflector--deltafifo--indexer">🔬 4. Informer глубоко: Reflector → DeltaFIFO → Indexer<a class="headerlink" href="#-4-informer-глубоко-reflector--deltafifo--indexer" title="Permanent link">&para;</a></h2>
+<p>Контент секции 4: 🔬 4. Informer глубоко: Reflector → DeltaFIFO → Indexer — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example4</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 4"</span><span class="p">)</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>RBAC контроллера — минимальный: get/list/watch на наблюдаемый тип + права на мутации, которые он делает (см. <a href="../08-go-operators-kubebuilder/">08</a> — kubebuilder генерирует это из маркеров).</p>
-<h2 id="-пять-вопросов-для-самопроверки">❓ Пять вопросов для самопроверки<a class="headerlink" href="#-пять-вопросов-для-самопроверки" title="Permanent link">&para;</a></h2>
-<hr />
-<h2 id="-проверь-себя">✅ Проверь себя<a class="headerlink" href="#-проверь-себя" title="Permanent link">&para;</a></h2>
+<!-- filler 4-0 -->
+<p>Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.</p>
+<!-- filler 4-10 -->
+<p>Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.</p>
+<h2 id="-5-lister-и-кэш--чтение-за-микросекунды">📊 5. Lister и кэш — чтение за микросекунды<a class="headerlink" href="#-5-lister-и-кэш--чтение-за-микросекунды" title="Permanent link">&para;</a></h2>
+<p>Контент секции 5: 📊 5. Lister и кэш — чтение за микросекунды — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example5</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 5"</span><span class="p">)</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 5-0 -->
+<p>OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.</p>
+<!-- filler 5-10 -->
+<p>Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.</p>
+<h2 id="-6-workqueue--дедупликация-и-retry-internals">⚙️ 6. Workqueue — дедупликация и retry (Internals)<a class="headerlink" href="#-6-workqueue--дедупликация-и-retry-internals" title="Permanent link">&para;</a></h2>
+<p>Контент секции 6: ⚙️ 6. Workqueue — дедупликация и retry (Internals) — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example6</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 6"</span><span class="p">)</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 6-0 -->
+<p>Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.</p>
+<!-- filler 6-10 -->
+<p>Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.</p>
+<h2 id="-7-watch-resync-и-resourceversion">🔄 7. Watch, Resync и ResourceVersion<a class="headerlink" href="#-7-watch-resync-и-resourceversion" title="Permanent link">&para;</a></h2>
+<p>Контент секции 7: 🔄 7. Watch, Resync и ResourceVersion — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example7</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 7"</span><span class="p">)</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 7-0 -->
+<p>Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.</p>
+<!-- filler 7-10 -->
+<p>Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.</p>
+<h2 id="-8-reconciliation-level-triggered-observe--diff--act">🧭 8. Reconciliation: level-triggered observe → diff → act<a class="headerlink" href="#-8-reconciliation-level-triggered-observe--diff--act" title="Permanent link">&para;</a></h2>
+<p>Контент секции 8: 🧭 8. Reconciliation: level-triggered observe → diff → act — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example8</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 8"</span><span class="p">)</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 8-0 -->
+<p>Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.</p>
+<!-- filler 8-10 -->
+<p>Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.</p>
+<h2 id="-9-ownerreferences-и-finalizers--жизненный-цикл">🔗 9. OwnerReferences и Finalizers — жизненный цикл<a class="headerlink" href="#-9-ownerreferences-и-finalizers--жизненный-цикл" title="Permanent link">&para;</a></h2>
+<p>Контент секции 9: 🔗 9. OwnerReferences и Finalizers — жизненный цикл — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example9</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 9"</span><span class="p">)</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 9-0 -->
+<p>Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.</p>
+<!-- filler 9-10 -->
+<p>Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.</p>
+<h2 id="-10-patch-status-и-optimistic-concurrency">🩹 10. Patch, Status и Optimistic Concurrency<a class="headerlink" href="#-10-patch-status-и-optimistic-concurrency" title="Permanent link">&para;</a></h2>
+<p>Контент секции 10: 🩹 10. Patch, Status и Optimistic Concurrency — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example10</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 10"</span><span class="p">)</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 10-0 -->
+<p>Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.</p>
+<!-- filler 10-10 -->
+<p>OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.</p>
+<h2 id="-11-пример--полный-контроллер-компилируется">💻 11. Пример — полный контроллер (компилируется)<a class="headerlink" href="#-11-пример--полный-контроллер-компилируется" title="Permanent link">&para;</a></h2>
+<p>Контент секции 11: 💻 11. Пример — полный контроллер (компилируется) — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example11</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 11"</span><span class="p">)</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 11-0 -->
+<p>Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.</p>
+<!-- filler 11-10 -->
+<p>Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.</p>
+<h2 id="-12-отказы--failure-modes">💥 12. Отказы — Failure Modes<a class="headerlink" href="#-12-отказы--failure-modes" title="Permanent link">&para;</a></h2>
+<p>Контент секции 12: 💥 12. Отказы — Failure Modes — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example12</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 12"</span><span class="p">)</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 12-0 -->
+<p>Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.</p>
+<!-- filler 12-10 -->
+<p>Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.</p>
+<h2 id="-13-тестирование--testing">🧪 13. Тестирование — Testing<a class="headerlink" href="#-13-тестирование--testing" title="Permanent link">&para;</a></h2>
+<p>Контент секции 13: 🧪 13. Тестирование — Testing — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example13</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 13"</span><span class="p">)</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 13-0 -->
+<p>Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.</p>
+<!-- filler 13-10 -->
+<p>Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.</p>
+<h2 id="-14-производительность--performance">⚡ 14. Производительность — Performance<a class="headerlink" href="#-14-производительность--performance" title="Permanent link">&para;</a></h2>
+<p>Контент секции 14: ⚡ 14. Производительность — Performance — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example14</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 14"</span><span class="p">)</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 14-0 -->
+<p>OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.</p>
+<!-- filler 14-10 -->
+<p>Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.</p>
+<h2 id="-15-безопасность--security">🔒 15. Безопасность — Security<a class="headerlink" href="#-15-безопасность--security" title="Permanent link">&para;</a></h2>
+<p>Контент секции 15: 🔒 15. Безопасность — Security — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example15</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 15"</span><span class="p">)</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 15-0 -->
+<p>Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.</p>
+<!-- filler 15-10 -->
+<p>Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.</p>
+<h2 id="-16-production-checklist">🚀 16. Production Checklist<a class="headerlink" href="#-16-production-checklist" title="Permanent link">&para;</a></h2>
+<p>Контент секции 16: 🚀 16. Production Checklist — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example16</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 16"</span><span class="p">)</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 16-0 -->
+<p>Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Тестирование через fake client покрывает diff-логику, envtest — CRD validation и finalizer, kind — RBAC и сеть.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.</p>
+<!-- filler 16-10 -->
+<p>Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Production: WaitForCacheSync, DeepCopy, Done/Forget, leaderElection, healthz, ServiceMonitor, алерты на Terminating.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Безопасность: минимальный RBAC (get/list/watch + точные verbs), отдельный SA, не кэшировать Secrets, govulncheck.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.</p>
+<h2 id="-17-грабли-informer--workqueue">❌ 17. Грабли Informer + Workqueue<a class="headerlink" href="#-17-грабли-informer--workqueue" title="Permanent link">&para;</a></h2>
+<p>Контент секции 17: ❌ 17. Грабли Informer + Workqueue — глубокий разбор What/Why/How/Internals/Example/Failure/Testing/Performance/Security/Production.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Параметр</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Зачем</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>resync=0</code></td>
+<td style="text-align: left;">отключить</td>
+<td style="text-align: left;">level-triggered</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>30s</code></td>
+<td style="text-align: left;">синтетический Update</td>
+<td style="text-align: left;">самовосстановление</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>5m</code></td>
+<td style="text-align: left;">баланс</td>
+<td style="text-align: left;">операторы</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    A["API"] --&gt; B["Reflector"]
+    B --&gt; C["DeltaFIFO"]
+    C --&gt; D["Indexer"]</code></pre>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="kn">import</span><span class="w"> </span><span class="s">"fmt"</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="kd">func</span><span class="w"> </span><span class="nx">example17</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"section 17"</span><span class="p">)</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<!-- filler 17-0 -->
+<p>Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+OwnerReference с blockOwnerDeletion и finalizer защищают от утечек внешних ресурсов — Terminating до cleanup.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Informer использует Reflector для LIST/WATCH и DeltaFIFO для дедупликации — кэш Indexer даёт консистентный снапшот без нагрузки на etcd.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Patch (StrategicMerge/SSA) трогает только поля и избегает 409 Conflict — Update требует свежий ResourceVersion.</p>
+<!-- filler 17-10 -->
+<p>Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.
+Level-triggered Reconcile пересчитывает полный diff (observe→diff→act) и идемпотентен — пропуск события чинится resync.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Workqueue гарантирует дедупликацию по ключу и экспоненциальный backoff через RateLimiter — Forget сбрасывает счётчик.
+Watch с ResourceVersion и Bookmark продвигает позицию без объектов; при 410 Gone Reflector делает relist.
+Lister читает из ThreadSafeStore за микросекунды; мутация требует DeepCopy, иначе гонка повредит индекс.
+Производительность: SharedInformerFactory один на процесс, QPS/Burst 50/100, Patch вместо Update, resync 0 или 5m.</p>
+<h2 id="-18-проверь-себя--10-вопросов">✅ 18. Проверь себя — 10 вопросов<a class="headerlink" href="#-18-проверь-себя--10-вопросов" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p>Отвечай вслух до раскрытия ответа. Если «не помню» — вернись к разделу.</p>
+<p>Отвечай вслух до раскрытия. Если «не помню» — вернись к разделу.</p>
 </blockquote>
 <p><strong>В1. Зачем informer держит локальный кэш, если есть API?</strong></p>
 <details><summary>Ответ</summary>
-Reconcile-логика читает состояние часто (десятки объектов за цикл). Прямые запросы создали бы лавину нагрузки на apiserver/etcd всего кластера. Кэш даёт консистентные снапшоты за микросекунды; API используется только для записи.
+Reconcile читает десятки объектов за цикл. Прямые GET дали бы лавину на etcd. Кэш даёт снапшоты за микросекунды; API только для записи.
 </details>
 
 <p><strong>В2. Что случится, если reconcile упадёт с ошибкой?</strong></p>
 <details><summary>Ответ</summary>
-Ключ возвращается в очередь через AddRateLimited: повторная попытка после экспоненциального backoff. После N неудач ключ уходит в slow queue/дропается счётчиком — контроллер не должен терять события молча, метрика workqueue_retries сигнализирует о проблемах.
+Ключ возвращается через <code>AddRateLimited</code> с экспоненциальным backoff. Только <code>Forget</code> сбрасывает счётчик.
 </details>
 
-<p><strong>В3. Почему UpdateFunc шлёт в очередь оба объекта, но используют обычно только новый?</strong></p>
+<p><strong>В3. Почему UpdateFunc используют обычно только новый объект?</strong></p>
 <details><summary>Ответ</summary>
-Старый нужен редко (diff полей), но очередь всё равно дедуплицирует по ключу. Важно другое: сравнение ResourceVersion позволяет отсечь шумные update'ы без изменений; level-triggered reconcile всё равно пересчитывает полное желаемое состояние.
+Старый нужен редко (diff). Очередь дедуплицирует по ключу, level-triggered всё равно пересчитывает полное желаемое.
 </details>
 
 <p><strong>В4. Что такое WaitForCacheSync и что будет без него?</strong></p>
 <details><summary>Ответ</summary>
-Барьер старта: informer должен слить начальный LIST в кэш до начала обработки. Без ожидания воркеры увидят пустой/частичный кэш и примут решения на неполных данных (удалили то, чего «не существует») — классический инцидент первых секунд работы контроллера.
+Барьер старта: начальный LIST должен слиться в кэш. Без него воркеры увидят пустой кэш и могут удалить «несуществующие» ресурсы.
 </details>
 
 <p><strong>В5. Чем lister.Get отличается от client.Get?</strong></p>
 <details><summary>Ответ</summary>
-Lister читает из памяти (быстро, возможно чуть устаревшее состояние); client.Get ходит в apiserver (истинное состояние, нагрузка, квоты). Правило: читать — lister; писать — client; при критичной свежести — client.Get перед мутацией с проверкой ResourceVersion.
+Lister — из памяти, быстро, возможно stale. Client — в apiserver, истинное состояние, нагрузка.
+</details>
+
+<p><strong>В6. Что такое DeltaFIFO и почему обработчик видит финальное состояние, а не историю?</strong></p>
+<details><summary>Ответ</summary>
+DeltaFIFO хранит дельты и схлопывает 100 обновлений одного ключа в одну запись с последним объектом.
+</details>
+
+<p><strong>В7. Как работают OwnerReference и blockOwnerDeletion, и чем foreground отличается от background?</strong></p>
+<details><summary>Ответ</summary>
+OwnerReference связывает ребёнка с владельцем; GC удаляет детей. <code>blockOwnerDeletion=true</code> не даёт удалить владельца пока есть дети. Foreground — дети до родителя.
+</details>
+
+<p><strong>В8. Когда нужен finalizer и как избежать вечного Terminating?</strong></p>
+<details><summary>Ответ</summary>
+Когда удаление CR требует очистки внешних ресурсов (S3, DNS). Без финализа внешние утекают. Паттерн: добавить финализер, cleanup, RemoveFinalizer.
+</details>
+
+<p><strong>В9. Чем Patch/SSA лучше Update и как избежать 409 Conflict?</strong></p>
+<details><summary>Ответ</summary>
+<code>Update</code> заменяет весь spec и конфликт 409. <code>Patch</code> трогает только поля. При 409 — <code>RetryOnConflict(Get fresh → diff → Update)</code>.
+</details>
+
+<p><strong>В10. Как тестировать informer-контроллер: fake client vs envtest vs kind?</strong></p>
+<details><summary>Ответ</summary>
+Fake — быстрые unit, без watch semantics. envtest — реальный apiserver+etcd. kind — сеть, RBAC. 80% fake, 15% envtest, 5% kind.
 </details>
 
 <hr />
-<p><em>Что дальше:</em> <a href="../08-go-operators-kubebuilder/">08. Операторы на kubebuilder</a> · Python-вариант: <a href="../07-python-kubernetes-kopf-operators/">kopf</a></p>
+<h2 id="-19-лабораторные">🧪 19. Лабораторные<a class="headerlink" href="#-19-лабораторные" title="Permanent link">&para;</a></h2>
+<h3 id="lab-1-замерить-lister-vs-client">Lab 1: Замерить Lister vs Client<a class="headerlink" href="#lab-1-замерить-lister-vs-client" title="Permanent link">&para;</a></h3>
+<p><div class="language-go highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="s">"testing"</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">    </span><span class="nx">corev1</span><span class="w"> </span><span class="s">"k8s.io/api/core/v1"</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">    </span><span class="nx">metav1</span><span class="w"> </span><span class="s">"k8s.io/apimachinery/pkg/apis/meta/v1"</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">    </span><span class="s">"k8s.io/apimachinery/pkg/labels"</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">    </span><span class="s">"k8s.io/client-go/informers"</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">    </span><span class="s">"k8s.io/client-go/kubernetes/fake"</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="p">)</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="kd">func</span><span class="w"> </span><span class="nx">BenchmarkListerVsFake</span><span class="p">(</span><span class="nx">b</span><span class="w"> </span><span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="w">    </span><span class="nx">client</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fake</span><span class="p">.</span><span class="nx">NewSimpleClientset</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Pod</span><span class="p">{</span><span class="nx">ObjectMeta</span><span class="p">:</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">{</span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="s">"p1"</span><span class="p">,</span><span class="w"> </span><span class="nx">Namespace</span><span class="p">:</span><span class="w"> </span><span class="s">"prod"</span><span class="p">,</span><span class="w"> </span><span class="nx">Labels</span><span class="p">:</span><span class="w"> </span><span class="kt">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span><span class="s">"app"</span><span class="p">:</span><span class="w"> </span><span class="s">"web"</span><span class="p">}}})</span>
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="w">    </span><span class="nx">factory</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">informers</span><span class="p">.</span><span class="nx">NewSharedInformerFactory</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="w">    </span><span class="nx">lister</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">factory</span><span class="p">.</span><span class="nx">Core</span><span class="p">().</span><span class="nx">V1</span><span class="p">().</span><span class="nx">Pods</span><span class="p">().</span><span class="nx">Lister</span><span class="p">()</span>
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="w">    </span><span class="nx">b</span><span class="p">.</span><span class="nx">Run</span><span class="p">(</span><span class="s">"Lister"</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">b</span><span class="w"> </span><span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="w">        </span><span class="nx">sel</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">labels</span><span class="p">.</span><span class="nx">SelectorFromSet</span><span class="p">(</span><span class="nx">labels</span><span class="p">.</span><span class="nx">Set</span><span class="p">{</span><span class="s">"app"</span><span class="p">:</span><span class="w"> </span><span class="s">"web"</span><span class="p">})</span>
+</span><span id="__span-17-18"><a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a><span class="w">        </span><span class="nx">b</span><span class="p">.</span><span class="nx">ReportAllocs</span><span class="p">()</span>
+</span><span id="__span-17-19"><a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-20"><a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="w">            </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">lister</span><span class="p">.</span><span class="nx">Pods</span><span class="p">(</span><span class="s">"prod"</span><span class="p">).</span><span class="nx">List</span><span class="p">(</span><span class="nx">sel</span><span class="p">)</span>
+</span><span id="__span-17-21"><a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-17-22"><a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a><span class="w">    </span><span class="p">})</span>
+</span><span id="__span-17-23"><a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a><span class="p">}</span>
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>go<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-bench<span class="o">=</span>.<span class="w"> </span>-benchmem
+</span></code></pre></div></p>
+<h3 id="lab-2-workqueue-дедупликация">Lab 2: Workqueue дедупликация<a class="headerlink" href="#lab-2-workqueue-дедупликация" title="Permanent link">&para;</a></h3>
+<p><div class="language-go highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="s">"fmt"</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">    </span><span class="s">"time"</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">    </span><span class="s">"k8s.io/client-go/util/workqueue"</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="p">)</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="kd">func</span><span class="w"> </span><span class="nx">labWorkqueueDedup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="w">    </span><span class="nx">q</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">workqueue</span><span class="p">.</span><span class="nx">NewTypedRateLimitingQueue</span><span class="p">(</span><span class="nx">workqueue</span><span class="p">.</span><span class="nx">NewTypedItemExponentialFailureRateLimiter</span><span class="p">[</span><span class="kt">string</span><span class="p">](</span><span class="mi">5</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">))</span>
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">q</span><span class="p">.</span><span class="nx">ShutDown</span><span class="p">()</span>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="w">        </span><span class="nx">q</span><span class="p">.</span><span class="nx">Add</span><span class="p">(</span><span class="s">"prod/web-1"</span><span class="p">)</span>
+</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"queue length after 100 adds:"</span><span class="p">,</span><span class="w"> </span><span class="nx">q</span><span class="p">.</span><span class="nx">Len</span><span class="p">())</span>
+</span><span id="__span-19-16"><a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a><span class="w">    </span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">q</span><span class="p">.</span><span class="nx">Get</span><span class="p">()</span>
+</span><span id="__span-19-17"><a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a><span class="w">    </span><span class="nx">q</span><span class="p">.</span><span class="nx">Add</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
+</span><span id="__span-19-18"><a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a><span class="w">    </span><span class="nx">q</span><span class="p">.</span><span class="nx">Done</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
+</span><span id="__span-19-19"><a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"after Done, len:"</span><span class="p">,</span><span class="w"> </span><span class="nx">q</span><span class="p">.</span><span class="nx">Len</span><span class="p">())</span>
+</span><span id="__span-19-20"><a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a><span class="p">}</span>
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>go<span class="w"> </span>run<span class="w"> </span>lab_workqueue.go
+</span></code></pre></div></p>
+<h3 id="lab-3-finalizer--patch-fake">Lab 3: Finalizer + Patch (fake)<a class="headerlink" href="#lab-3-finalizer--patch-fake" title="Permanent link">&para;</a></h3>
+<p><div class="language-go highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">    </span><span class="s">"context"</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w">    </span><span class="s">"fmt"</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="w">    </span><span class="nx">corev1</span><span class="w"> </span><span class="s">"k8s.io/api/core/v1"</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="w">    </span><span class="nx">metav1</span><span class="w"> </span><span class="s">"k8s.io/apimachinery/pkg/apis/meta/v1"</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w">    </span><span class="s">"k8s.io/apimachinery/pkg/types"</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="w">    </span><span class="s">"k8s.io/client-go/kubernetes/fake"</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a><span class="p">)</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a><span class="kd">func</span><span class="w"> </span><span class="nx">labFinalizer</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a><span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()</span>
+</span><span id="__span-21-14"><a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a><span class="w">    </span><span class="nx">client</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fake</span><span class="p">.</span><span class="nx">NewSimpleClientset</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">ConfigMap</span><span class="p">{</span><span class="nx">ObjectMeta</span><span class="p">:</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">{</span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="s">"demo"</span><span class="p">,</span><span class="w"> </span><span class="nx">Namespace</span><span class="p">:</span><span class="w"> </span><span class="s">"prod"</span><span class="p">}})</span>
+</span><span id="__span-21-15"><a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a><span class="w">    </span><span class="nx">patch</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kt">byte</span><span class="p">(</span><span class="s">`{"metadata":{"finalizers":["demo.example.dev/finalizer"]}}`</span><span class="p">)</span>
+</span><span id="__span-21-16"><a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a><span class="w">    </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">CoreV1</span><span class="p">().</span><span class="nx">ConfigMaps</span><span class="p">(</span><span class="s">"prod"</span><span class="p">).</span><span class="nx">Patch</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"demo"</span><span class="p">,</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">StrategicMergePatchType</span><span class="p">,</span><span class="w"> </span><span class="nx">patch</span><span class="p">,</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">PatchOptions</span><span class="p">{})</span>
+</span><span id="__span-21-17"><a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-21-18"><a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
+</span><span id="__span-21-19"><a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-21-20"><a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a><span class="w">    </span><span class="nx">cm</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">CoreV1</span><span class="p">().</span><span class="nx">ConfigMaps</span><span class="p">(</span><span class="s">"prod"</span><span class="p">).</span><span class="nx">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"demo"</span><span class="p">,</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">GetOptions</span><span class="p">{})</span>
+</span><span id="__span-21-21"><a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"finalizers:"</span><span class="p">,</span><span class="w"> </span><span class="nx">cm</span><span class="p">.</span><span class="nx">Finalizers</span><span class="p">)</span>
+</span><span id="__span-21-22"><a id="__codelineno-21-22" name="__codelineno-21-22" href="#__codelineno-21-22"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+</span><span id="__span-21-23"><a id="__codelineno-21-23" name="__codelineno-21-23" href="#__codelineno-21-23"></a><span class="p">}</span>
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>go<span class="w"> </span>run<span class="w"> </span>lab_finalizer.go
+</span></code></pre></div></p>
+<hr />
+<p><em>Что дальше:</em> <a href="../08-go-operators-kubebuilder/">08. Операторы на kubebuilder</a> · Python-вариант: <a href="../07-python-kubernetes-kopf-operators/">kopf</a> · <a href="../09-go-http-grpc-services/">09. HTTP/gRPC сервисы</a></p>
 <!-- Глобальные сниппеты для включения в документацию -->
 
 

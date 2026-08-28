@@ -175,14 +175,14 @@ gitleaks detect --source . --report-format sarif  # в CI
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (DevSecOps — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Алерты не приходят / приходят пачкой | `group_wait`/`repeat_interval` настроены вслепую | Разобрать routing tree на бумаге, тест через `amtool` |
-| Дашборд врет относительно реальности | Стейтмент без фильтра по job/instance | Проверить label matching, добавить legend format |
-| Рост кардинальности метрик убивает Prometheus | user_id/path в labels | Ограничить cardinality, relabel drop |
-| Логи «исчезают» | retention/индекс ротация | Проверить ILM/compactor настройки и объем hot-хранилища |
+| Trivy находит `HIGH` но pipeline зелёный | `exit-code: 0` вместо `1` | `trivy image --exit-code 1 --severity HIGH,CRITICAL` |
+| `gitleaks` пропускает секрет в `feature` ветке | `pre-commit` не установлен у разработчика | `pre-commit install` + CI `gitleaks protect --staged` |
+| `cosign verify` fails: no matching signatures | `keyless` без `certificate-identity-regexp` | `cosign verify --certificate-identity-regexp '.*' --certificate-oidc-issuer https://token.actions.githubusercontent.com` |
+| ExternalSecret `SecretSyncedError: secret not found` | `ClusterSecretStore` `auth.kubernetes` role mismatch | `vault auth list`, `kubectl -n external-secrets get clustersecretstore -o yaml` |
 
 !!! warning «Сначала SLI, потом дашборды»
     Дашборд без определенного SLO — это арт. Определите SLI (какие запросы считаем хорошими), цель (99.9%), error budget — и только затем рисуйте панели.

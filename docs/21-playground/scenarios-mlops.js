@@ -1,8 +1,6 @@
 /* Песочница: MLOps-сценарии (MLflow, DVC, дрейф, GPU/Kueue, LLMOps) */
-S("MLOps","ml1","MLflow: пересоздали контейнер — все runs исчезли","Middle",
-`<b>Симптом:</b> после пересоздания контейнера MLflow UI пустой — ни экспериментов, ни метрик, ни артефактов.<br>
-<b>Цель:</b> найти причину (SQLite + локальный диск в контейнере), перевести на PostgreSQL-бэкенд и S3-артефакты.<br>
-<b>Начните с:</b> <code>docker inspect mlflow | grep -i mount</code>`,
+S("MLOps","ml1b","MLflow: пересоздали контейнер — все runs исчезли","Middle",
+`<h3>Контекст</h3><p><b>MLOps.</b> MLflow: пересоздали контейнер — все runs исчезли. Среда сценария симулирует MLOps-окружение; основные инструменты терминала здесь: <code>docker</code>, <code>curl</code>.</p><h3>Что происходит</h3><p>после пересоздания контейнера MLflow UI пустой — ни экспериментов, ни метрик, ни артефактов.\nЦель: найти причину (SQLite + локальный диск в контейнере), перевести на PostgreSQL-бэкенд и S3-артефакты.\nНачните с: docker inspect mlflow | grep -i mount</p><h3>Что нужно сделать</h3><ul><li>[ ] убедиться, что томов нет — данные в слое контейнера</li><li>[ ] посмотреть BACKEND_STORE_URI и ARTIFACT_ROOT</li><li>[ ] пересоздать с PG-бэкендом и S3-артефактами</li><li>[ ] проверить health</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта этого сценария (активный: <code>docker-compose.yml</code>); тесты и несвязанные ресурсы не трогайте.</p><h3>Стартовое состояние</h3><p>Файлы проекта: <code>docker-compose.yml</code>. Активный файл: <code>docker-compose.yml</code>. Редактор уже открыт на активном файле.</p><h3>Ожидаемый результат</h3><p>Чек-лист «Проверить решение» полностью зелёный: убедиться, что томов нет — данные в слое контейнера → посмотреть BACKEND_STORE_URI и ARTIFACT_ROOT → пересоздать с PG-бэкендом и S3-артефактами → проверить health.</p><h3>Проверка</h3><pre>docker inspect mlflow…mount|docker inspect mlflow<br>docker exec -?i? ?mlflow env|docker exec mlflow env<br>docker run …mlflow</pre><p>для кода: кнопка «Проверить код»</p>`,
 "ubuntu@lab:~$",
 [
 [/^docker inspect mlflow.*mount|docker inspect mlflow$/,`        "Mounts": [
@@ -21,20 +19,29 @@ ARTIFACT_ROOT=/mlruns                    # <-- всё локальное, нич
  {re:/env/,l:"посмотреть BACKEND_STORE_URI и ARTIFACT_ROOT"},
  {re:/docker run/,l:"пересоздать с PG-бэкендом и S3-артефактами"},
  {re:/curl/,l:"проверить health"}],
-{file:"docker-compose.yml",
- files:{"docker-compose.yml":`services:
+{file:"docker-compose.yml",files:{"docker-compose.yml":`services:
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.14.1
     command: mlflow server --host 0.0.0.0 --port 5000
     environment:
       BACKEND_STORE_URI: sqlite:///mlflow.db   # <-- ошибка: sqlite в контейнере
       ARTIFACT_ROOT: /mlruns                   # <-- ошибка: локальный диск
-    ports: ["5000:5000"]`}});
+    ports: ["5000:5000"]`},checks:[{re:/postgres(ql)?:\/\//,l:"BACKEND_STORE_URI на PostgreSQL"},{re:/s3:\/\//,l:"ARTIFACT_ROOT на S3"}],solutionFiles:{"docker-compose.yml":`services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.14.1
+    command: mlflow server --host 0.0.0.0 --port 5000
+    environment:
+      BACKEND_STORE_URI: postgresql://mlflow:secret@pg:5432/mlflow
+      ARTIFACT_ROOT: s3://mlflow-artifacts/
+    ports: ["5000:5000"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:
+`}},{hints:["Симптом: после пересоздания контейнера MLflow UI пустой — ни экспериментов, ни метрик, ни артефактов.. Определите, на каком слое MLOps возникает проблема, прежде чем что-то менять.","Правьте файлы в редакторе; проверка кода — кнопкой «Проверить код». Рабочие инструменты сценария: <code>docker</code>, <code>curl</code>. Диагноз начинайте с <code>docker inspect mlflow…mount|docker inspect mlflow</code>.","Порядок действий: убедиться, что томов нет — данные в слое контейнера → посмотреть BACKEND_STORE_URI и ARTIFACT_ROOT → пересоздать с PG-бэкендом и S3-артефактами → …"]});
 
 S("MLOps","ml2","MLflow Registry: сервис грузит старую версию модели","Senior",
-`<b>Симптом:</b> модель зарегистрировали и перевели в Production через UI, но serving-сервис по-прежнему отдаёт предсказания старой версии.<br>
-<b>Цель:</b> понять разницу «версия в Stage» vs «фиксация версии в деплое», настроить пиннинг по алиасу/этапу и перезапустить сервинг.<br>
-<b>Начните с:</b> <code>mlflow models describe</code> и переменные окружения сервиса`,
+`<h3>Контекст</h3><p>MLOps: <b>MLflow Registry: сервис грузит старую версию модели</b>. Работа с <code>project/mlflow-registry.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>MLflow Registry: сервис грузит старую версию модели</b>. Файл <code>project/mlflow-registry.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] найти захардкоженную версию в конфиге сервиса</li><li>[ ] сверить этапы версий в registry</li><li>[ ] обновить версию и перезапустить</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/mlflow-registry.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/mlflow-registry.yaml</code>. Активный файл открыт в редакторе. Начните с <code>(mlflow )?models describe|mlfl</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: найти захардкоженную версию в конфиге сервиса → сверить этапы версий в registry → обновить версию и перезапустить.</p><h3>Проверка</h3><pre>cat project/mlflow-registry.yaml<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 [/^(mlflow )?models describe|mlflow models serve --help/,`serving service env:
@@ -53,12 +60,10 @@ successfully rolled out`,"ok"],
  {re:/experiments search|runs list|api/,l:"сверить этапы версий в registry"},
  {re:/set env|rollout restart/,l:"обновить версию и перезапустить"},
  {re:/rollout status/,l:"дождаться раскатки"},
- {re:/curl/,l:"убедиться, что отвечает v9"}]);
+ {re:/curl/,l:"убедиться, что отвечает v9"}],{file:"project/mlflow-registry.yaml",files:{"project/mlflow-registry.yaml":`# MLOps: MLflow Registry: сервис грузит старую версию модели\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/mlflow-registry.yaml":`# MLOps: MLflow Registry: сервис грузит старую версию модели — fixed\nstatus: ok\n`}},{hints:["Симптом: MLflow Registry: сервис грузит старую версию модели в project/mlflow-registry.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/mlflow-registry.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/mlflow-registry.yaml.","Порядок: найти захардкоженную версию в конфиге сервиса → сверить этапы версий в registry → обновить версию и перезапустить"]});
 
 S("MLOps","dv1","DVC: коллеги не могут воспроизвести датасет","Middle",
-`<b>Симптом:</b> после git pull у коллеги нет данных — каталог data/ пуст, пайплайн падает на первом шаге.<br>
-<b>Цель:</b> объяснить роль dvc.yaml + .dvc-файлов, подключить удалённый кэш и восстановить данные.<br>
-<b>Начните с:</b> <code>ls data*; cat .gitignore | head</code>`,
+`<h3>Контекст</h3><p>MLOps: <b>DVC: коллеги не могут воспроизвести датасет</b>. Работа с <code>project/dvc-.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>DVC: коллеги не могут воспроизвести датасет</b>. Файл <code>project/dvc-.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] понять: данные вне git, но есть .dvc-файлы</li><li>[ ] подключить удалённый кэш (S3/MinIO)</li><li>[ ] скачать данные по md5 из remote</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/dvc-.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/dvc-.yaml</code>. Активный файл открыт в редакторе. Начните с <code>ls( -la)? data</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: понять: данные вне git, но есть .dvc-файлы → подключить удалённый кэш (S3/MinIO) → скачать данные по md5 из remote.</p><h3>Проверка</h3><pre>cat project/dvc-.yaml<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 [/^ls( -la)? data/,`data/            # пусто! большие файлы не в git`,"err"],
@@ -82,12 +87,10 @@ Data and pipelines are up to date.`,"ok"]
 [{re:/ls data|gitignore/,l:"понять: данные вне git, но есть .dvc-файлы"},
  {re:/remote add/,l:"подключить удалённый кэш (S3/MinIO)"},
  {re:/pull|fetch/,l:"скачать данные по md5 из remote"},
- {re:/repro/,l:"воспроизвести пайплайн до конца"}]);
+ {re:/repro/,l:"воспроизвести пайплайн до конца"}],{file:"project/dvc-.yaml",files:{"project/dvc-.yaml":`# MLOps: DVC: коллеги не могут воспроизвести датасет\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/dvc-.yaml":`# MLOps: DVC: коллеги не могут воспроизвести датасет — fixed\nstatus: ok\n`}},{hints:["Симптом: DVC: коллеги не могут воспроизвести датасет в project/dvc-.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/dvc-.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/dvc-.yaml.","Порядок: понять: данные вне git, но есть .dvc-файлы → подключить удалённый кэш (S3/MinIO) → скачать данные по md5 из remote"]});
 
 S("MLOps","dr1","Дрейф признаков: качество модели упало в проде","Senior",
-`<b>Симптом:</b> бизнес жалуется: конверсия рекомендаций упала на 30%. Метрики сервиса зелёные — значит, проблема в модели. Подозрение на дрейф входных распределений.<br>
-<b>Цель:</b> проверить дрейф Evidently, отличить data drift от concept drift, принять решение о ретренировке.<br>
-<b>Начните с:</b> <code>evidently report</code> по reference/current данным`,
+`<h3>Контекст</h3><p>MLOps: <b>Дрейф признаков: качество модели упало в проде</b>. Работа с <code>project/-.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>Дрейф признаков: качество модели упало в проде</b>. Файл <code>project/-.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] количественно оценить дрейф по фичам</li><li>[ ] ищем след upstream-изменений в логах сервиса</li><li>[ ] найти коммит, изменивший схему входных данных</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/-.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/-.yaml</code>. Активный файл открыт в редакторе. Начните с <code>evidently report|python .*evid</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: количественно оценить дрейф по фичам → ищем след upstream-изменений в логах сервиса → найти коммит, изменивший схему входных данных.</p><h3>Проверка</h3><pre>cat project/-.yaml<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 [/^evidently report|python .*evidently/,`DATA DRIFT REPORT (reference: train_2026-05, current: prod_week):
@@ -108,12 +111,10 @@ shadow traffic: OK, metrics parity confirmed`,"ok"]
  {re:/logs/,l:"ищем след upstream-изменений в логах сервиса"},
  {re:/git (log|diff)/,l:"найти коммит, изменивший схему входных данных"},
  {re:/repro|retrain/,l:"ретренировка на свежем окне"},
- {re:/set image|serve|deploy/,l:"раскатить новую модель (сначала shadow)"}]);
+ {re:/set image|serve|deploy/,l:"раскатить новую модель (сначала shadow)"}],{file:"project/-.yaml",files:{"project/-.yaml":`# MLOps: Дрейф признаков: качество модели упало в проде\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/-.yaml":`# MLOps: Дрейф признаков: качество модели упало в проде — fixed\nstatus: ok\n`}},{hints:["Симптом: Дрейф признаков: качество модели упало в проде в project/-.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/-.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/-.yaml.","Порядок: количественно оценить дрейф по фичам → ищем след upstream-изменений в логах сервиса → найти коммит, изменивший схему входных данных"]});
 
 S("MLOps","gpu1","GPU на K8s: джобы висят в Pending, Kueue не пускает","Senior",
-`<b>Симптом:</b> исследовательские джобы обучения стоят в Pending часами. <code>kubectl describe pod</code> говорит "Insufficient nvidia.com/gpu". Часть GPU-узлов при этом простаивает.<br>
-<b>Цель:</b> разобраться с очередями Kueue (LocalQueue/ClusterQueue), приоритетами и квотами.<br>
-<b>Начните с:</b> <code>kubectl get pods; kubectl describe pod &lt;job&gt;</code>`,
+`<h3>Контекст</h3><p>MLOps: <b>GPU на K8s: джобы висят в Pending, Kueue не пускает</b>. Работа с <code>project/gpu-k8s-pending.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>GPU на K8s: джобы висят в Pending, Kueue не пускает</b>. Файл <code>project/gpu-k8s-pending.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] увидеть картину: кто Running, кто Pending</li><li>[ ] причина Pending: квота ClusterQueue, а не отсутствие узлов</li><li>[ ] изучить гарантии и borrowing в Kueue</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/gpu-k8s-pending.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/gpu-k8s-pending.yaml</code>. Активный файл открыт в редакторе. Начните с <code>kubectl get pods(| -A)</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: увидеть картину: кто Running, кто Pending → причина Pending: квота ClusterQueue, а не отсутствие узлов → изучить гарантии и borrowing в Kueue.</p><h3>Проверка</h3><pre>cat project/gpu-k8s-pending.yaml<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 [/^kubectl get pods($| -A)/,`NAME              STATUS    AGE
@@ -134,12 +135,10 @@ finetune-llm     Running   (reduced to guaranteed 6)`,"ok"]
 [{re:/get pods/,l:"увидеть картину: кто Running, кто Pending"},
  {re:/describe pod/,l:"причина Pending: квота ClusterQueue, а не отсутствие узлов"},
  {re:/(clusterqueue|localqueue)/,l:"изучить гарантии и borrowing в Kueue"},
- {re:/patch clusterqueue|edit clusterqueue/,l:"ограничить borrowing — вернуть гарантии командам"}]);
+ {re:/patch clusterqueue|edit clusterqueue/,l:"ограничить borrowing — вернуть гарантии командам"}],{file:"project/gpu-k8s-pending.yaml",files:{"project/gpu-k8s-pending.yaml":`# MLOps: GPU на K8s: джобы висят в Pending, Kueue не пускает\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/gpu-k8s-pending.yaml":`# MLOps: GPU на K8s: джобы висят в Pending, Kueue не пускает — fixed\nstatus: ok\n`}},{hints:["Симптом: GPU на K8s: джобы висят в Pending, Kueue не пускает в project/gpu-k8s-pending.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/gpu-k8s-pending.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/gpu-k8s-pending.yaml.","Порядок: увидеть картину: кто Running, кто Pending → причина Pending: квота ClusterQueue, а не отсутствие узлов → изучить гарантии и borrowing в Kueue"]});
 
 S("LLMOps","llm1","RAG-бот отвечает нерелевантно: чанкинг сломал контекст","Senior",
-`<b>Симптом:</b> RAG-ассистент по внутренней базе знаний стал выдавать обрывочные ответы со ссылками не туда. Ретривер находит чанки, но они без контекста.<br>
-<b>Цель:</b> диагностировать пайплайн индексации (чанкинг/метаданные), переиндексировать, оценить качество Ragas'ом.<br>
-<b>Начните с:</b> <code>curl :8000/search?q=...</code> — что реально находит ретривер`,
+`<h3>Контекст</h3><p>LLMOps: <b>RAG-бот отвечает нерелевантно: чанкинг сломал контекст</b>. Работа с <code>project/rag-.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>RAG-бот отвечает нерелевантно: чанкинг сломал контекст</b>. Файл <code>project/rag-.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] посмотреть, что именно находит ретривер</li><li>[ ] найти проблему: мелкие чанки без перекрытия и метаданных</li><li>[ ] переиндексировать с разумным размером и overlap</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/rag-.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/rag-.yaml</code>. Активный файл открыт в редакторе. Начните с <code>curl .*search\\?q=|curl .*query</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: посмотреть, что именно находит ретривер → найти проблему: мелкие чанки без перекрытия и метаданных → переиндексировать с разумным размером и overlap.</p><h3>Проверка</h3><pre>cat project/rag-.yaml<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 [/^curl .*search\?q=|curl .*query/,`{"hits":[
@@ -161,4 +160,4 @@ context_precision: 0.49 → 0.84`,"ok"],
  {re:/config\.yaml|chunk_size/,l:"найти проблему: мелкие чанки без перекрытия и метаданных"},
  {re:/reindex/,l:"переиндексировать с разумным размером и overlap"},
  {re:/ragas/,l:"измерить качество до/после объективной метрикой"},
- {re:/restart|up -d/,l:"выкатить новую версию индекса"}]);
+ {re:/restart|up -d/,l:"выкатить новую версию индекса"}],{file:"project/rag-.yaml",files:{"project/rag-.yaml":`# LLMOps: RAG-бот отвечает нерелевантно: чанкинг сломал контекст\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/rag-.yaml":`# LLMOps: RAG-бот отвечает нерелевантно: чанкинг сломал контекст — fixed\nstatus: ok\n`}},{hints:["Симптом: RAG-бот отвечает нерелевантно: чанкинг сломал контекст в project/rag-.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/rag-.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/rag-.yaml.","Порядок: посмотреть, что именно находит ретривер → найти проблему: мелкие чанки без перекрытия и метаданных → переиндексировать с разумным размером и overlap"]});

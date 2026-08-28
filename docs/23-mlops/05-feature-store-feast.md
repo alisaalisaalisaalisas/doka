@@ -185,3 +185,59 @@ train = store.get_historical_features(
 ---
 
 *Далее: [23.6 GPU на Kubernetes](06-gpu-k8s.md)*
+
+
+---
+
+## 🗄️ Дополнение: Offline/Online stores, Materialization и BigQuery
+
+### Point-in-time correctness
+
+```python
+# feature_store.yaml
+project: shop
+provider: gcp   # или local
+online_store:
+  type: redis
+  connection_string: redis:6379
+offline_store:
+  type: bigquery  # вместо file — BigQuery/Snowflake/Redshift
+  project_id: prod-bq
+  dataset: feast
+entity_key_serialization_version: 2
+
+# feature_view.py
+from feast import Entity, FeatureView, FileSource, BigQuerySource, Field
+from feast.types import Float32, Int64
+from datetime import timedelta
+
+user = Entity(name="user", join_keys=["user_id"])
+user_source = BigQuerySource(
+  table="prod-bq.feast.user_features",
+  timestamp_field="event_timestamp",
+  created_timestamp_column="created",
+)
+user_view = FeatureView(
+  name="user_features",
+  entities=[user],
+  ttl=timedelta(days=1),
+  schema=[Field(name="avg_order", dtype=Float32), Field(name="orders_7d", dtype=Int64)],
+  source=user_source,
+  online=True,
+)
+```
+
+```bash
+feast materialize 2026-01-01T00:00:00 2026-08-28T00:00:00
+feast materialize-incremental $(date -u +%Y-%m-%dT%H:%M:%S)
+feast validate  # point-in-time join correctness check
+
+# Online vs offline: same code
+from feast import FeatureStore
+store = FeatureStore(repo_path=".")
+print(store.get_online_features(features=["user_features:avg_order"], entity_rows=[{"user_id": 42}]).to_dict())
+print(store.get_historical_features(entity_df=orders_df, features=["user_features:avg_order"]).to_df().head())
+
+# Freshness: check staleness
+feast feature-view describe user_features | grep -A5 freshness
+```

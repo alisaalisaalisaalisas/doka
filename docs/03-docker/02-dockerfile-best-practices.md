@@ -165,14 +165,14 @@ dive nginx:local          # интерактивный разбор слоев �
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Dockerfile — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| «Работало вчера» после обновления | Дрейф конфигурации вне Git | `git diff` по инфра-репозиторию + `drift detection` |
-| Падение под нагрузкой без ошибок в логах | Исчерпание лимитов (`ulimit`, conntrack, fds) | `dmesg -T \| grep -i denied`, `conntrack -S` |
-| Медленный деплой | Отсутствие кэша слоев/артефактов | Включить layer cache, артефакт-репозиторий |
-| «Плавающие» 502 раз в сутки | Health-check гонки при rolling update | `preStop sleep` + корректный `readinessProbe` |
+| Образ 800М из `FROM golang:1.23` | Нет multi-stage, `COPY . .` тянет кэш | Multi-stage `builder AS` + `distroless`, `.dockerignore` |
+| Слои не кэшируются, каждый build 10м | `ADD https://` или `COPY .` раньше `go mod download` | Порядок: `COPY go.*` + `RUN go mod download` → `COPY .` |
+| `USER root` в проде | Нет `USER nonroot` | `FROM gcr.io/distroless/static-debian12:nonroot` + `USER nonroot:nonroot` |
+| `HEALTHCHECK` молчит | Нет `HEALTHCHECK CMD curl -f http://localhost:8080/healthz` | Добавить `HEALTHCHECK --interval=10s --retries=3 CMD curl -f` |
 
 !!! warning "Правило пяти почему"
     Каждый инцидент заканчивается не фиксом, а **post-mortem** с 5×Why и action items в бэклоге. Иначе грабли возвращаются через квартал — но уже в пятницу вечером.

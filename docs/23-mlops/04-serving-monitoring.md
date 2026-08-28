@@ -269,3 +269,50 @@ kubectl -n ml exec deploy/web -- sh -c '
 ---
 
 *Далее: [План развития раздела MLOps](00-plan.md) · [Senior Stack](../20-senior-stack/00-senior-stack-summary.md)*
+
+
+---
+
+## 🚀 Дополнение: FastAPI → KServe InferenceService (canary + autoscale)
+
+```yaml
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata: { name: shop-model, namespace: prod }
+spec:
+  predictor:
+    canaryTrafficPercent: 10   # 10% на новый revision, 90% stable
+    minReplicas: 2
+    maxReplicas: 10
+    scaleTarget: 10            # concurrency per pod
+    scaleMetric: concurrency
+    readinessProbe: { httpGet: { path: /v2/health/ready, port: 8080 }, initialDelaySeconds: 5 }
+    livenessProbe:  { httpGet: { path: /v2/health/live, port: 8080 }, periodSeconds: 10 }
+    containers:
+      - name: kserve-container
+        image: localhost:5001/shop-model:v2
+        ports: [{ containerPort: 8080, protocol: TCP }]
+        resources: { requests: { cpu: "500m", memory: "1Gi" }, limits: { cpu: "2", memory: "2Gi" } }
+        env: [{ name: MODEL_NAME, value: "shop-reco" }]
+  transformer:  # опционально: pre/post-processing
+    containers:
+      - name: transformer
+        image: localhost:5001/transformer:v1
+  explainer:
+    containers:
+      - name: explainer
+        image: seldonio/alibiexplainer:1.16  # SHAP/LIME
+```
+
+```bash
+kubectl apply -f inference.yaml
+kubectl get inferenceservice shop-model -n prod -o wide
+kubectl get pods -n prod -l serving.kserve.io/inferenceservice=shop-model
+# Autoscale: kserve HPA/KNative PodAutoscaler
+kubectl get hpa -n prod | grep shop-model
+# Метрики: prometheus scrape /metrics на predictor
+curl -s http://shop-model-predictor.prod/metrics | grep -i queue
+# Rollback: trafficPercent 0 или kubectl rollout undo
+kubectl patch inferenceservice shop-model -n prod --type merge -p '{"spec":{"predictor":{"canaryTrafficPercent":0}}}'
+```
+

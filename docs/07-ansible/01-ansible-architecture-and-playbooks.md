@@ -152,14 +152,14 @@ ansible-playbook site.yml --start-at-task="Install nginx" --step
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Ansible playbooks — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Пайплайн зеленый, прод сломан | Разница окружений / secrets не из Vault | Проверять конфиги через `conftest` + smoke-тесты после деплоя |
-| `terraform apply` висит на lock | Умерший CI оставил lock | `force-unlock` после проверки активности |
-| Ansible «работает» но ничего не меняет | `changed_when` не настроен | Явные `changed_when`/`failed_when` для команд |
-| GitOps откатывает ручной фикс | Drift между Git и кластером | Править только в Git; `selfHeal` оставить включенным |
+| `changed=0` хотя файл изменился | `template` с `validate: nginx -t %s` падает → rollback | `ansible-playbook --check --diff`, `validate` путь верный? |
+| `UNREACHABLE! => { "msg": "Failed to connect to the host via ssh" }` | `inventory` `ansible_host` не резолвится / `ProxyJump` | `ansible -i inventory all --list-hosts`, `ansible -m ping` + `ssh -J bastion user@host` |
+| `serial: 25%` деплой 1 час на 8 хостах | Линейная стратегия vs `free` | `strategy: free` + `max_fail_percentage: 25` |
+| `gather_facts` 30с на каждом хосте | `fact_caching` выключен | `fact_caching = jsonfile` + `gathering = smart` |
 
 !!! warning «Идемпотентность — закон»
     Любой скрипт/плейбук/модуль должен быть безопасно перезапускаемым. Если второй прогон меняет состояние — это баг, который однажды уронит прод.

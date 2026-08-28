@@ -281,3 +281,45 @@ echo 0.80 | python gate.py; echo "exit=$?"        # exit=1 → CI красный
 ---
 
 *Следующая страница: [23.3 Данные и пайплайны: DVC, Airflow/Kubeflow](03-data-pipelines.md)*
+
+
+---
+
+## 🔐 Дополнение: MLflow Auth, RBAC и Promotion
+
+### Auth и artifact security
+
+```bash
+# MLflow 2.x auth (basic auth + permissions)
+# docker-compose: MLFLOW_AUTH_CONFIG_PATH=/basic_auth.ini
+cat > basic_auth.ini <<'INI'
+[mlflow]
+default_permission = READ
+database_uri = sqlite:///basic_auth.db
+admin_username = admin
+admin_password = admin
+INI
+
+# Permissions: READ/EDIT/MANAGE per experiment
+mlflow experiments create --experiment-name prod --permission EDIT --user alice
+# artifact security: s3://mlflow-artifacts с SSE-KMS + bucket policy + versioning
+aws s3api put-bucket-encryption --bucket mlflow-artifacts --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"aws:kms"}}]}'
+```
+
+### Model Registry: staging → production → rollback
+
+```bash
+# Promotion flow
+mlflow models create --name shop-reco --description "reco model"
+mlflow runs list --experiment-id 1 --max-results 5
+mlflow model-versions create --name shop-reco --source s3://mlflow-artifacts/1/abc/artifacts/model --run-id abc
+mlflow model-versions update --name shop-reco --version 1 --description "candidate"
+mlflow model-versions transition-stage --name shop-reco --version 1 --stage Staging --archive-existing-versions
+# Auto-rollback check: if production metric drops
+mlflow model-versions transition-stage --name shop-reco --version 2 --stage Production
+# Rollback: архивируем bad 2, возвращаем 1
+mlflow model-versions transition-stage --name shop-reco --version 2 --stage Archived
+mlflow model-versions transition-stage --name shop-reco --version 1 --stage Production
+```
+
+**Проверь себя:** нет `MLFLOW_TRACKING_USERNAME` в коде — `mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))` + `~/.netrc` или OIDC proxy.

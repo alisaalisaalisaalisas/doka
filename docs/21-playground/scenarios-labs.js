@@ -3,9 +3,7 @@
    Паттерны команд — СТРОКИ (движок делает new RegExp(p,"i")). */
 
 S("Labs","lab01","Lab 01: Linux изнутри — systemd, namespaces, cgroups","Junior",
-`<b>Легенда:</b> вы исследуете изоляцию процессов руками, без Docker.<br>
-<b>Цель:</b> увидеть cgroup процесса, создать PID-namespace, ограничить память.<br>
-<b>Полная версия:</b> Guided Lab 01 (раздел 16).`,
+`<h3>Контекст</h3><p>Labs: <b>Lab 01: Linux изнутри — systemd, namespaces, cgroups</b>. Работа с <code>systemd/demo.service</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>Lab 01: Linux изнутри — systemd, namespaces, cgroups</b>. Файл <code>systemd/demo.service</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] найти cgroup сервиса</li><li>[ ] посмотреть свою cgroup-группу</li><li>[ ] создать PID-namespace (ps покажет PID 1)</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>systemd/demo.service</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>systemd/demo.service</code>, <code>app/main.py</code>. Активный файл открыт в редакторе. Начните с <code>systemctl status sshd</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: найти cgroup сервиса → посмотреть свою cgroup-группу → создать PID-namespace (ps покажет PID 1).</p><h3>Проверка</h3><pre>cat systemd/demo.service<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 ["^systemctl status sshd",`● sshd.service - OpenBSD Secure Shell server\n   Active: active (running) since Mon; Main PID: 812 (sshd)\n   CGroup: /system.slice/sshd.service`,"ok"],
@@ -19,11 +17,10 @@ S("Labs","lab01","Lab 01: Linux изнутри — systemd, namespaces, cgroups"
 [{re:/systemctl status/,l:"найти cgroup сервиса"},
  {re:/cat \/proc\/self\/cgroup/,l:"посмотреть свою cgroup-группу"},
  {re:/unshare .*--pid/,l:"создать PID-namespace (ps покажет PID 1)"},
- {re:/memory\.max/,l:"ограничить память cgroup до 128M и проверить"}]);
+ {re:/memory\.max/,l:"ограничить память cgroup до 128M и проверить"}],{file:"systemd/demo.service",files:{"systemd/demo.service":`[Unit]\nDescription=Demo\n[Service]\nExecStart=/usr/bin/python3 /opt/app/main.py\n`,"app/main.py":`print(\"hi\")\n`},checks:[{re:/Restart/,l:"Restart"}],solutionFiles:{"systemd/demo.service":`[Unit]\nDescription=Demo\n[Service]\nExecStart=/usr/bin/python3 /opt/app/main.py\nRestart=on-failure\n[Install]\nWantedBy=multi-user.target\n`,"app/main.py":`print(\"hi\")\n`}},{hints:["Симптом: Lab 01: Linux изнутри — systemd, namespaces, cgroups в systemd/demo.service. Ищи причину в коде/конфиге этого файла.","Открой systemd/demo.service в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat systemd/demo.service.","Порядок: найти cgroup сервиса → посмотреть свою cgroup-группу → создать PID-namespace (ps покажет PID 1)"]});
 
 S("Labs","lab02","Lab 02: Фабрика образов — build → scan → sign → push","Middle",
-`<b>Легенда:</b> конвейер производства доверенных образов.<br>
-<b>Цель:</b> собрать multi-stage образ, просканировать Trivy, подписать cosign, запушить.`,
+`<h3>Контекст</h3><p>Labs: <b>Lab 02: Фабрика образов — build → scan → sign → push</b>. Работа с <code>project/lab-02-build-sc.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>Lab 02: Фабрика образов — build → scan → sign → push</b>. Файл <code>project/lab-02-build-sc.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] собрать multi-stage образ</li><li>[ ] проверить размер (<20MB)</li><li>[ ] просканировать на CRITICAL</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/lab-02-build-sc.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/lab-02-build-sc.yaml</code>. Активный файл открыт в редакторе. Начните с <code>docker build -t shop/api:2\\\\.5</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: собрать multi-stage образ → проверить размер (<20MB) → просканировать на CRITICAL.</p><h3>Проверка</h3><pre>cat project/lab-02-build-sc.yaml<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 ["^docker build -t shop/api:2\\.5\\.0 \\.",`[+] Building 12.3s (18/18) FINISHED\n => exporting layers\n => naming to shop/api:2.5.0`,"ok"],
@@ -39,11 +36,10 @@ S("Labs","lab02","Lab 02: Фабрика образов — build → scan → s
  {re:/trivy image/,l:"просканировать на CRITICAL"},
  {re:/cosign sign/,l:"подписать образ"},
  {re:/docker push/,l:"запушить в registry"},
- {re:/cosign verify/,l:"верифицировать подпись"}]);
+ {re:/cosign verify/,l:"верифицировать подпись"}],{file:"project/lab-02-build-sc.yaml",files:{"project/lab-02-build-sc.yaml":`# Labs: Lab 02: Фабрика образов — build → scan → sign → push\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/lab-02-build-sc.yaml":`# Labs: Lab 02: Фабрика образов — build → scan → sign → push — fixed\nstatus: ok\n`}},{hints:["Симптом: Lab 02: Фабрика образов — build → scan → sign → push в project/lab-02-build-sc.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/lab-02-build-sc.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/lab-02-build-sc.yaml.","Порядок: собрать multi-stage образ → проверить размер (<20MB) → просканировать на CRITICAL"]});
 
 S("Labs","lab03","Lab 03: Приложение в Kubernetes (kind)","Middle",
-`<b>Легенда:</b> деплой web+db в локальный kind-кластер.<br>
-<b>Цель:</b> кластер → секрет/конфиг → deployment+pvc → service → проверка.`,
+`<h3>Контекст</h3><p>Labs: <b>Lab 03: Приложение в Kubernetes (kind)</b>. Работа с <code>project/lab-03-kubernet.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>Lab 03: Приложение в Kubernetes (kind)</b>. Файл <code>project/lab-03-kubernet.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] поднять kind-кластер</li><li>[ ] убедиться, что нода Ready</li><li>[ ] создать secret с DATABASE_URL</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/lab-03-kubernet.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/lab-03-kubernet.yaml</code>. Активный файл открыт в редакторе. Начните с <code>kind create cluster --name lab</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: поднять kind-кластер → убедиться, что нода Ready → создать secret с DATABASE_URL.</p><h3>Проверка</h3><pre>cat project/lab-03-kubernet.yaml<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 ["^kind create cluster --name lab",`Creating cluster "lab" ...\nSet kubectl context to "kind-lab"\nYou can now use your cluster`,"ok"],
@@ -60,11 +56,10 @@ S("Labs","lab03","Lab 03: Приложение в Kubernetes (kind)","Middle",
  {re:/create secret generic db-url/,l:"создать secret с DATABASE_URL"},
  {re:/kubectl apply -n app -f deploy/,l:"применить манифесты"},
  {re:/get pods/,l:"дождаться Running у всех подов"},
- {re:/curl .*healthz/,l:"проверить приложение через port-forward"}]);
+ {re:/curl .*healthz/,l:"проверить приложение через port-forward"}],{file:"project/lab-03-kubernet.yaml",files:{"project/lab-03-kubernet.yaml":`# Labs: Lab 03: Приложение в Kubernetes (kind)\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/lab-03-kubernet.yaml":`# Labs: Lab 03: Приложение в Kubernetes (kind) — fixed\nstatus: ok\n`}},{hints:["Симптом: Lab 03: Приложение в Kubernetes (kind) в project/lab-03-kubernet.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/lab-03-kubernet.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/lab-03-kubernet.yaml.","Порядок: поднять kind-кластер → убедиться, что нода Ready → создать secret с DATABASE_URL"]});
 
 S("Labs","lab04","Lab 04: CI/CD пайплайн end-to-end (GitLab CI)","Middle",
-`<b>Легенда:</b> пайплайн build→test→scan→deploy для приложения.<br>
-<b>Цель:</b> довести MR от коммита до деплоя в staging.`,
+`<h3>Контекст</h3><p>Labs: <b>Lab 04: CI/CD пайплайн end-to-end (GitLab CI)</b>. Работа с <code>project/lab-04-ci-cd-en.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>Lab 04: CI/CD пайплайн end-to-end (GitLab CI)</b>. Файл <code>project/lab-04-ci-cd-en.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] запушить ветку с .gitlab-ci.yml</li><li>[ ] дождаться зелёного пайплайна</li><li>[ ] проверить staging после деплоя</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/lab-04-ci-cd-en.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/lab-04-ci-cd-en.yaml</code>. Активный файл открыт в редакторе. Начните с <code>git checkout -b feat/deploy</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: запушить ветку с .gitlab-ci.yml → дождаться зелёного пайплайна → проверить staging после деплоя.</p><h3>Проверка</h3><pre>cat project/lab-04-ci-cd-en.yaml<br>проверить код</pre>`,
 "gitlab-runner@ci:~$",
 [
 ["^git checkout -b feat/deploy",`Switched to a new branch 'feat/deploy'`,"dim"],
@@ -78,11 +73,10 @@ S("Labs","lab04","Lab 04: CI/CD пайплайн end-to-end (GitLab CI)","Middle
 [{re:/git push/,l:"запушить ветку с .gitlab-ci.yml"},
  {re:/glab ci status/,l:"дождаться зелёного пайплайна"},
  {re:/curl .*staging.*healthz/,l:"проверить staging после деплоя"},
- {re:/glab mr merge/,l:"смержить MR → прод-пайплайн"}]);
+ {re:/glab mr merge/,l:"смержить MR → прод-пайплайн"}],{file:"project/lab-04-ci-cd-en.yaml",files:{"project/lab-04-ci-cd-en.yaml":`# Labs: Lab 04: CI/CD пайплайн end-to-end (GitLab CI)\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/lab-04-ci-cd-en.yaml":`# Labs: Lab 04: CI/CD пайплайн end-to-end (GitLab CI) — fixed\nstatus: ok\n`}},{hints:["Симптом: Lab 04: CI/CD пайплайн end-to-end (GitLab CI) в project/lab-04-ci-cd-en.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/lab-04-ci-cd-en.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/lab-04-ci-cd-en.yaml.","Порядок: запушить ветку с .gitlab-ci.yml → дождаться зелёного пайплайна → проверить staging после деплоя"]});
 
 S("Labs","lab05","Lab 05: Terraform с нуля (LocalStack)","Middle",
-`<b>Легенда:</b> инфраструктура S3+IAM против эмулятора AWS LocalStack.<br>
-<b>Цель:</b> init → plan → apply → изменить → destroy без облака.`,
+`<h3>Контекст</h3><p>Labs: <b>Lab 05: Terraform с нуля (LocalStack)</b>. Работа с <code>project/lab-05-terrafor.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>Lab 05: Terraform с нуля (LocalStack)</b>. Файл <code>project/lab-05-terrafor.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] инициализировать провайдеров</li><li>[ ] посмотреть план изменений</li><li>[ ] применить (apply complete!)</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/lab-05-terrafor.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/lab-05-terrafor.yaml</code>. Активный файл открыт в редакторе. Начните с <code>(terraform init|tofu init)</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: инициализировать провайдеров → посмотреть план изменений → применить (apply complete!).</p><h3>Проверка</h3><pre>cat project/lab-05-terrafor.yaml<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 ["^(terraform init|tofu init)",`Terraform has been successfully initialized!\nInstalling hashicorp/aws v5.x...`,"ok"],
@@ -96,11 +90,10 @@ S("Labs","lab05","Lab 05: Terraform с нуля (LocalStack)","Middle",
  {re:/terraform plan/,l:"посмотреть план изменений"},
  {re:/terraform apply/,l:"применить (apply complete!)"},
  {re:/terraform state list/,l:"увидеть, что попало в state"},
- {re:/terraform destroy/,l:"корректно уничтожить всё"}]);
+ {re:/terraform destroy/,l:"корректно уничтожить всё"}],{file:"project/lab-05-terrafor.yaml",files:{"project/lab-05-terrafor.yaml":`# Labs: Lab 05: Terraform с нуля (LocalStack)\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/lab-05-terrafor.yaml":`# Labs: Lab 05: Terraform с нуля (LocalStack) — fixed\nstatus: ok\n`}},{hints:["Симптом: Lab 05: Terraform с нуля (LocalStack) в project/lab-05-terrafor.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/lab-05-terrafor.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/lab-05-terrafor.yaml.","Порядок: инициализировать провайдеров → посмотреть план изменений → применить (apply complete!)"]});
 
 S("Labs","lab06","Lab 06: Мониторинг — Prometheus/Grafana/Loki + алерт","Middle",
-`<b>Легенда:</b> стек наблюдаемости и первый алерт в Telegram.<br>
-<b>Цель:</b> поднять стек, собрать метрики приложения, получить алерт.`,
+`<h3>Контекст</h3><p>Labs: <b>Lab 06: Мониторинг — Prometheus/Grafana/Loki + алерт</b>. Работа с <code>project/lab-06-promethe.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>Lab 06: Мониторинг — Prometheus/Grafana/Loki + алерт</b>. Файл <code>project/lab-06-promethe.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] установить kube-prometheus-stack</li><li>[ ] дождаться Running prometheus/grafana/loki</li><li>[ ] добавить правило алерта</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/lab-06-promethe.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/lab-06-promethe.yaml</code>. Активный файл открыт в редакторе. Начните с <code>helm repo add prometheus-commu</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: установить kube-prometheus-stack → дождаться Running prometheus/grafana/loki → добавить правило алерта.</p><h3>Проверка</h3><pre>cat project/lab-06-promethe.yaml<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 ["^helm repo add prometheus-community .* && helm repo update",`\"prometheus-community\" has been added\nUpdate Complete.`,"ok"],
@@ -116,11 +109,10 @@ S("Labs","lab06","Lab 06: Мониторинг — Prometheus/Grafana/Loki + а�
  {re:/kubectl apply -f alert-rules/,l:"добавить правило алерта"},
  {re:/api\/v1\/query/,l:"проверить метрики через PromQL API"},
  {re:/amtool alert query/,l:"увидеть firing-алерт"},
- {re:/sendMessage/,l:"получить уведомление в Telegram"}]);
+ {re:/sendMessage/,l:"получить уведомление в Telegram"}],{file:"project/lab-06-promethe.yaml",files:{"project/lab-06-promethe.yaml":`# Labs: Lab 06: Мониторинг — Prometheus/Grafana/Loki + алерт\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/lab-06-promethe.yaml":`# Labs: Lab 06: Мониторинг — Prometheus/Grafana/Loki + алерт — fixed\nstatus: ok\n`}},{hints:["Симптом: Lab 06: Мониторинг — Prometheus/Grafana/Loki + алерт в project/lab-06-promethe.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/lab-06-promethe.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/lab-06-promethe.yaml.","Порядок: установить kube-prometheus-stack → дождаться Running prometheus/grafana/loki → добавить правило алерта"]});
 
 S("Labs","lab07","Lab 07: GitOps c ArgoCD","Advanced",
-`<b>Легенда:</b> кластер сам приводит себя к состоянию из git.<br>
-<b>Цель:</b> установить ArgoCD, зарегистрировать репо, поймать дрифт и авто-хил.`,
+`<h3>Контекст</h3><p>Labs: <b>Lab 07: GitOps c ArgoCD</b>. Работа с <code>project/lab-07-gitops-c.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>Lab 07: GitOps c ArgoCD</b>. Файл <code>project/lab-07-gitops-c.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] установить ArgoCD</li><li>[ ] залогиниться CLI</li><li>[ ] создать Application из git-репо</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/lab-07-gitops-c.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/lab-07-gitops-c.yaml</code>. Активный файл открыт в редакторе. Начните с <code>(kubectl apply -n argocd -f in</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: установить ArgoCD → залогиниться CLI → создать Application из git-репо.</p><h3>Проверка</h3><pre>cat project/lab-07-gitops-c.yaml<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 ["^(kubectl apply -n argocd -f install\\.yaml|argocd install)",`namespace/argocd configured\napplication.argoproj.io/argocd created`,"ok"],
@@ -132,16 +124,15 @@ S("Labs","lab07","Lab 07: GitOps c ArgoCD","Advanced",
 ["^argocd app diff web",`===== deployments/web =====\n-replicas: 5   (+spec.replicas: 3)`,"err"],
 ["^sleep 180 && argocd app get web",`Status: Healthy/Synced  ← auto-sync вернул replicas=3 из git`,"ok"]
 ],
-[{re:/install\\.yaml|argocd install/,l:"установить ArgoCD"},
+[{re:/install\.yaml|argocd install/,l:"установить ArgoCD"},
  {re:/argocd login/,l:"залогиниться CLI"},
  {re:/argocd app create web/,l:"создать Application из git-репо"},
  {re:/argocd app sync web/,l:"первый sync"},
  {re:/kubectl scale deploy web/,l:"внести дрифт вручную"},
- {re:/argocd app (diff|get)/,l:"убедиться, что ArgoCD видит/чинит расхождение"}]);
+ {re:/argocd app (diff|get)/,l:"убедиться, что ArgoCD видит/чинит расхождение"}],{file:"project/lab-07-gitops-c.yaml",files:{"project/lab-07-gitops-c.yaml":`# Labs: Lab 07: GitOps c ArgoCD\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/lab-07-gitops-c.yaml":`# Labs: Lab 07: GitOps c ArgoCD — fixed\nstatus: ok\n`}},{hints:["Симптом: Lab 07: GitOps c ArgoCD в project/lab-07-gitops-c.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/lab-07-gitops-c.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/lab-07-gitops-c.yaml.","Порядок: установить ArgoCD → залогиниться CLI → создать Application из git-репо"]});
 
 S("Labs","lab08","Lab 08: Ansible-роль — идемпотентность + Molecule","Middle",
-`<b>Легенда:</b> роль nginx по стандартам + тесты Molecule в docker.<br>
-<b>Цель:</b> scaffold роли, прогон converge, поймать неидемпотентность, fix.`,
+`<h3>Контекст</h3><p>Labs: <b>Lab 08: Ansible-роль — идемпотентность + Molecule</b>. Работа с <code>project/lab-08-ansible-.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>Lab 08: Ansible-роль — идемпотентность + Molecule</b>. Файл <code>project/lab-08-ansible-.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] создать каркас роли</li><li>[ ] прогнать роль на тестовом инстансе</li><li>[ ] поймать неидемпотентную задачу</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/lab-08-ansible-.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/lab-08-ansible-.yaml</code>. Активный файл открыт в редакторе. Начните с <code>(ansible-galaxy init nginx_rol</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: создать каркас роли → прогнать роль на тестовом инстансе → поймать неидемпотентную задачу.</p><h3>Проверка</h3><pre>cat project/lab-08-ansible-.yaml<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 ["^(ansible-galaxy init nginx_role|molecule init role nginx_role)",`- Role nginx_role was created successfully`,"ok"],
@@ -155,12 +146,11 @@ S("Labs","lab08","Lab 08: Ansible-роль — идемпотентность + 
 [{re:/galaxy init|molecule init/,l:"создать каркас роли"},
  {re:/molecule converge/,l:"прогнать роль на тестовом инстансе"},
  {re:/molecule idempotence/,l:"поймать неидемпотентную задачу"},
- {re:/sed -i .*main\\.yml/,l:"починить задачу (template вместо shell)"},
- {re:/molecule (idempotence|verify)/,l:"добиться зелёных идемпотентности и verify"}]);
+ {re:/sed -i .*main\.yml/,l:"починить задачу (template вместо shell)"},
+ {re:/molecule (idempotence|verify)/,l:"добиться зелёных идемпотентности и verify"}],{file:"project/lab-08-ansible-.yaml",files:{"project/lab-08-ansible-.yaml":`# Labs: Lab 08: Ansible-роль — идемпотентность + Molecule\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/lab-08-ansible-.yaml":`# Labs: Lab 08: Ansible-роль — идемпотентность + Molecule — fixed\nstatus: ok\n`}},{hints:["Симптом: Lab 08: Ansible-роль — идемпотентность + Molecule в project/lab-08-ansible-.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/lab-08-ansible-.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/lab-08-ansible-.yaml.","Порядок: создать каркас роли → прогнать роль на тестовом инстансе → поймать неидемпотентную задачу"]});
 
 S("Labs","lab09","Lab 09: Автоскейлинг в kind — HPA + KEDA","Advanced",
-`<b>Легенда:</b> нагрузочный тест поднимает реплики, тишина — опускает.<br>
-<b>Цель:</b> metrics-server → HPA по CPU → KEDA по очереди.`,
+`<h3>Контекст</h3><p>Labs: <b>Lab 09: Автоскейлинг в kind — HPA + KEDA</b>. Работа с <code>project/lab-09-kind-hpa.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>Lab 09: Автоскейлинг в kind — HPA + KEDA</b>. Файл <code>project/lab-09-kind-hpa.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] поставить metrics-server</li><li>[ ] убедиться, что метрики собираются</li><li>[ ] деплой + HPA (min 2 / max 10)</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/lab-09-kind-hpa.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/lab-09-kind-hpa.yaml</code>. Активный файл открыт в редакторе. Начните с <code>kubectl apply -f metrics-serve</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: поставить metrics-server → убедиться, что метрики собираются → деплой + HPA (min 2 / max 10).</p><h3>Проверка</h3><pre>cat project/lab-09-kind-hpa.yaml<br>проверить код</pre>`,
 "ubuntu@lab:~$",
 [
 ["^kubectl apply -f metrics-server\\.yaml",`serviceaccount/metrics-server created`,"ok"],
@@ -176,11 +166,10 @@ S("Labs","lab09","Lab 09: Автоскейлинг в kind — HPA + KEDA","Adva
  {re:/kubectl apply -f deploy-hpa/,l:"деплой + HPA (min 2 / max 10)"},
  {re:/kubectl get hpa api$/,l:"начальное состояние 2 реплики"},
  {re:/(hey|loadgen)/,l:"создать нагрузку"},
- {re:/kubectl get hpa api/,l:"увидеть масштабирование вверх/вниз"}]);
+ {re:/kubectl get hpa api/,l:"увидеть масштабирование вверх/вниз"}],{file:"project/lab-09-kind-hpa.yaml",files:{"project/lab-09-kind-hpa.yaml":`# Labs: Lab 09: Автоскейлинг в kind — HPA + KEDA\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/lab-09-kind-hpa.yaml":`# Labs: Lab 09: Автоскейлинг в kind — HPA + KEDA — fixed\nstatus: ok\n`}},{hints:["Симптом: Lab 09: Автоскейлинг в kind — HPA + KEDA в project/lab-09-kind-hpa.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/lab-09-kind-hpa.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/lab-09-kind-hpa.yaml.","Порядок: поставить metrics-server → убедиться, что метрики собираются → деплой + HPA (min 2 / max 10)"]});
 
 S("Labs","lab10","Lab 10: Vault end-to-end — KV → AppRole → динамические креды БД","Advanced",
-`<b>Легенда:</b> приложение получает временный логин БД вместо вечного пароля.<br>
-<b>Цель:</b> enable engines → policy → AppRole → dynamic creds → чтение приложением.`,
+`<h3>Контекст</h3><p>Labs: <b>Lab 10: Vault end-to-end — KV → AppRole → динамические креды БД</b>. Работа с <code>project/lab-10-vault-en.yaml</code> в проекте.</p><h3>Что происходит</h3><p>Симптом: <b>Lab 10: Vault end-to-end — KV → AppRole → динамические креды БД</b>. Файл <code>project/lab-10-vault-en.yaml</code> содержит ошибку, проверки падают.</p><h3>Что нужно сделать</h3><ul><li>[ ] включить database engine</li><li>[ ] подключить PostgreSQL к Vault</li><li>[ ] создать роль с TTL 1h</li></ul><h3>Ограничения</h3><p>Меняйте только файлы проекта (активный: <code>project/lab-10-vault-en.yaml</code>).</p><h3>Стартовое состояние</h3><p>Файлы: <code>project/lab-10-vault-en.yaml</code>. Активный файл открыт в редакторе. Начните с <code>vault secrets enable database</code>.</p><h3>Ожидаемый результат</h3><p>Чек-лист зелёный: включить database engine → подключить PostgreSQL к Vault → создать роль с TTL 1h.</p><h3>Проверка</h3><pre>cat project/lab-10-vault-en.yaml<br>проверить код</pre>`,
 "vault@lab:~$",
 [
 ["^vault secrets enable database",`Success! Enabled the database secrets engine at: database/`,"ok"],
@@ -200,4 +189,4 @@ S("Labs","lab10","Lab 10: Vault end-to-end — KV → AppRole → динамич
  {re:/auth enable approle/,l:"включить AppRole для приложения"},
  {re:/role-id|secret-id/,l:"получить AppRole-креды"},
  {re:/database\/creds\/app/,l:"получить ДИНАМИЧЕСКИЙ логин/пароль"},
- {re:/psql .*v-app/,l:"подключиться им к БД"}]);
+ {re:/psql .*v-app/,l:"подключиться им к БД"}],{file:"project/lab-10-vault-en.yaml",files:{"project/lab-10-vault-en.yaml":`# Labs: Lab 10: Vault end-to-end — KV → AppRole → динамические креды БД\nstatus: broken\n`},checks:[{re:/ok/,l:"ok"}],solutionFiles:{"project/lab-10-vault-en.yaml":`# Labs: Lab 10: Vault end-to-end — KV → AppRole → динамические креды БД — fixed\nstatus: ok\n`}},{hints:["Симптом: Lab 10: Vault end-to-end — KV → AppRole → динамические креды БД в project/lab-10-vault-en.yaml. Ищи причину в коде/конфиге этого файла.","Открой project/lab-10-vault-en.yaml в редакторе, проверь логику. Инструменты: cat, ls, grep. Начни с cat project/lab-10-vault-en.yaml.","Порядок: включить database engine → подключить PostgreSQL к Vault → создать роль с TTL 1h"]});

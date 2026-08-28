@@ -140,6 +140,8 @@ nav:
       - Bash-скриптинг и Утилиты: 01-linux-and-networking/03-bash-scripting-and-automation.md
       - Модель OSI, Протоколы и TLS: 01-linux-and-networking/04-osi-model-and-network-protocols.md
       - Диагностика производительности: 01-linux-and-networking/05-linux-performance-diagnostics.md
+      - Файловые системы и Хранилище: 01-linux-and-networking/06-linux-filesystems-and-storage.md
+      - "Логирование: journald, rsyslog, logrotate": 01-linux-and-networking/07-linux-logging-journald-rsyslog.md
   - 2. Git:
       - Архитектура и Workflows: 02-git/01-git-internals-and-workflows.md
       - Cheat Sheet, Rebase и Hooks: 02-git/02-git-cheatsheet-and-rebase.md
@@ -167,6 +169,8 @@ nav:
       - Автоскейлинг (HPA, VPA, KEDA): 04-kubernetes/08-k8s-autoscaling.md
       - "Эксплуатация: Апгрейды и etcd": 04-kubernetes/09-k8s-cluster-operations.md
       - "Serverless: Knative и OpenFaaS": 04-kubernetes/10-serverless-knative-openfaas.md
+      - "RBAC, ServiceAccount и Pod Security": 04-kubernetes/11-k8s-rbac-and-pss.md
+      - "Gateway API: Замена Ingress для Прода": 04-kubernetes/12-k8s-gateway-api.md
   - 5. GitOps и CI/CD:
       - ArgoCD и Flux: 05-gitops-and-cicd/01-gitops-argocd-flux.md
       - Паттерны CI/CD пайплайнов: 05-gitops-and-cicd/02-cicd-pipelines-patterns.md
@@ -174,6 +178,7 @@ nav:
       - "GitOps Advanced: Multi-Env и Promotion": 05-gitops-and-cicd/04-gitops-multienv-and-promotion.md
       - "Progressive Delivery: Argo Rollouts, Flagger": 05-gitops-and-cicd/05-progressive-delivery.md
       - "Argo Workflows и Tekton: CI в кластере": 05-gitops-and-cicd/06-argo-workflows-tekton.md
+      - "FluxCD Deep Dive: Toolkit и Image Automation": 05-gitops-and-cicd/07-flux-deep-dive.md
   - 6. Terraform:
       - Основы и HCL: 06-terraform/01-terraform-fundamentals.md
       - State, Модули и Terragrunt: 06-terraform/02-state-modules-and-terragrunt.md
@@ -204,6 +209,9 @@ nav:
       - "Go: HTTP и gRPC сервисы": 08-programming-python-go/09-go-http-grpc-services.md
       - "Go: pprof, GC, race detector": 08-programming-python-go/10-go-performance-tooling.md
       - Мини-проекты для портфолио: 08-programming-python-go/03-practice-projects.md
+      - "Python vs Go: выбор для DevOps": 08-programming-python-go/11-python-vs-go-comparison.md
+      - "DevOps паттерны и Testing Matrix": 08-programming-python-go/12-devops-patterns-and-testing-matrix.md
+      - "Python OOP Deep Dive": 08-programming-python-go/13-python-oop-deep-dive.md
   - 9. Observability:
       - Prometheus и Grafana: 09-observability/01-prometheus-and-grafana.md
       - Сбор логов и Трассировка: 09-observability/02-logging-loki-and-tracing.md
@@ -256,6 +264,8 @@ nav:
       - "Lab 08: Ansible роль + Molecule": 16-guided-labs/08-lab-ansible-molecule.md
       - "Lab 09: Автоскейлинг в kind": 16-guided-labs/09-lab-autoscaling-kind.md
       - "Lab 10: Vault end-to-end": 16-guided-labs/10-lab-vault-end-to-end.md
+      - "Lab 11: GitOps с FluxCD": 16-guided-labs/11-lab-flux-gitops.md
+      - "Lab 12: Сквозной E2E Production Track": 16-guided-labs/12-lab-e2e-production-track.md
   - 17. Break-Fix (инциденты):
       - 10 сценариев «сломай и почини»: 17-break-fix/01-incident-simulations.md
       - Партия №2 (автоскейлинг, etcd, PITR): 17-break-fix/02-incident-simulations-part2.md
@@ -294,9 +304,11 @@ nav:
       - 20.15 KVM/Proxmox/VMware: 20-senior-stack/15-virtualization.md
       - 20.16 MySQL High Availability: 20-senior-stack/16-mysql-ha.md
       - 20.17 Хвосты стека (Linkerd, Locust, Grype, CRI-O): 20-senior-stack/17-tails.md
+      - 21. CRI-O и Контейнерные Runtime: 20-senior-stack/21-crio-and-runtimes.md
       - "20.18 Platform Engineering: IDP, Backstage": 20-senior-stack/18-platform-engineering.md
       - "20.19 FinOps: управление затратами": 20-senior-stack/19-finops.md
       - "20.20 Nomad, Windows-ноды, AD/LDAP": 20-senior-stack/20-alternatives-enterprise.md
+      - "22. P2 Supplement: зазоры": 20-senior-stack/22-p2-supplement.md
   - 21. Песочница:
       - Терминал и редактор кода (интерактив): 21-playground/index.md
   - 22. Тренажёр:

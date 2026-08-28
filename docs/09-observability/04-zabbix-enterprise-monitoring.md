@@ -111,16 +111,146 @@ StartTrappers=20
 
 ---
 
+---
+
+## 📦 Zabbix Agent2: установка и zabbix_agent2.conf
+
+```ini
+# /etc/zabbix/zabbix_agent2.conf
+Server=10.0.0.10,zabbix-proxy.example.com  # кому отвечать на passive
+ServerActive=10.0.0.10                      # куда слать active (с запятой failover)
+Hostname=web01.example.com                  # должен совпасть с Host в UI
+Include=/etc/zabbix/zabbix_agent2.d/*.conf
+Plugins.SystemRun.LogRemoteCommands=1
+# PSK шифрование passive (добавить в Server тоже)
+# TLSConnect=psk
+# TLSAccept=psk
+# TLSPSKIdentity=web01
+# TLSPSKFile=/etc/zabbix/psk.key
+
+# Active checks настройки
+BufferSend=5
+BufferSize=100
+```
+
+```bash
+# Установка (Ubuntu 22.04)
+wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-1+ubuntu22.04_all.deb
+sudo dpkg -i zabbix-release_7.0-1+ubuntu22.04_all.deb && sudo apt update
+sudo apt install -y zabbix-agent2
+sudo systemctl enable --now zabbix-agent2
+zabbix_agent2 -t agent.hostname  # тест
+zabbix_agent2 -t vfs.fs.size[/,pfree]
+
+# PSK
+openssl rand -hex 32 > /etc/zabbix/psk.key
+chmod 600 /etc/zabbix/psk.key
+```
+
+### Host registration, item, trigger, template
+
+| Сущность | Что это | Где создать |
+|---|---|---|
+| **Host** | сервер, который мониторим | Configuration → Hosts → Create, `Host name` = `Hostname` из conf, Interfaces `Agent 10050` или `SNMP`, Groups `Linux servers` |
+| **Item** | метрика (key + интервал) | `vfs.fs.size[/,pfree]` каждые 1м, `system.cpu.util[,user]` |
+| **Trigger** | условие `last(/host/key)>80` | Prototype в LLD или Template: `{TEMPLATE:system.cpu.util.last()}>90` |
+| **Template** | набор items/triggers/graphs | `Template OS Linux by Zabbix agent active` — линкуется к хосту |
+| **LLD** | discovery | `vfs.fs.discovery` → `{#FSNAME}` → prototypes |
+| **Alert** | action `trigger → media` | `Alerts → Actions → Trigger actions` |
+
+```bash
+# API пример: создание хоста (через API)
+curl -s http://localhost:8080/api_jsonrpc.php -X POST -H 'Content-Type: application/json' -d '{
+  "jsonrpc":"2.0","method":"host.create","params":{
+    "host":"web01.example.com","interfaces":[{"type":1,"main":1,"useip":1,"ip":"10.0.0.11","port":"10050"}],
+    "groups":[{"groupid":"2"}],"templates":[{"templateid":"10001"}]
+  },"auth":"<token>","id":1
+}' | jq .
+```
+
+---
+
+## 🧪 Runnable Lab: Zabbix 7.0 + Agent2 (Docker Compose, 10 мин)
+
+```yaml
+# docker-compose.zabbix.yaml
+version: "3.8"
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment: { POSTGRES_DB: zabbix, POSTGRES_USER: zabbix, POSTGRES_PASSWORD: zabbix_pwd }
+    volumes: [ pgdata:/var/lib/postgresql/data ]
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:7.0-ubuntu
+    depends_on: [postgres]
+    environment:
+      DB_SERVER_HOST: postgres
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix_pwd
+    ports: ["10051:10051"]
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:7.0-ubuntu
+    depends_on: [postgres, zabbix-server]
+    environment:
+      DB_SERVER_HOST: postgres
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix_pwd
+      ZBX_SERVER_HOST: zabbix-server
+    ports: ["8080:8080"]
+  zabbix-agent2:
+    image: zabbix/zabbix-agent2:7.0-ubuntu
+    environment:
+      ZBX_HOSTNAME: demo-host
+      ZBX_SERVER_HOST: zabbix-server
+      ZBX_SERVER_ACTIVE: zabbix-server
+    depends_on: [zabbix-server]
+
+volumes:
+  pgdata:
+```
+
+```bash
+docker compose -f docker-compose.zabbix.yaml up -d
+sleep 30 && curl -s http://localhost:8080 | grep -i zabbix | head
+# Login: Admin/zabbix → Configuration → Hosts → demo-host (auto)
+
+# Проверка агента
+docker exec zabbix-agent2 zabbix_agent2 -t vfs.fs.size[/,pfree]
+docker exec zabbix-agent2 zabbix_agent2 -t system.cpu.num
+docker exec zabbix-server zabbix_get -s zabbix-agent2 -k agent.hostname
+
+# LLD demo
+docker exec zabbix-agent2 zabbix_agent2 -t vfs.fs.discovery | jq .
+
+# Trigger: создать через UI Template OS Linux active → trigger "High CPU >90 5m": {demo-host:system.cpu.util[,user].avg(5m)}>90
+# Проверить: docker exec -it demo-host bash -c 'stress-ng --cpu 2 --timeout 60' → alert
+
+# Maintenance: Configuration → Maintenance → Create (suppress во время деплоя)
+
+docker compose -f docker-compose.zabbix.yaml down -v
+```
+
+**Maintenance и alert подавление:**
+
+```bash
+# Через API создать maintenance на час
+curl -s http://localhost:8080/api_jsonrpc.php -X POST -H 'Content-Type: application/json' -d '{
+  "jsonrpc":"2.0","method":"maintenance.create",
+  "params":{"name":"deploy","active_since":'$(date +%s)',"active_till":'$(($(date +%s)+3600))',"hosts":[{"hostid":"10084"}],"timeperiods":[{"timeperiod_type":0,"start_date":'$(date +%s)',"period":3600}]},
+  "auth":"<token>","id":1
+}' | jq .
+```
+
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Zabbix — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Алерты не приходят / приходят пачкой | `group_wait`/`repeat_interval` настроены вслепую | Разобрать routing tree на бумаге, тест через `amtool` |
-| Дашборд врет относительно реальности | Стейтмент без фильтра по job/instance | Проверить label matching, добавить legend format |
-| Рост кардинальности метрик убивает Prometheus | user_id/path в labels | Ограничить cardinality, relabel drop |
-| Логи «исчезают» | retention/индекс ротация | Проверить ILM/compactor настройки и объем hot-хранилища |
+| `ZBX_NOTSUPPORTED: cannot obtain system data` | Агент active/passive mismatch + PSK | `zabbix_agent2 -t agent.hostname`, `ServerActive` vs `Server`, `TLSPSKIdentity` |
+| `Housekeeper` 100% CPU, история 1 год | `CacheSize` мал / `HousekeepingFrequency` часто | `CacheSize=2G`, `MaxHousekeeperDelete=5000`, `TimescaleDB` partition |
+| LLD создаёт 500 items на один хост | `vfs.fs.discovery` на контейнере с 50 overlay mounts | Фильтр `{#FSTYPE} not in [overlay,tmpfs]` в LLD filter |
+| Trigger флапает `up/down` каждую минуту | Нет hysteresis | `recovery_expression: avg(5m)`, `nodata(5m)` |
 
 !!! warning «Сначала SLI, потом дашборды»
     Дашборд без определенного SLO — это арт. Определите SLI (какие запросы считаем хорошими), цель (99.9%), error budget — и только затем рисуйте панели.

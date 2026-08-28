@@ -56,6 +56,8 @@ flowchart TD
 * 📄 [02. Сетевой стек, Диагностика и SSH](01-linux-and-networking/02-networking-and-troubleshooting.md)
 * 📄 [03. Bash-скриптинг и утилиты автоматизации (jq, awk, sed)](01-linux-and-networking/03-bash-scripting-and-automation.md)
 * 📄 [04. Модель OSI, Сетевые протоколы, TCP/IP, TLS и DNS](01-linux-and-networking/04-osi-model-and-network-protocols.md)
+* 📄 [06. Файловые системы и Хранилище](01-linux-and-networking/06-linux-filesystems-and-storage.md)
+* 📄 [07. Логирование: journald, rsyslog, logrotate](01-linux-and-networking/07-linux-logging-journald-rsyslog.md)
 
 ### [02. Git и Управление версиями](02-git/01-git-internals-and-workflows.md)
 * 📄 [01. Архитектура Git, Ветвление и Стратегии релиза](02-git/01-git-internals-and-workflows.md)
@@ -86,6 +88,8 @@ flowchart TD
 * 📄 [08. Автоскейлинг: HPA, VPA, KEDA, Cluster Autoscaler](04-kubernetes/08-k8s-autoscaling.md)
 * 📄 [09. Эксплуатация кластера: апгрейды, etcd, замена узлов](04-kubernetes/09-k8s-cluster-operations.md)
 * 📄 [10. Serverless на K8s: Knative и OpenFaaS](04-kubernetes/10-serverless-knative-openfaas.md)
+* 📄 [11. RBAC, ServiceAccount и Pod Security](04-kubernetes/11-k8s-rbac-and-pss.md)
+* 📄 [12. Gateway API: Замена Ingress для Прода](04-kubernetes/12-k8s-gateway-api.md)
 
 ### [05. GitOps и CI/CD](05-gitops-and-cicd/01-gitops-argocd-flux.md)
 * 📄 [01. Принципы GitOps: ArgoCD и FluxCD](05-gitops-and-cicd/01-gitops-argocd-flux.md)
@@ -94,6 +98,7 @@ flowchart TD
 * 📄 [04. GitOps Advanced: Multi-Env, App-of-Apps, Promotion](05-gitops-and-cicd/04-gitops-multienv-and-promotion.md)
 * 📄 [05. Progressive Delivery: Argo Rollouts и Flagger](05-gitops-and-cicd/05-progressive-delivery.md)
 * 📄 [06. Argo Workflows и Tekton: CI внутри Kubernetes](05-gitops-and-cicd/06-argo-workflows-tekton.md)
+* 📄 [07. FluxCD Deep Dive: Toolkit и Image Automation](05-gitops-and-cicd/07-flux-deep-dive.md)
 
 ### [06. Инфраструктура как код: Terraform](06-terraform/01-terraform-fundamentals.md)
 * 📄 [01. Основы Terraform/OpenTofu, HCL и Провайдеры](06-terraform/01-terraform-fundamentals.md)
@@ -184,6 +189,9 @@ flowchart TD
 * 📄 [Lab 07. GitOps с ArgoCD](16-guided-labs/07-lab-gitops-argocd.md)
 * 📄 [Lab 08. Ansible-роль: идемпотентность, Vault, Molecule](16-guided-labs/08-lab-ansible-molecule.md)
 * 📄 [Lab 09. Автоскейлинг в kind: HPA, KEDA, нагрузочные тесты](16-guided-labs/09-lab-autoscaling-kind.md)
+* 📄 [Lab 10. Vault end-to-end](16-guided-labs/10-lab-vault-end-to-end.md)
+* 📄 [Lab 11. GitOps с FluxCD](16-guided-labs/11-lab-flux-gitops.md)
+* 📄 [Lab 12. Сквозной E2E Production Track](16-guided-labs/12-lab-e2e-production-track.md)
 
 ### [17. Break-Fix: инцидент-симуляции](17-break-fix/01-incident-simulations.md)
 * 📄 [10 сценариев «сломай и почини» с решениями и MTTR-целями](17-break-fix/01-incident-simulations.md)
@@ -222,6 +230,8 @@ flowchart TD
 * 📄 [20.15 Виртуализация: KVM, Proxmox, VMware](20-senior-stack/15-virtualization.md)
 * 📄 [20.16 MySQL HA: репликация, Orchestrator, ProxySQL](20-senior-stack/16-mysql-ha.md)
 * 📄 [20.17 Хвосты стека: Linkerd, Locust, Grype/Snyk, CRI-O](20-senior-stack/17-tails.md)
+* 📄 [21. CRI-O и Контейнерные Runtime](20-senior-stack/21-crio-and-runtimes.md)
+* 📄 [22. P2 Supplement: зазоры](20-senior-stack/22-p2-supplement.md)
 * 📄 [Сводная проверка Части 3: 40 вопросов + 10 задач](20-senior-stack/00-senior-stack-summary-p3.md)
 * 📄 [20.18 Platform Engineering: IDP, Backstage](20-senior-stack/18-platform-engineering.md)
 * 📄 [20.19 FinOps: OpenCost, Infracost](20-senior-stack/19-finops.md)

@@ -182,14 +182,14 @@ nmap --script ssl-enum-ciphers -p 443 api.company.com | head -30
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Cloud/Web — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Алерты не приходят / приходят пачкой | `group_wait`/`repeat_interval` настроены вслепую | Разобрать routing tree на бумаге, тест через `amtool` |
-| Дашборд врет относительно реальности | Стейтмент без фильтра по job/instance | Проверить label matching, добавить legend format |
-| Рост кардинальности метрик убивает Prometheus | user_id/path в labels | Ограничить cardinality, relabel drop |
-| Логи «исчезают» | retention/индекс ротация | Проверить ILM/compactor настройки и объем hot-хранилища |
+| `502` после `nginx -s reload` | `upstream` без `max_fails`/`fail_timeout` | `upstream app { server 10.0.0.1:8080 max_fails=3 fail_timeout=30s; }` + `proxy_next_upstream error` |
+| `curl: (60) SSL certificate problem` | `fullchain.pem` без intermediate | `cat cert.pem intermediate.pem > fullchain.pem`, `nginx -T | grep ssl_certificate` |
+| S3 `403 AccessDenied` через IRSA | Нет `sts:AssumeRoleWithWebIdentity` trust | `aws sts get-caller-identity` из пода, `iam simulate-principal-policy` |
+| DNS `NXDOMAIN` за Cloudflare | Оранжевое облако + `origin` без `tunnel` | `cloudflared tunnel info`, `dig shop.example.com @1.1.1.1` |
 
 !!! warning «Сначала SLI, потом дашборды»
     Дашборд без определенного SLO — это арт. Определите SLI (какие запросы считаем хорошими), цель (99.9%), error budget — и только затем рисуйте панели.

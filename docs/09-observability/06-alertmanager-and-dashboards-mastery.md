@@ -160,14 +160,14 @@ amtool config routes test --config.file=alertmanager.yml severity=critical team=
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Alertmanager — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Алерты не приходят / приходят пачкой | `group_wait`/`repeat_interval` настроены вслепую | Разобрать routing tree на бумаге, тест через `amtool` |
-| Дашборд врет относительно реальности | Стейтмент без фильтра по job/instance | Проверить label matching, добавить legend format |
-| Рост кардинальности метрик убивает Prometheus | user_id/path в labels | Ограничить cardinality, relabel drop |
-| Логи «исчезают» | retention/индекс ротация | Проверить ILM/compactor настройки и объем hot-хранилища |
+| Алерты приходят пачкой 50 штук | Нет `group_by: [alertname,cluster]` / `group_wait: 30s` | `route.group_by: [alertname,namespace]`, `amtool config routes test` |
+| Алерт не ингибируется при `NodeDown` | `inhibit_rules.equal` не содержит `node` | `inhibit_rules: [{source_match:{alertname: NodeDown}, target_match:{severity: warning}, equal: [node]}]` |
+| Silence не работает | `matchers` без `isRegex` | `amtool silence add alertname=HighLatency --comment=test` |
+| Telegram `chat_id` неверный | Нет `bot_token` / `chat_id` в `telegram_configs` | `amtool check-config`, `curl -X POST https://api.telegram.org/bot$TOKEN/sendMessage -d chat_id=$CHAT` |
 
 !!! warning «Сначала SLI, потом дашборды»
     Дашборд без определенного SLO — это арт. Определите SLI (какие запросы считаем хорошими), цель (99.9%), error budget — и только затем рисуйте панели.

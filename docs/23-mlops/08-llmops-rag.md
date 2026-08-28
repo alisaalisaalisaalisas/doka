@@ -231,3 +231,50 @@ def embed_cached(texts):
 ---
 
 *Далее: [23.9 Model Governance](09-model-governance.md)*
+
+
+---
+
+## 🔍 Дополнение: Qdrant/Milvus, Chunking, Retrieval и Evaluation
+
+### Qdrant вместо pgvector
+
+```bash
+docker run -d -p 6333:6333 qdrant/qdrant
+# Python
+import qdrant_client
+client = qdrant_client.QdrantClient("http://localhost:6333")
+client.create_collection("docs", vectors_config={"size": 1536, "distance": "Cosine"})
+client.upsert("docs", points=[{"id": 1, "vector": [0.1]*1536, "payload": {"text": "hello"}}])
+hits = client.query_points("docs", query=[0.1]*1536, limit=5).points
+```
+
+### Chunking и reranking
+
+```python
+# chunk overlap 100 как в base, но с reranking
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
+chunks = splitter.split_text(open("doc.txt").read())
+
+# Retrieval → Rerank (Cross-Encoder)
+from sentence_transformers import CrossEncoder
+reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+scores = reranker.predict([(query, c) for c in chunks])
+top = sorted(zip(chunks, scores), key=lambda x: x[1], reverse=True)[:3]
+
+# Token budget
+import tiktoken
+enc = tiktoken.get_encoding("cl100k_base")
+print(len(enc.encode(prompt)))  # budget check
+```
+
+### Evaluation: hallucination и Ragas
+
+```python
+from ragas.metrics import faithfulness, answer_relevancy
+from ragas import evaluate
+result = evaluate(dataset={"question": [q], "answer": [a], "contexts": [[c]]}, metrics=[faithfulness])
+print(result["faithfulness"])  # >0.8 good
+# Tracing: langfuse / opentelemetry
+```

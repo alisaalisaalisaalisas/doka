@@ -167,16 +167,83 @@ jq '.spec.replicas = 5' deployment.yaml.hcl.json > tmp && mv tmp deployment.json
 
 ---
 
+## 🧰 Bash arrays, getopts, mapfile и параллель
+
+### Массивы и ассоциативные
+
+```bash
+hosts=(web01 web02 db01)
+hosts+=("web03")
+echo "${hosts[@]}"        # все элементы
+echo "${#hosts[@]}"       # длина 4
+for h in "${hosts[@]}"; do echo "deploy $h"; done  # кавычки обязательны!
+
+declare -A meta=([web01]=10.0.0.1 [db01]=10.0.0.2)
+echo "${meta[web01]}"          # 10.0.0.1
+for k in "${!meta[@]}"; do echo "$k -> ${meta[$k]}"; done
+
+# mapfile: строки файла → массив без сабшелла
+mapfile -t lines < <(grep -v "^#" hosts.txt)
+echo "hosts ${#lines[@]}"
+```
+
+### getopts: парсинг аргументов
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+usage(){ echo "Usage: $0 -e env -v version [-d dry-run]" >&2; exit 1; }
+DRY=false
+while getopts ":e:v:dh" opt; do
+  case $opt in
+    e) ENV=$OPTARG ;;
+    v) VERSION=$OPTARG ;;
+    d) DRY=true ;;
+    h) usage ;;
+    \?) echo "Invalid -$OPTARG" >&2; usage ;;
+    :) echo "-$OPTARG requires arg" >&2; usage ;;
+  esac
+done
+[[ -z "${ENV:-}" || -z "${VERSION:-}" ]] && usage
+echo "Deploy $VERSION to $ENV dry=$DRY"
+```
+
+### Параллель: xargs -P vs GNU parallel
+
+```bash
+# Параллельные проверки здоровья (8 потоков)
+cat hosts.txt | xargs -P8 -I{} bash -c 'curl -sf http://{}/health || echo "fail {}"'
+
+# Или parallel (если установлен)
+parallel -j8 curl -sf http://{}/health ::: "${hosts[@]}"
+
+# Ожидание N фоновых задач
+pids=(); for h in "${hosts[@]}"; do (ssh "$h" "uptime" &) ; pids+=($!); done
+for pid in "${pids[@]}"; do wait "$pid" || echo "host failed"; done
+```
+
+### ShellCheck: линтер как обязательный CI gate
+
+```bash
+shellcheck deploy.sh  # найдёт SC2086, SC2143, SC2164
+# В CI:
+# - name: shellcheck
+#   run: shellcheck *.sh
+# Исправление SC2086: "$var" в кавычки; SC2164: cd dir || exit
+```
+
+---
+
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Bash — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| «Работало вчера» после обновления | Дрейф конфигурации вне Git | `git diff` по инфра-репозиторию + `drift detection` |
-| Падение под нагрузкой без ошибок в логах | Исчерпание лимитов (`ulimit`, conntrack, fds) | `dmesg -T \| grep -i denied`, `conntrack -S` |
-| Медленный деплой | Отсутствие кэша слоев/артефактов | Включить layer cache, артефакт-репозиторий |
-| «Плавающие» 502 раз в сутки | Health-check гонки при rolling update | `preStop sleep` + корректный `readinessProbe` |
+| `set -e` не ломает `if`/`while` при ошибке | `set -e` игнорируется в условии и `! cmd` | Проверять `$?` явно или `set -o pipefail; cmd || true` с комментарием |
+| `for f in $(cat list)` ломается на пробелах | word splitting | `while IFS= read -r f; do ... done < list` или `mapfile -t arr < list` |
+| Cron гонка: два `deploy.sh` одновременно | Нет `flock` | `flock -n 200 || exit 0` в начале скрипта + `200>/var/lock/deploy.lock` |
+| `pipe` маскирует ошибку первой команды `cat file | grep` | Нет `pipefail` — ошибка `cat` потеряна | `set -euo pipefail`, `shellcheck` в CI |
 
 !!! warning "Правило пяти почему"
     Каждый инцидент заканчивается не фиксом, а **post-mortem** с 5×Why и action items в бэклоге. Иначе грабли возвращаются через квартал — но уже в пятницу вечером.

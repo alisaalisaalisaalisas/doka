@@ -194,16 +194,80 @@ nft -f /etc/nftables.d/web.nft   # при ошибке откат целиком
 
 ---
 
+## 🔑 SSH-ключи, ssh-agent и known_hosts deep dive
+
+```bash
+# Генерация: ed25519 быстрее и безопаснее RSA
+ssh-keygen -t ed25519 -a 100 -f ~/.ssh/id_ed25519 -C "alice@company"
+# -a 100 KDF раундов, фраза — в агент, не пустая
+
+# Показать отпечаток
+ssh-keygen -lf ~/.ssh/id_ed25519.pub
+ssh-keygen -L -f ~/.ssh/id_ed25519-cert.pub  # если есть сертификат
+
+# known_hosts: TOFU vs CA
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+ssh-keygen -H -f ~/.ssh/known_hosts          # хешировать (как Chrome)
+ssh-keygen -R github.com                     # удалить один хост
+# StrictHostKeyChecking=accept-new (не yes/no): добавить новый, но упасть если ключ сменился
+
+# ssh-agent: держит ключи в памяти, не на диске
+eval "$(ssh-agent -s)"            # SSH_AUTH_SOCK + SSH_AGENT_PID
+ssh-add ~/.ssh/id_ed25519         # ввести фразу один раз
+ssh-add -l                        # список загруженных
+ssh-add -x                        # lock с паролем
+ssh-add -D                        # выгрузить все
+
+# Agent forwarding: удобно но опасно (root на бастионе может увести ключ)
+# В ~/.ssh/config:
+Host bastion
+    HostName bastion.example.com
+    ForwardAgent yes              # только на доверенный бастион!
+Host *
+    ForwardAgent no
+
+# Альтернатива: ProxyJump уже с агентом не нужен
+# ssh -J bastion k8s-master-01  → агент на ноутбуке, ключ не на бастионе
+```
+
+```bash
+# Проверка Match/authorized_keys
+cat ~/.ssh/authorized_keys | head -1  # ssh-ed25519 AAAAC3... alice@company
+# Ограничить ключ:
+# command="rsync --server --sender -vlogDtprz /data" ssh-ed25519 AAAAC3... deploy@ci
+
+# ~/.ssh/config Match
+Match Host k8s-* User ubuntu
+    StrictHostKeyChecking accept-new
+    UserKnownHostsFile ~/.ssh/known_hosts.k8s
+
+# Проверка без подключения
+sshd -T | grep -iE 'PermitRootLogin|PasswordAuthentication|MaxAuthTries'
+ssh -G bastion | grep -E 'hostname|user|identity'
+ssh -v bastion 2>&1 | grep -E 'Offering public key|Server accepts key'
+```
+
+**Уровни безопасности:**
+
+| Уровень | Как |
+|---|---|
+| Ключ + фраза + агент | `ed25519 -a 100` + `ssh-add` |
+| Хвост без `known_hosts` спуфинга | `StrictHostKeyChecking accept-new` + `HashKnownHosts yes` |
+| Бастион не хранит ключ | `ProxyJump` вместо `ForwardAgent` |
+| Сертификаты (enterprise) | `ssh-keygen -s ca -I alice -n ubuntu -V -5m:+52w cert.pub` + `TrustedCA` |
+
+---
+
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (сеть — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| «Работало вчера» после обновления | Дрейф конфигурации вне Git | `git diff` по инфра-репозиторию + `drift detection` |
-| Падение под нагрузкой без ошибок в логах | Исчерпание лимитов (`ulimit`, conntrack, fds) | `dmesg -T \| grep -i denied`, `conntrack -S` |
-| Медленный деплой | Отсутствие кэша слоев/артефактов | Включить layer cache, артефакт-репозиторий |
-| «Плавающие» 502 раз в сутки | Health-check гонки при rolling update | `preStop sleep` + корректный `readinessProbe` |
+| `ss -s` 50k `TIME_WAIT`, коннекты отклоняются | Нет pooling, `local_port_range` исчерпан | `ss -ant | grep TIME_WAIT | wc -l`, `cat /proc/sys/net/ipv4/ip_local_port_range`, `keepalive` / `http-reuse` |
+| DNS `NXDOMAIN` всплеск 4× нормы | `ndots:5` + `search` домены → 4 лишних запроса | `cat /etc/resolv.conf`, `tcpdump -i any port 53`, `dnsConfig: ndots: 2` в Pod |
+| 10s `curl` зависает, `tracepath` обрывается на MTU | Black Hole PMTU: VXLAN/WireGuard 50B overhead, `DF` дроп | `tracepath ya.ru`, `ip link | grep mtu`, `iptables -t mangle -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu` |
+| `conntrack: table full, dropping packet` | `nf_conntrack_max` мал, `TIME_WAIT` таблица переполнена | `conntrack -C`, `dmesg | grep conntrack`, `sysctl net.netfilter.nf_conntrack_max=262144` |
 
 !!! warning "Правило пяти почему"
     Каждый инцидент заканчивается не фиксом, а **post-mortem** с 5×Why и action items в бэклоге. Иначе грабли возвращаются через квартал — но уже в пятницу вечером.

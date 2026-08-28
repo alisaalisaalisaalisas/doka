@@ -169,14 +169,14 @@ prometheus.scrape "demo" {
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Alloy — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Алерты не приходят / приходят пачкой | `group_wait`/`repeat_interval` настроены вслепую | Разобрать routing tree на бумаге, тест через `amtool` |
-| Дашборд врет относительно реальности | Стейтмент без фильтра по job/instance | Проверить label matching, добавить legend format |
-| Рост кардинальности метрик убивает Prometheus | user_id/path в labels | Ограничить cardinality, relabel drop |
-| Логи «исчезают» | retention/индекс ротация | Проверить ILM/compactor настройки и объем hot-хранилища |
+| `component unhealthy: discovery.kubernetes` | `role: endpoints` без `namespaces` | `discovery.kubernetes "k8s" { role = "endpoints" }` + `namespaces: { names: ["shop"] }` |
+| `prometheus.remote_write: wal corruption` | Смена `wal_directory` без очистки | `rm -rf /var/lib/alloy/wal` после смены пути, `systemctl restart alloy` |
+| `otelcol.receiver.otlp: 4317 already in use` | Порт занят старым Alloy | `ss -tulpn | grep 4317`, `alloy fmt` валидация |
+| `loki.source.kubernetes` не видит поды | `serviceAccountName` без `get/list/watch pods` RBAC | `kubectl auth can-i list pods --as=system:serviceaccount:monitoring:alloy` |
 
 !!! warning «Сначала SLI, потом дашборды»
     Дашборд без определенного SLO — это арт. Определите SLI (какие запросы считаем хорошими), цель (99.9%), error budget — и только затем рисуйте панели.

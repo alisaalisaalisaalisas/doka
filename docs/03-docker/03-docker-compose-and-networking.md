@@ -183,14 +183,14 @@ docker network inspect project_default | jq '.[0].Containers'
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Compose/сеть — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| «Работало вчера» после обновления | Дрейф конфигурации вне Git | `git diff` по инфра-репозиторию + `drift detection` |
-| Падение под нагрузкой без ошибок в логах | Исчерпание лимитов (`ulimit`, conntrack, fds) | `dmesg -T \| grep -i denied`, `conntrack -S` |
-| Медленный деплой | Отсутствие кэша слоев/артефактов | Включить layer cache, артефакт-репозиторий |
-| «Плавающие» 502 раз в сутки | Health-check гонки при rolling update | `preStop sleep` + корректный `readinessProbe` |
+| `depends_on: condition: service_healthy` игнорируется без `healthcheck` | Нет `healthcheck` у dependency | Добавить `healthcheck: test: ["CMD", "pg_isready"]` + `condition: service_healthy` |
+| `ports: "5432:5432"` конфликтует при scale | Порт биндится на хост, нельзя `compose up --scale db=2` | Убрать `ports` для внутренних сервисов, `expose: [5432]` |
+| `getent hosts db` не резолвит | Сеть `internal: true` или разные `networks:` | `docker network inspect` + `getent hosts db` из `nicolaka/netshoot` |
+| `docker compose exec` в non-running контейнер | Сервис упал, `restart: always` loop | `docker compose ps`, `docker compose logs db` |
 
 !!! warning "Правило пяти почему"
     Каждый инцидент заканчивается не фиксом, а **post-mortem** с 5×Why и action items в бэклоге. Иначе грабли возвращаются через квартал — но уже в пятницу вечером.

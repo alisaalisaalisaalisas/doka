@@ -140,14 +140,15 @@ groups:
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Prometheus — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Алерты не приходят / приходят пачкой | `group_wait`/`repeat_interval` настроены вслепую | Разобрать routing tree на бумаге, тест через `amtool` |
-| Дашборд врет относительно реальности | Стейтмент без фильтра по job/instance | Проверить label matching, добавить legend format |
-| Рост кардинальности метрик убивает Prometheus | user_id/path в labels | Ограничить cardinality, relabel drop |
-| Логи «исчезают» | retention/индекс ротация | Проверить ILM/compactor настройки и объем hot-хранилища |
+| `PromQL: rate` 0 при нагрузке | Окно `[1m]` < `2× scrape_interval` | `rate(metric[5m])` при `scrape 15s` → 4× |
+| `histogram_quantile` показывает `NaN` | `le` лейбл отсутствует / `avg` вместо гистограммы | `histogram_quantile(0.99, sum(rate(bucket[5m])) by (le))` |
+| `increase` скачёт на рестарте пода | Counter сбросился, `rate` пик | Использовать `increase`/`rate` — они сглаживают, не `value - prev` |
+| Кардинальность 500k, Prometheus OOM | `user_id` в `labels` | `relabel_configs: - action: drop` + `metric_relabel_configs` |
+| `up==0` targets `down` после деплоя | `job` лейбл mismatch `relabel` | `curl http://target:9090/metrics`, `prometheus --log.level=debug` |
 
 !!! warning «Сначала SLI, потом дашборды»
     Дашборд без определенного SLO — это арт. Определите SLI (какие запросы считаем хорошими), цель (99.9%), error budget — и только затем рисуйте панели.

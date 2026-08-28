@@ -1,0 +1,11 @@
+{
+  "total": 1033,
+  "completeSolutions": 986,
+  "passing": 1033,
+  "failing": 0,
+  "multiFile": 317,
+  "terminalSol": 0,
+  "behaviorChecks": 1070,
+  "has3Hints": 1033,
+  "fakeMain": 0
+}

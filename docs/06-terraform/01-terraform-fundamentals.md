@@ -159,14 +159,14 @@ echo 'import { to = aws_instance.web  id = "i-0abc123" }' >> import.tf && terraf
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Terraform — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Пайплайн зеленый, прод сломан | Разница окружений / secrets не из Vault | Проверять конфиги через `conftest` + smoke-тесты после деплоя |
-| `terraform apply` висит на lock | Умерший CI оставил lock | `force-unlock` после проверки активности |
-| Ansible «работает» но ничего не меняет | `changed_when` не настроен | Явные `changed_when`/`failed_when` для команд |
-| GitOps откатывает ручной фикс | Drift между Git и кластером | Править только в Git; `selfHeal` оставить включенным |
+| `terraform apply` висит `Acquiring state lock` | Умерший CI держит DynamoDB lock | `terraform force-unlock <ID>` после `aws dynamodb get-item` проверки что владелец мёртв |
+| `Error: Inconsistent dependency lock file` | `hashicorp/aws v5.80` vs `~> 5.0` без `terraform init -upgrade` | `terraform init -upgrade` + коммит `terraform.lock.hcl` |
+| `plan` показывает 10 ресурсов на `update in-place` | `ignore_changes` не указан | `lifecycle { ignore_changes = [tags] }` для дрейфующих полей |
+| `drift` после ручной правки в консоли | Правка мимо Git | `terraform plan -detailed-exitcode`, `terraform apply -refresh-only` |
 
 !!! warning «Идемпотентность — закон»
     Любой скрипт/плейбук/модуль должен быть безопасно перезапускаемым. Если второй прогон меняет состояние — это баг, который однажды уронит прод.

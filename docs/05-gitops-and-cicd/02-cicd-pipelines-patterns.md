@@ -194,14 +194,14 @@ spec:
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Pipelines — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Пайплайн зеленый, прод сломан | Разница окружений / secrets не из Vault | Проверять конфиги через `conftest` + smoke-тесты после деплоя |
-| `terraform apply` висит на lock | Умерший CI оставил lock | `force-unlock` после проверки активности |
-| Ansible «работает» но ничего не меняет | `changed_when` не настроен | Явные `changed_when`/`failed_when` для команд |
-| GitOps откатывает ручной фикс | Drift между Git и кластером | Править только в Git; `selfHeal` оставить включенным |
+| `needs` DAG падает `job not found` | `needs: [test]` но `test` `when: manual` | `needs: { job: test, artifacts: true, optional: true }` |
+| `cache: key: files: [package-lock.json]` miss на каждой ветке | Ключ `$CI_COMMIT_REF_SLUG` уникален | `key: files: [package-lock.json]` без ветки или `fallback_keys` |
+| `Kaniko` `unauthorized` push в Harbor | `DOCKER_AUTH_CONFIG` не в `before_script` | `echo $DOCKER_AUTH_CONFIG > /kaniko/.docker/config.json` |
+| `rules: -if: $CI_PIPELINE_SOURCE == "merge_request_event"` не триггерит | `workflow: rules` перекрывает `job: rules` | Проверить `workflow: { rules: [{ when: always }] }` внизу файла |
 
 !!! warning «Идемпотентность — закон»
     Любой скрипт/плейбук/модуль должен быть безопасно перезапускаемым. Если второй прогон меняет состояние — это баг, который однажды уронит прод.

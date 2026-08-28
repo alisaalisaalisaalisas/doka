@@ -194,3 +194,46 @@ with dsl.Condition(acc.output >= 0.85):
 ---
 
 *Далее: [23.8 LLMOps и RAG](08-llmops-rag.md)*
+
+
+---
+
+## 🔧 Дополнение: Реальный pipeline compile → artifact → run → verify
+
+```python
+# pipeline.py
+from kfp import dsl, compiler
+from kfp.dsl import Input, Output, Artifact, Dataset, Model
+
+@dsl.component(base_image="python:3.12", packages_to_install=["pandas","scikit-learn"])
+def train_op(dataset: Input[Dataset], model: Output[Model], accuracy: Output[Artifact]):
+    import pandas as pd, pickle
+    from sklearn.ensemble import RandomForestClassifier
+    df = pd.read_csv(dataset.path)
+    clf = RandomForestClassifier().fit(df[["f1","f2"]], df["label"])
+    with open(model.path, "wb") as f: pickle.dump(clf, f)
+    with open(accuracy.path, "w") as f: f.write("0.92")
+    model.metadata["accuracy"] = 0.92
+
+@dsl.pipeline(name="shop-reco")
+def shop_pipeline(replicas: int = 3):
+    train = train_op(replicas=replicas)
+    train.set_memory_limit("1Gi")
+    train.set_cpu_limit("1")
+
+compiler.Compiler().compile(shop_pipeline, "pipeline.yaml")
+```
+
+```bash
+# Compile и проверка YAML артефактов
+python pipeline.py && ls -lh pipeline.yaml && cat pipeline.yaml | grep -A3 artifacts
+
+# Запустить в Kubeflow (порт-форвард)
+kubectl -n kubeflow port-forward svc/ml-pipeline-ui 8080:80 &
+# Upload pipeline.yaml → Create Run → observe DAG
+
+# Верификация артефакта
+kubectl -n kubeflow get pods -l pipeline/shop-reco | head
+kubectl logs -n kubeflow $(kubectl get pods -n kubeflow -l app=train_op -o jsonpath='{.items[0].metadata.name}')
+# Метрика accuracy: 0.92 должна быть в UI Artifacts
+```

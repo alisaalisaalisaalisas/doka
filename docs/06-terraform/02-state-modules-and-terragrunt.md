@@ -148,14 +148,14 @@ terragrunt run-all apply --queue-exclude-no-changes # применить тол�
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (State/Terragrunt — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Пайплайн зеленый, прод сломан | Разница окружений / secrets не из Vault | Проверять конфиги через `conftest` + smoke-тесты после деплоя |
-| `terraform apply` висит на lock | Умерший CI оставил lock | `force-unlock` после проверки активности |
-| Ansible «работает» но ничего не меняет | `changed_when` не настроен | Явные `changed_when`/`failed_when` для команд |
-| GitOps откатывает ручной фикс | Drift между Git и кластером | Править только в Git; `selfHeal` оставить включенным |
+| `Failed to load state: state snapshot was created by newer version` | Локальный tftest vs remote | `terraform state pull > backup`, `terraform init -reconfigure` |
+| `Error: Duplicate resource` после `terragrunt run-all apply` | `dependency` без `mock_outputs` | `mock_outputs` в `terragrunt.hcl` для plan без apply |
+| `state mv` сломал `for_each` | Ключ ресурса `aws_instance.web["a"]` vs `"b"` | `terraform state mv 'aws_instance.web["a"]' 'aws_instance.web["b"]'` с `moved` блоком |
+| `S3 backend 403` | Нет `dynamodb:PutItem` на lock таблице | `aws iam simulate-principal-policy` + `s3:PutObject`/`dynamodb:*` |
 
 !!! warning «Идемпотентность — закон»
     Любой скрипт/плейбук/модуль должен быть безопасно перезапускаемым. Если второй прогон меняет состояние — это баг, который однажды уронит прод.

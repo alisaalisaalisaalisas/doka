@@ -254,3 +254,41 @@ kubectl get pods -A -o json | jq -r '
 ---
 
 *Далее: [23.7 Kubeflow Pipelines deep dive](07-kubeflow-pipelines.md)*
+
+
+---
+
+## 🎮 Дополнение: NVIDIA Device Plugin, MIG и Kueue детально
+
+```bash
+# Device plugin: показывает nvidia.com/gpu
+kubectl get nodes -o json | jq '.items[].status.allocatable | {gpu: ."nvidia.com/gpu", mig: ."nvidia.com/mig-1g.10gb"}'
+
+# MIG на A100: 7 instances 1g.10gb
+nvidia-smi mig -cgi 1g.10gb -C
+kubectl label node gpu-node nvidia.com/mig-1g.10gb=7 --overwrite
+# Под запрашивает MIG:
+# resources: { limits: { nvidia.com/mig-1g.10gb: 1 } }
+
+# Kueue queue с GPU номинальной квотой
+kubectl apply -f - <<'YAML'
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ClusterQueue
+metadata: { name: gpu-queue }
+spec:
+  namespaceSelector: {}
+  resourceGroups:
+    - coveredResources: ["cpu","memory","nvidia.com/gpu"]
+      flavors: [{ name: default, resources: [{ name: "nvidia.com/gpu", nominalQuota: 8 }] }]
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: LocalQueue
+metadata: { name: user-queue, namespace: ml-team }
+spec: { clusterQueue: gpu-queue }
+YAML
+
+# GPU utilization via dcgm exporter → Prometheus
+kubectl -n gpu-operator-resources get pods | grep dcgm
+kubectl -n monitoring port-forward svc/kps-prometheus 9090:9090 &
+# PromQL: DCGM_FI_DEV_GPU_UTIL, DCGM_FI_DEV_FB_USED
+```

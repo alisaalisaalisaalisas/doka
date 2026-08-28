@@ -159,14 +159,14 @@ touch /tmp/ovl/merged/file && rm /tmp/ovl/merged/file && ls /tmp/ovl/upper
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Docker internals — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| «Работало вчера» после обновления | Дрейф конфигурации вне Git | `git diff` по инфра-репозиторию + `drift detection` |
-| Падение под нагрузкой без ошибок в логах | Исчерпание лимитов (`ulimit`, conntrack, fds) | `dmesg -T \| grep -i denied`, `conntrack -S` |
-| Медленный деплой | Отсутствие кэша слоев/артефактов | Включить layer cache, артефакт-репозиторий |
-| «Плавающие» 502 раз в сутки | Health-check гонки при rolling update | `preStop sleep` + корректный `readinessProbe` |
+| Первый `write` в контейнер медленный | CoW копирование файла из `lower` в `upper` (`overlay2`) | `docker diff` покажет `C`, для БД — `volume`, не `overlay2` |
+| `docker diff` показывает `C /etc/hosts` каждый раз | Пишут в `lower` файл, который потом whiteout удалят | Писать только в `volume`/`upper`, не трогать системные файлы |
+| `CAP_SYS_ADMIN` нужен для `mount` внутри | Неверный `cap_add` | `cap_add: [SYS_ADMIN]` только где нужно или `--privileged` узко |
+| `veth`/`iptables` правила не видны после `docker network create` | `iptables -C` vs `iptables -t nat -L` | `iptables -t nat -L DOCKER -n -v`, `ip link show type veth` |
 
 !!! warning "Правило пяти почему"
     Каждый инцидент заканчивается не фиксом, а **post-mortem** с 5×Why и action items в бэклоге. Иначе грабли возвращаются через квартал — но уже в пятницу вечером.

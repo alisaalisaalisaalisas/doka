@@ -156,16 +156,153 @@ GET _nodes/stats/jvm?filter_path=nodes.*.jvm.mem
 
 ---
 
+---
+
+## 🧪 Runnable Lab: Fluent Bit → OpenSearch/Kibana (без облака, 15 мин)
+
+**Архитектура лаба:** `app → Fluent Bit (tail) → OpenSearch (9200) → OpenSearch Dashboards (5601)` + `ILM` + `heap`.
+
+```yaml
+# docker-compose.logging.yaml
+version: "3.8"
+services:
+  app:
+    image: busybox:1.36
+    command: sh -c 'i=0; while true; do echo "$$(date -Iseconds) level=info msg=\"request\" status=200 latency=$$((RANDOM%200))ms request_id=req-$$i" >> /logs/app.log; echo "$$(date -Iseconds) level=error msg=\"db timeout\" request_id=req-$$i" >> /logs/app.log; i=$$((i+1)); sleep 1; done'
+    volumes: [ "./logs:/logs" ]
+
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - plugins.security.disabled=true
+    ulimits: { memlock: { soft: -1, hard: -1 }, nofile: { soft: 65536, hard: 65536 } }
+    ports: ["9200:9200"]
+    volumes: [ "opensearch-data:/usr/share/opensearch/data" ]
+
+  dashboards:
+    image: opensearchproject/opensearch-dashboards:2.11.0
+    environment:
+      - OPENSEARCH_HOSTS=http://opensearch:9200
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
+    ports: ["5601:5601"]
+    depends_on: [opensearch]
+
+  fluentbit:
+    image: cr.fluentbit.io/fluent/fluent-bit:2.2
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./logs:/logs:ro
+    depends_on: [opensearch]
+
+volumes:
+  opensearch-data:
+```
+
+```ini
+# fluent-bit.conf
+[SERVICE]
+    Flush        1
+    Parsers_File parsers.conf
+
+[INPUT]
+    Name              tail
+    Path              /logs/*.log
+    DB                /tmp/flb.db
+    Tag               app.*
+    Refresh_Interval  5
+    Skip_Long_Lines   On
+
+[FILTER]
+    Name              parser
+    Match             app.*
+    Key_Name          log
+    Parser            app-json
+    Reserve_Data      On
+
+[FILTER]
+    Name              modify
+    Match             app.*
+    Add               cluster lab
+    Add               service app
+
+[OUTPUT]
+    Name              opensearch
+    Match             app.*
+    Host              opensearch
+    Port              9200
+    Index             logs-app
+    Type              _doc
+    Logstash_Format   On
+    Logstash_Prefix   logs-app
+    Replace_Dots      On
+    Trace_Output      Off
+    Trace_Error       On
+    Suppress_Type_Name On
+```
+
+```ini
+# parsers.conf
+[PARSER]
+    Name   app-json
+    Format json
+    Time_Key time
+    Time_Format %Y-%m-%dT%H:%M:%S%z
+```
+
+**Запуск и проверка:**
+
+```bash
+mkdir -p logs && docker compose -f docker-compose.logging.yaml up -d
+sleep 40 && curl -s http://localhost:9200/_cluster/health?pretty | grep status
+curl -s 'http://localhost:9200/_cat/indices/logs-*?v&s=index:desc' | head -20
+curl -s 'http://localhost:9200/logs-app-*/_search?pretty' -H 'Content-Type: application/json' -d '{"size":5,"sort":[{"@timestamp":"desc"}]}' | head -80
+
+# Откройте Dashboards: http://localhost:5601 → Management → Dev Tools
+# GET _cat/shards?v
+# GET logs-app-*/_search { "query": { "match": { "level": "error" } } }
+
+# ILM/ISM тест
+curl -s -X PUT http://localhost:9200/_plugins/_ism/policies/rollover-30d -H 'Content-Type: application/json' -d '{
+  "policy": {"description":"hot→delete 30d","default_state":"hot","states":[
+    {"name":"hot","actions":[{"rollover":{"min_size":"50gb","min_index_age":"1d"}}],"transitions":[{"state_name":"delete","conditions":{"min_index_age":"30d"}}]},
+    {"name":"delete","actions":[{"delete":{}}]}
+  ]}}' | head -20
+
+# Heap и shards диагностика
+curl -s http://localhost:9200/_nodes/stats/jvm?pretty | grep -A5 heap_used_percent
+curl -s http://localhost:9200/_cat/allocation?v
+curl -s http://localhost:9200/_cat/shards?v | head -20
+
+# Backpressure: остановите opensearch и посмотрите retry в fluentbit
+docker compose -f docker-compose.logging.yaml stop opensearch && docker logs fluentbit --tail=50 | grep -i retry
+
+# Cleanup
+docker compose -f docker-compose.logging.yaml down -v && rm -rf logs
+```
+
+**Sizing шпаргалка для лаба:**
+
+| Параметр | Рекомендация |
+|---|---|
+| shard size | 10–50GB, <25 shards/GB heap |
+| heap | ≤32GB, 50% RAM узла, `Xms==Xmx` |
+| replicas | 1 для single-node лаба, 1–2 в проде |
+| refresh_interval | 1s near-real-time, 30s для экономии IO |
+| rollover | `50gb` или `30d`, не только `1d` |
+
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (ELK/OpenSearch — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Алерты не приходят / приходят пачкой | `group_wait`/`repeat_interval` настроены вслепую | Разобрать routing tree на бумаге, тест через `amtool` |
-| Дашборд врет относительно реальности | Стейтмент без фильтра по job/instance | Проверить label matching, добавить legend format |
-| Рост кардинальности метрик убивает Prometheus | user_id/path в labels | Ограничить cardinality, relabel drop |
-| Логи «исчезают» | retention/индекс ротация | Проверить ILM/compactor настройки и объем hot-хранилища |
+| `unassigned shards` + `watermark exceeded` | Диск 85% → `read_only_allow_delete` | `PUT _cluster/settings {"transient":{"cluster.routing.allocation.disk.watermark.low":"75%"}}`, удалить старые `logs-*` |
+| Shard 200× 1GB → heap 90% | Shard explosion: daily × 5 shards | Rollover `50gb`/`1d` + `shrink` в warm, data stream |
+| `rejected execution queue capacity` | `ingestion_rate` / `thread_pool.write.queue_size` | `limits_config.ingestion_rate_mb: 8`, `queue_size: 1000` |
+| `geoip` фильтр роняет Logstash | Нет `ingest-geoip` plugin | `bin/elasticsearch-plugin install ingest-geoip` или убрать `geoip` |
 
 !!! warning «Сначала SLI, потом дашборды»
     Дашборд без определенного SLO — это арт. Определите SLI (какие запросы считаем хорошими), цель (99.9%), error budget — и только затем рисуйте панели.

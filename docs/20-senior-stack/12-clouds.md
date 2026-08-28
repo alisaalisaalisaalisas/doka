@@ -173,6 +173,142 @@ curl -sI https://grafana.company.io | grep -i cf-ray   # трафик реаль
 
 ---
 
+## AWS Deep Dive: IAM, VPC, EC2, EKS, S3
+
+### IAM: users → roles → policies → STS
+
+```bash
+# Policy JSON наименьших привилегий (least privilege)
+cat > /tmp/policy.json <<'YAML'
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": ["s3:GetObject","s3:ListBucket"],
+    "Resource": ["arn:aws:s3:::app-bucket","arn:aws:s3:::app-bucket/*"],
+    "Condition": {"IpAddress":{"aws:SourceIp":"203.0.113.0/24"}}
+  }]
+}
+YAML
+aws iam create-policy --policy-name s3-readonly --policy-document file:///tmp/policy.json
+aws iam attach-role-policy --role-name app-role --policy-arn arn:aws:iam::123:policy/s3-readonly
+
+# STS: assume role → временные креды 15мин–12ч
+aws sts assume-role --role-arn arn:aws:iam::123:role/app-role --role-session-name debug --duration-seconds 3600
+# В пода EKS — автоматически через IRSA (см. выше), без ключей
+aws sts get-caller-identity  # кто я: AssumedRole или User
+aws iam simulate-principal-policy --policy-source-arn arn:aws:iam::123:role/app-role --action-names s3:ListBucket --resource-arns arn:aws:s3:::app-bucket
+```
+
+**IAM troubleshooting:** `AccessDenied` → `aws cloudtrail lookup-events --lookup-attributes AttributeKey=Username,AttributeValue=alice | jq .Events[0].CloudTrailEvent | fromjson | .errorCode`; `iam:PassRole` недостаёт для EKS.
+
+### VPC deep: subnet types, SG vs NACL, NAT, Egress cost
+
+```bash
+# VPC с 3 AZ: 1 публичная + 2 приватные (app, db) + NAT per AZ
+aws ec2 describe-vpcs --query 'Vpcs[].[VpcId,CidrBlock,IsDefault]'
+aws ec2 describe-subnets --query 'Subnets[].[SubnetId,CidrBlock,AvailabilityZone,MapPublicIpOnLaunch]' --output table
+aws ec2 describe-security-groups --group-ids sg-abc --output json | jq '.SecurityGroups[0].IpPermissions'
+# SG stateful: ответ разрешён автоматически
+aws ec2 describe-network-acls --query 'NetworkAcls[].[NetworkAclId,Entries[]]' | head -40
+# NACL stateless: нужен inbound + outbound, номер rule — порядок!
+
+# Проверка egress cost (главный счёт)
+aws ce get-cost-and-usage --time-period Start=2026-07-01,End=2026-08-01 --granularity MONTHLY --metrics BlendedCost --group-by Type=DIMENSION,Key=SERVICE | jq '.ResultsByTime[].Groups[] | select(.Keys[0]=="EC2-Other")'
+# NAT GW cost отдельно
+aws ec2 describe-nat-gateways --query 'NatGateways[].[NatGatewayId,State,SubnetId]'
+```
+
+### S3: классы, encryption, least privilege
+
+```bash
+aws s3api create-bucket --bucket app-bucket --region eu-central1 --create-bucket-configuration LocationConstraint=eu-central1
+aws s3api put-bucket-encryption --bucket app-bucket --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"aws:kms","KMSMasterKeyID":"alias/app"}}]}'
+aws s3api put-public-access-block --bucket app-bucket --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+aws s3 ls s3://app-bucket --recursive --human-readable
+aws s3api get-bucket-policy --bucket app-bucket | jq .
+```
+
+### CloudWatch vs Prometheus
+
+```bash
+aws cloudwatch put-metric-data --metric-name RequestLatency --namespace App --value 120 --unit Milliseconds
+aws logs describe-log-groups --log-group-name-prefix /aws/eks/prod
+aws logs put-retention-policy --log-group-name /aws/eks/prod --retention-in-days 30
+```
+
+**AWS check-list security/cost:** IAM `*` → убрать, NACL deny-all default, NAT per AZ ($96/3 AZ), S3 `BlockPublicAccess` + KMS, `aws-nuke` sandbox cost.
+
+---
+
+## GCP Deep Dive: IAM, VPC, GKE, Storage, Logging
+
+```bash
+# IAM: SA + binding (least privilege)
+gcloud iam service-accounts create app-sa --display-name="app"
+gcloud projects add-iam-policy-binding PROJECT --member="serviceAccount:app-sa@PROJECT.iam.gserviceaccount.com" --role="roles/storage.objectViewer"
+gcloud iam service-accounts get-iam-policy app-sa@PROJECT.iam.gserviceaccount.com
+gcloud policy-intelligence query-activity --project=PROJECT --activity-type=serviceAccountLastAuthentication
+
+# VPC firewall централизовано на сети
+gcloud compute firewall-rules create allow-web --network prod-vpc --allow tcp:80,tcp:443 --target-tags web --source-ranges 0.0.0.0/0
+gcloud compute firewall-rules describe allow-web --format=json | jq .allowed
+gcloud compute routes list --filter="network:prod-vpc" --format="table(name,destRange,nextHopGateway)"
+
+# GKE Autopilot vs Standard
+gcloud container clusters describe prod --region eu-central1 --format="value(autopilot.enabled,currentMasterVersion)"
+# Autopilot: ноды не ваши, платите за pod requests
+gcloud container node-pools list --cluster prod --region eu-central1
+
+# Cloud Storage classes
+gsutil ls -L gs://prod-bucket | grep -i class  # STANDARD, NEARLINE, COLDLINE, ARCHIVE
+gsutil lifecycle get gs://prod-bucket
+gcloud storage buckets describe gs://prod-bucket --format="value(encryption.defaultKmsKeyName)"
+
+# Logging/Monitoring (аналог CloudWatch)
+gcloud logging logs list --project=PROJECT
+gcloud logging sinks list
+gcloud monitoring dashboards list | head
+```
+
+---
+
+## Azure Deep Dive: Entra ID, RBAC, VNet, AKS, Blob, Monitor
+
+```bash
+# Entra ID + Managed Identity → Workload Identity
+az ad sp list --display-name myapp --query "[].{id:appId,oid:objectId}" -o table
+az identity create -g rg-prod -n app-id --query principalId -o tsv
+az role assignment create --assignee <principalId> --role "Storage Blob Data Reader" --scope /subscriptions/<sub>/resourceGroups/rg-prod/providers/Microsoft.Storage/storageAccounts/prodsa
+
+# federated credential (OIDC)
+az identity federated-credential create --name k8s-federated --identity-name app-id -g rg-prod \
+  --issuer "https://oidc.prod.westeurope.azmk8s.io/<oidc-id>/" --subject system:serviceaccount:prod:thanos --audience api://AzureADTokenExchange
+
+# VNet + NSG (приоритеты 100-4096, lower wins)
+az network vnet list -o table
+az network nsg show -g rg-prod -n prod-nsg --query "securityRules[].{name:name,prio:priority,access:access,port:destinationPortRange}" -o table
+az network nsg rule create -g rg-prod --nsg-name prod-nsg -n allow-web --priority 100 --access Allow --destination-port-ranges 80 443 --source-address-prefixes Internet
+
+# AKS
+az aks show -g rg-prod -n prod-aks --query "{k8s:kubernetesVersion, pools:agentPoolProfiles[].{name:name,count:count,mode:mode}}" -o json
+az aks get-credentials -g rg-prod -n prod-aks
+kubectl get nodes -L agentpool,topology.kubernetes.io/zone
+
+# Blob Storage
+az storage account show -g rg-prod -n prodsa --query "{sku:sku.name, kind:kind, tier:accessTier}" -o json
+az storage container list --account-name prodsa --auth-mode login -o table
+az storage blob list --container-name prod --account-name prodsa --query "[].{name:name,tier:properties.accessTier}" -o table
+
+# Monitor (Log Analytics + Metrics)
+az monitor log-analytics workspace list -o table
+az monitor metrics list --resource "/subscriptions/.../aks/prod-aks" --metric "node_cpu_usage_percentage" | head -20
+```
+
+**Azure cost:** NAT GW $32 + egress, storage transactions, Log Analytics ingestion 2.76€/GB.
+
+---
+
 ## 2.5 Проверь себя — 5 вопросов
 
 **В1. Сценарий: поды в приватной подсети AWS не тянут образы из ECR, а из интернета — тянут. В чём разница и что чинить?**

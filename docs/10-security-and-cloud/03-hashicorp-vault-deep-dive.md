@@ -142,14 +142,14 @@ vault write transit/decrypt/orders ciphertext='vault:v1:...'
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Vault — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Алерты не приходят / приходят пачкой | `group_wait`/`repeat_interval` настроены вслепую | Разобрать routing tree на бумаге, тест через `amtool` |
-| Дашборд врет относительно реальности | Стейтмент без фильтра по job/instance | Проверить label matching, добавить legend format |
-| Рост кардинальности метрик убивает Prometheus | user_id/path в labels | Ограничить cardinality, relabel drop |
-| Логи «исчезают» | retention/индекс ротация | Проверить ILM/compactor настройки и объем hot-хранилища |
+| `Error sealing: seal type shamir requires 3 shares` | Vault sealed после рестарта, нет `unseal` | `vault operator unseal` ×3, или `auto-unseal` KMS |
+| `permission denied` на `kv get secret/app` | Policy без `capabilities: ["read"]` на `secret/data/app` | `vault policy read app-policy`, `vault token capabilities secret/data/app` |
+| `x509: certificate has expired` на `pki/issue` | `ttl` `87600h` истёк, `max_ttl` CA | `vault read pki/cert/ca`, `vault write pki/root/rotate` |
+| ESO `ExternalSecret` не синхронизируется | `ClusterSecretStore` `auth.kubernetes` role `external-secrets` нет | `vault read auth/kubernetes/config`, `kubectl -n external-secrets logs deploy/external-secrets` |
 
 !!! warning «Сначала SLI, потом дашборды»
     Дашборд без определенного SLO — это арт. Определите SLI (какие запросы считаем хорошими), цель (99.9%), error budget — и только затем рисуйте панели.

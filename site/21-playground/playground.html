@@ -8,49 +8,88 @@
   :root{--bg:#0e1217;--panel:#151b23;--border:#2a3441;--fg:#d5dde5;--dim:#7d8b99;--ok:#4ade80;--err:#f87171;--warn:#fbbf24;--acc:#26c6da}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 "JetBrains Mono",Consolas,monospace}
-  header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border)}
-  header h1{font-size:15px;margin:0 12px 0 0;color:var(--acc)}
+  header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border)}
+  header h1{font-size:15px;margin:0 10px 0 0;color:var(--acc)}
   select,button,input[type=search]{background:#1c2530;color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font:inherit;cursor:pointer}
   button:hover{border-color:var(--acc)}
   button.primary{border-color:var(--acc);color:var(--acc)}
+  button:disabled{opacity:.4;cursor:not-allowed}
   main{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 14px;height:calc(100vh - 58px)}
   .pane{display:flex;flex-direction:column;min-height:0;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
   .pane h2{margin:0;padding:8px 12px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);border-bottom:1px solid var(--border)}
-  #brief{overflow:auto;padding:10px 14px;font-size:13px;max-height:26%}
+  #brief{overflow:auto;padding:12px 14px;font-size:13px;line-height:1.5;max-height:42%;border-bottom:1px solid var(--border)}
   #brief b{color:var(--acc)}
-  #brief .file{color:var(--warn);cursor:pointer}
+  #brief h3{margin:14px 0 6px 0;font-size:12px;color:var(--warn);text-transform:uppercase;letter-spacing:.06em}
+  #brief ul{margin:6px 0 0 18px;padding:0}
+  #brief li{margin:3px 0}
+  #brief .file{color:var(--warn);cursor:pointer;text-decoration:underline dotted}
+  #brief .tag{display:inline-block;background:#1c2530;border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px;color:var(--dim);margin-right:4px}
+  #hints-bar{display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center}
+  #hints-bar button{font-size:12px;padding:4px 8px}
+  #hints-panel{padding:8px 12px;font-size:12px;line-height:1.5;display:none;overflow:auto;max-height:22%;border-bottom:1px solid var(--border);background:#121820}
+  #hints-panel .hint{margin:8px 0;padding:8px 10px;border-left:3px solid var(--acc);background:#1c2530;border-radius:4px}
+  #hints-panel .hint strong{color:var(--warn)}
+  #solution-panel{padding:10px 12px;font-size:12px;line-height:1.5;display:none;overflow:auto;max-height:38%;border-bottom:1px solid var(--border);background:#121820}
+  #solution-panel pre{background:#0b0f14;border:1px solid var(--border);border-radius:6px;padding:10px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+  #solution-panel .sol-file{cursor:pointer;padding:4px 8px;border:1px solid var(--border);border-radius:4px;background:#1c2530;margin:3px;display:inline-block;color:var(--warn)}
+  #solution-panel .sol-file:hover{border-color:var(--acc);color:var(--acc)}
+  #solution-panel .sol-file.active{border-color:var(--acc);background:#0d3a4a;color:var(--acc)}
+  .sol-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .sol-actions button{font-size:11px;padding:4px 10px}
   #editor-wrap{flex:1;min-height:0;position:relative}
   #editor{position:absolute;inset:0}
-  textarea.code{width:100%;height:100%;resize:none;border:0;outline:0;background:#0b0f14;color:#cde3ea;
-    font:13px/1.5 Consolas,monospace;padding:10px;tab-size:2}
+  textarea.code{width:100%;height:100%;resize:none;border:0;outline:0;background:#0b0f14;color:#cde3ea;font:13px/1.5 Consolas,monospace;padding:10px;tab-size:2}
   .editor-bar{display:flex;gap:8px;align-items:center;padding:6px 10px;border-top:1px solid var(--border);font-size:12px}
   #code-result{margin-left:auto}
+  #file-tabs{display:flex;gap:4px;padding:6px 10px;border-bottom:1px solid var(--border);overflow:auto;flex-wrap:nowrap}
+  #file-tabs .tab{padding:4px 8px;border:1px solid var(--border);border-radius:4px;background:#1c2530;color:var(--dim);cursor:pointer;white-space:nowrap;font-size:12px}
+  #file-tabs .tab.active{background:var(--acc);color:#0e1217;border-color:var(--acc);font-weight:bold}
+  #explorer{padding:6px 0;font-size:12px;user-select:none}
+  #explorer .folder{padding:4px 8px;color:var(--fg);cursor:pointer;display:flex;align-items:center;gap:6px}
+  #explorer .folder:hover{background:#1c2530}
+  #explorer .file-entry{padding:3px 8px 3px 24px;color:var(--dim);cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #explorer .file-entry:hover{background:#1c2530;color:var(--fg)}
+  #explorer .file-entry.active{background:var(--acc);color:#0e1217;font-weight:bold;border-radius:4px}
+  #explorer .children{margin-left:12px;border-left:1px dotted #2a3441}
+  #breadcrumb{padding:4px 10px;font-size:11px;color:var(--dim);border-bottom:1px solid var(--border);background:#0b0f14;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #term{flex:1;overflow:auto;padding:10px 12px;font-size:13px;white-space:pre-wrap;word-break:break-word}
-  #term .cmd{color:#e8eef4}
-  #term .ok{color:var(--ok)} #term .err{color:var(--err)} #term .dim{color:var(--dim)} #term .warn{color:var(--warn)}
+  #term .cmd{color:#e8eef4} #term .ok{color:var(--ok)} #term .err{color:var(--err)} #term .dim{color:var(--dim)} #term .warn{color:var(--warn)}
   .term-line{display:flex;gap:6px;padding:8px 12px;border-top:1px solid var(--border)}
   .term-line input{flex:1;background:transparent;border:0;outline:0;color:var(--fg);font:inherit}
   .prompt{color:var(--ok);white-space:nowrap}
   #check-result{padding:8px 12px;border-top:1px solid var(--border);font-size:13px;display:none;overflow:auto;max-height:30%}
   .pass{color:var(--ok)} .fail{color:var(--err)}
   #count{font-size:12px;color:var(--dim)}
-  @media(max-width:900px){main{grid-template-columns:1fr;grid-template-rows:40% 60%;height:auto}#term{min-height:300px}}
+  @media(max-width:900px){main{grid-template-columns:1fr;grid-template-rows:50% 50%;height:auto}#term{min-height:300px}#brief{max-height:35%}}
 </style>
 </head>
 <body>
 <header>
   <h1>🧪 Песочница</h1>
   <select id="scenario"></select>
-  <input type="search" id="filter" placeholder="фильтр сценариев…" size="16">
+  <input type="search" id="filter" placeholder="фильтр сценариев…" size="14">
   <span id="count"></span>
   <button id="btn-reset">Сброс</button>
-  <button id="btn-hints">Подсказки</button>
   <button id="btn-check" class="primary">Проверить решение</button>
 </header>
 <main>
   <section class="pane">
     <h2>Задание · файлы · редактор</h2>
     <div id="brief"></div>
+    <div id="hints-bar">
+      <span style="font-size:12px;color:var(--dim)">Подсказки:</span>
+      <button id="btn-hint1">Подсказка 1</button>
+      <button id="btn-hint2" disabled>Подсказка 2</button>
+      <button id="btn-hint3" disabled>Подсказка 3</button>
+      <button id="btn-solution" style="margin-left:auto;border-color:var(--warn);color:var(--warn)">💡 Показать решение</button>
+    </div>
+    <div id="hints-panel"></div>
+    <div id="solution-panel"></div>
+    <div id="explorer-header" style="display:none;padding:6px 10px;font-size:11px;color:var(--warn);border-bottom:1px solid var(--border);background:#121820">📁 EXPLORER</div>
+    <div id="explorer" style="display:none;max-height:140px;overflow:auto;border-bottom:1px solid var(--border);background:#0e1217"></div>
+    <div id="breadcrumb" style="display:none;padding:4px 10px;font-size:11px;color:var(--dim);border-bottom:1px solid var(--border);background:#0b0f14;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+    <div id="file-tabs"></div>
+    <div id="no-files-msg" style="display:none;padding:20px;text-align:center;color:var(--dim);font-size:12px">No file editing required — use terminal on the right.<br>Try: <code>ls</code> <code>cat</code> <code>df -h</code> <code>ps aux</code> <code>ss -tulpn</code> <code>curl</code> <code>dig</code> <code>kubectl get pods</code></div>
     <div id="editor-wrap"><div id="editor"></div></div>
     <div class="editor-bar">
       <span id="editor-file" class="dim"></span>
@@ -68,11 +107,41 @@
 
 <!-- Реестр сценариев: базовые + пакеты по темам -->
 <script>window.SCENARIOS=[];
-function S(cat,id,title,level,brief,prompt,commands,solution,editor){
+function S(cat,id,title,level,brief,prompt,commands,solution,editor,extra){
   const o={cat,id,title,level,brief,prompt,commands,solution};
-  if(editor){o.files=editor.files||null;o.editorFile=editor.file||null;o.editorStart=editor.start||null;o.editorChecks=editor.checks||null;}
+  if(editor){
+    o.files=editor.files||null;
+    o.editorFile=editor.file||editor.activeFile||null;
+    o.editorStart=editor.start||editor.initialContent||null;
+    o.editorChecks=editor.checks||null;
+    o.hints=editor.hints||null;
+    o.solutionDetail=editor.solution||editor.solutionDetail||null;
+    o.solutionFiles=editor.solutionFiles||null;
+    if(editor.activeFile && !o.editorFile) o.editorFile=editor.activeFile;
+  }
+  // extra — 10-й аргумент (генерируется tools/repair_scenario_content.py):
+  // подсказки для сценариев без editor-объекта
+  if(extra){
+    if(extra.hints && !o.hints) o.hints=extra.hints;
+    if(extra.solutionFiles && !o.solutionFiles) o.solutionFiles=extra.solutionFiles;
+    if(extra.solution && !o.solutionDetail) o.solutionDetail=extra.solution;
+  }
   window.SCENARIOS.push(o);
-}</script>
+}
+// Extended helper for new format with hints/solution
+function S2(cat,id,title,level,brief,prompt,commands,solution,editorOpts){
+  const o={cat,id,title,level,brief,prompt,commands,solution,
+    files:editorOpts&&editorOpts.files||null,
+    editorFile:editorOpts&& (editorOpts.activeFile || editorOpts.file)||null,
+    editorStart:editorOpts&& (editorOpts.start || editorOpts.initialContent)||null,
+    editorChecks:editorOpts&&editorOpts.checks||null,
+    hints:editorOpts&&editorOpts.hints||null,
+    solutionDetail:editorOpts&& (editorOpts.solution||editorOpts.solutionDetail)||null,
+    solutionFiles:editorOpts&&editorOpts.solutionFiles||null,
+  };
+  window.SCENARIOS.push(o);
+}
+</script>
 <script src="scenarios-linux.js"></script>
 <script src="scenarios-k8s.js"></script>
 <script src="scenarios-iac-cicd.js"></script>
@@ -82,11 +151,549 @@ function S(cat,id,title,level,brief,prompt,commands,solution,editor){
 <script src="scenarios-mlops.js"></script>
 <script src="scenarios-labs.js"></script>
 <script src="scenarios-base.js"></script>
+<script src="scenarios-enhanced.js"></script>
+<script src="scenarios-global-linux.js"></script>
+<script src="scenarios-global-networking.js"></script>
+<script src="scenarios-global-git.js"></script>
+<script src="scenarios-global-docker.js"></script>
+<script src="scenarios-global-k8s.js"></script>
+<script src="scenarios-global-helm.js"></script>
+<script src="scenarios-global-gitops.js"></script>
+<script src="scenarios-global-terraform.js"></script>
+<script src="scenarios-global-ansible.js"></script>
+<script src="scenarios-global-observability.js"></script>
+<script src="scenarios-global-security.js"></script>
+<script src="scenarios-global-data.js"></script>
+<script src="scenarios-global-cloud-aws.js"></script>
+<script src="scenarios-global-cloud-gcp.js"></script>
+<script src="scenarios-global-cloud-azure.js"></script>
+<script src="scenarios-global-cloudflare.js"></script>
+<script src="scenarios-global-data-pg.js"></script>
+<script src="scenarios-global-data-kafka.js"></script>
+<script src="scenarios-global-data-redis.js"></script>
+<script src="scenarios-global-data-mongo.js"></script>
+<script src="scenarios-global-mesh-adv.js"></script>
+<script src="scenarios-global-dr-sre.js"></script>
+<script src="scenarios-global-python.js"></script>
+<script src="scenarios-global-go.js"></script>
+<script src="scenarios-global-bash.js"></script>
+<script src="scenarios-global-interview.js"></script>
+<script src="scenarios-python-oop.js"></script>
 
 <script>
-/* ======================= РЕДАКТОР (Monaco c fallback) ======================= */
+/* ======================= VIRTUAL FILESYSTEM ======================= */
+class VFS {
+  constructor() { this._files = {}; this._cwd = "/project"; }
+
+  _normPath(p) {
+    if (!p) return this._cwd;
+    // handle relative paths
+    let parts;
+    if (p.startsWith("/")) {
+      parts = p.split("/").filter(Boolean);
+    } else {
+      parts = this._cwd.split("/").filter(Boolean).concat(p.split("/").filter(Boolean));
+    }
+    const resolved = [];
+    for (const seg of parts) {
+      if (seg === ".") continue;
+      if (seg === "..") { resolved.pop(); continue; }
+      resolved.push(seg);
+    }
+    return "/" + resolved.join("/");
+  }
+
+  loadFromScenario(files) {
+    this._files = {};
+    this._cwd = "/project";
+    if (!files) return;
+    for (const [name, content] of Object.entries(files)) {
+      // Store with absolute path
+      const absPath = "/project/" + name;
+      this._files[absPath] = content;
+    }
+  }
+
+  snapshot() { return JSON.parse(JSON.stringify(this._files)); }
+  restore(snap) { this._files = JSON.parse(JSON.stringify(snap)); }
+
+  exists(path) {
+    const abs = this._normPath(path);
+    if (this._files[abs] !== undefined) return true;
+    // check if it's a directory (prefix match)
+    const prefix = abs.endsWith("/") ? abs : abs + "/";
+    return Object.keys(this._files).some(k => k.startsWith(prefix));
+  }
+
+  isDir(path) {
+    const abs = this._normPath(path);
+    if (this._files[abs] !== undefined) return false; // it's a file
+    const prefix = abs.endsWith("/") ? abs : abs + "/";
+    return Object.keys(this._files).some(k => k.startsWith(prefix));
+  }
+
+  readFile(path) {
+    const abs = this._normPath(path);
+    if (this._files[abs] !== undefined) return this._files[abs];
+    return null;
+  }
+
+  writeFile(path, content) {
+    const abs = this._normPath(path);
+    this._files[abs] = content;
+  }
+
+  deleteFile(path) {
+    const abs = this._normPath(path);
+    if (this._files[abs] !== undefined) { delete this._files[abs]; return true; }
+    // delete directory (all files under it)
+    const prefix = abs + "/";
+    let deleted = false;
+    for (const k of Object.keys(this._files)) {
+      if (k.startsWith(prefix)) { delete this._files[k]; deleted = true; }
+    }
+    return deleted;
+  }
+
+  listDir(path) {
+    const abs = this._normPath(path);
+    const prefix = abs === "/" ? "/" : abs + "/";
+    const entries = new Map();
+    for (const k of Object.keys(this._files)) {
+      if (!k.startsWith(prefix)) continue;
+      const rest = k.slice(prefix.length);
+      const firstSeg = rest.split("/")[0];
+      if (!firstSeg) continue;
+      const isFile = !rest.includes("/") || rest.split("/").length === 1;
+      if (!entries.has(firstSeg)) {
+        entries.set(firstSeg, {
+          name: firstSeg,
+          isDir: !isFile,
+          size: isFile ? (this._files[k] || "").length : 0
+        });
+      } else if (!isFile) {
+        entries.get(firstSeg).isDir = true;
+      }
+    }
+    return [...entries.values()].sort((a, b) => {
+      if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  mkdir(path) {
+    // In our VFS dirs are implicit, but we can create a placeholder
+    const abs = this._normPath(path);
+    // ensure parent path exists implicitly — no-op in our model
+    return true;
+  }
+
+  rename(oldPath, newPath) {
+    const absOld = this._normPath(oldPath);
+    const absNew = this._normPath(newPath);
+    if (this._files[absOld] !== undefined) {
+      this._files[absNew] = this._files[absOld];
+      delete this._files[absOld];
+      return true;
+    }
+    return false;
+  }
+
+  getCwd() { return this._cwd; }
+  setCwd(path) {
+    const abs = this._normPath(path);
+    if (this.isDir(abs) || abs === "/project" || abs === "/") {
+      this._cwd = abs;
+      return true;
+    }
+    return false;
+  }
+
+  // Get scenario-relative path (for editor compatibility)
+  toRelative(absPath) {
+    if (absPath.startsWith("/project/")) return absPath.slice(9);
+    return absPath;
+  }
+  toAbsolute(relPath) {
+    if (relPath.startsWith("/")) return relPath;
+    return "/project/" + relPath;
+  }
+
+  // Get all files as relative paths (for editor/tabs)
+  allRelativeFiles() {
+    const result = {};
+    for (const [k, v] of Object.entries(this._files)) {
+      result[this.toRelative(k)] = v;
+    }
+    return result;
+  }
+}
+
+/* ======================= BUILT-IN TERMINAL COMMANDS ======================= */
+class TerminalEngine {
+  constructor(vfs, printFn) {
+    this.vfs = vfs;
+    this.print = printFn;
+  }
+
+  // Returns true if handled as built-in, false otherwise
+  execute(cmd, scenario) {
+    const parts = this._parse(cmd);
+    if (!parts.length) return false;
+    const base = parts[0];
+
+    // Built-in commands that work with VFS
+    const builtins = {
+      'pwd': () => this._pwd(),
+      'ls': () => this._ls(parts),
+      'cat': () => this._cat(parts),
+      'head': () => this._head(parts),
+      'tail': () => this._tail(parts),
+      'cd': () => this._cd(parts),
+      'mkdir': () => this._mkdir(parts),
+      'touch': () => this._touch(parts),
+      'rm': () => this._rm(parts),
+      'cp': () => this._cp(parts),
+      'mv': () => this._mv(parts),
+      'wc': () => this._wc(parts),
+      'echo': () => this._echo(cmd),
+      'tree': () => this._tree(parts),
+      'find': () => this._find(parts),
+      'grep': () => this._grep(parts),
+      'help': () => this._help(scenario),
+      'clear': () => { document.getElementById("term").innerHTML = ""; return true; },
+    };
+
+    if (builtins[base]) {
+      try { return builtins[base](); }
+      catch(e) { this.print("⚠ " + e.message, "err"); return true; }
+    }
+    return false;
+  }
+
+  _parse(cmd) {
+    // Simple shell-like parsing (handles quotes)
+    const parts = [];
+    let cur = "", inQ = false, q = "";
+    for (const c of cmd) {
+      if (inQ) {
+        if (c === q) { inQ = false; } else { cur += c; }
+      } else if (c === '"' || c === "'") {
+        inQ = true; q = c;
+      } else if (c === ' ' || c === '\t') {
+        if (cur) { parts.push(cur); cur = ""; }
+      } else { cur += c; }
+    }
+    if (cur) parts.push(cur);
+    return parts;
+  }
+
+  _pwd() {
+    this.print(this.vfs.getCwd(), "ok");
+    return true;
+  }
+
+  _ls(parts) {
+    const flags = parts.filter(p => p.startsWith("-")).join("");
+    const target = parts.find((p, i) => i > 0 && !p.startsWith("-")) || ".";
+    const path = this.vfs._normPath(target === "." ? this.vfs.getCwd() : target);
+
+    if (!this.vfs.exists(path) && !this.vfs.isDir(path)) {
+      this.print(`ls: cannot access '${target}': No such file or directory`, "err");
+      return true;
+    }
+
+    const entries = this.vfs.listDir(path);
+    if (!entries.length && !this.vfs.isDir(path)) {
+      // It's a file, just show it
+      this.print(this.vfs.toRelative(path), "dim");
+      return true;
+    }
+
+    if (flags.includes("l") || flags.includes("a")) {
+      // Long format
+      let lines = [];
+      if (flags.includes("a")) {
+        lines.push("drwxr-xr-x  .  ");
+        lines.push("drwxr-xr-x  .. ");
+      }
+      for (const e of entries) {
+        const perms = e.isDir ? "drwxr-xr-x" : "-rw-r--r--";
+        const size = e.isDir ? "4096" : String(e.size).padStart(6);
+        lines.push(`${perms}  ${size}  ${e.name}${e.isDir ? "/" : ""}`);
+      }
+      this.print(lines.join("\n"), "dim");
+    } else {
+      const names = entries.map(e => e.name + (e.isDir ? "/" : ""));
+      this.print(names.join("  "), "dim");
+    }
+    return true;
+  }
+
+  _cat(parts) {
+    const files = parts.slice(1).filter(p => !p.startsWith("-"));
+    if (!files.length) { this.print("cat: missing operand", "err"); return true; }
+    for (const f of files) {
+      const content = this.vfs.readFile(f);
+      if (content === null) {
+        this.print(`cat: ${f}: No such file or directory`, "err");
+      } else {
+        this.print(content, "dim");
+      }
+    }
+    return true;
+  }
+
+  _head(parts) {
+    let n = 10;
+    const nIdx = parts.indexOf("-n");
+    if (nIdx !== -1 && parts[nIdx + 1]) n = parseInt(parts[nIdx + 1]) || 10;
+    // also handle -N format
+    const nFlag = parts.find(p => /^-\d+$/.test(p));
+    if (nFlag) n = parseInt(nFlag.slice(1));
+    const file = parts.find((p, i) => i > 0 && !p.startsWith("-") && (i <= 0 || parts[i-1] !== "-n"));
+    if (!file) { this.print("head: missing operand", "err"); return true; }
+    const content = this.vfs.readFile(file);
+    if (content === null) { this.print(`head: ${file}: No such file or directory`, "err"); return true; }
+    const lines = content.split("\n").slice(0, n);
+    this.print(lines.join("\n"), "dim");
+    return true;
+  }
+
+  _tail(parts) {
+    let n = 10;
+    const nIdx = parts.indexOf("-n");
+    if (nIdx !== -1 && parts[nIdx + 1]) n = parseInt(parts[nIdx + 1]) || 10;
+    const nFlag = parts.find(p => /^-\d+$/.test(p));
+    if (nFlag) n = parseInt(nFlag.slice(1));
+    const file = parts.find((p, i) => i > 0 && !p.startsWith("-") && (i <= 0 || parts[i-1] !== "-n"));
+    if (!file) { this.print("tail: missing operand", "err"); return true; }
+    const content = this.vfs.readFile(file);
+    if (content === null) { this.print(`tail: ${file}: No such file or directory`, "err"); return true; }
+    const lines = content.split("\n");
+    this.print(lines.slice(-n).join("\n"), "dim");
+    return true;
+  }
+
+  _cd(parts) {
+    const target = parts[1] || "/project";
+    if (!this.vfs.setCwd(target)) {
+      this.print(`cd: ${target}: No such file or directory`, "err");
+    }
+    // Update prompt
+    const short = this.vfs.getCwd().replace("/project", "~");
+    document.getElementById("prompt").textContent = (current.prompt || "dev@lab:~$").replace(/[~$].*/, short + "$");
+    return true;
+  }
+
+  _mkdir(parts) {
+    const dirs = parts.slice(1).filter(p => !p.startsWith("-"));
+    for (const d of dirs) {
+      this.vfs.mkdir(d);
+      this.print(`mkdir: created directory '${d}'`, "dim");
+    }
+    return true;
+  }
+
+  _touch(parts) {
+    const files = parts.slice(1).filter(p => !p.startsWith("-"));
+    for (const f of files) {
+      if (this.vfs.readFile(f) === null) {
+        this.vfs.writeFile(f, "");
+      }
+    }
+    return true;
+  }
+
+  _rm(parts) {
+    const flags = parts.filter(p => p.startsWith("-")).join("");
+    const targets = parts.slice(1).filter(p => !p.startsWith("-"));
+    for (const t of targets) {
+      if (!this.vfs.deleteFile(t)) {
+        this.print(`rm: cannot remove '${t}': No such file or directory`, "err");
+      }
+    }
+    // Refresh editor if file was open
+    if (activeFileName && !vfs.exists(vfs.toAbsolute(activeFileName))) {
+      renderFileTabs();
+    }
+    return true;
+  }
+
+  _cp(parts) {
+    const args = parts.slice(1).filter(p => !p.startsWith("-"));
+    if (args.length < 2) { this.print("cp: missing operand", "err"); return true; }
+    const src = args[0], dst = args[1];
+    const content = this.vfs.readFile(src);
+    if (content === null) { this.print(`cp: ${src}: No such file or directory`, "err"); return true; }
+    this.vfs.writeFile(dst, content);
+    return true;
+  }
+
+  _mv(parts) {
+    const args = parts.slice(1).filter(p => !p.startsWith("-"));
+    if (args.length < 2) { this.print("mv: missing operand", "err"); return true; }
+    if (!this.vfs.rename(args[0], args[1])) {
+      this.print(`mv: ${args[0]}: No such file or directory`, "err");
+    }
+    return true;
+  }
+
+  _wc(parts) {
+    const files = parts.slice(1).filter(p => !p.startsWith("-"));
+    for (const f of files) {
+      const content = this.vfs.readFile(f);
+      if (content === null) { this.print(`wc: ${f}: No such file or directory`, "err"); continue; }
+      const lines = content.split("\n").length;
+      const words = content.split(/\s+/).filter(Boolean).length;
+      const chars = content.length;
+      this.print(`  ${lines}  ${words}  ${chars} ${f}`, "dim");
+    }
+    return true;
+  }
+
+  _echo(raw) {
+    const match = raw.match(/^echo\s+(.*?)(?:\s*>\s*(.+))?$/);
+    if (!match) { this.print("", "dim"); return true; }
+    let text = match[1] || "";
+    const target = match[2] ? match[2].trim() : null;
+    // Remove quotes
+    text = text.replace(/^["']|["']$/g, "");
+    if (target) {
+      // Append mode >>
+      if (raw.includes(">>")) {
+        const existing = this.vfs.readFile(target) || "";
+        this.vfs.writeFile(target, existing + text + "\n");
+      } else {
+        this.vfs.writeFile(target, text + "\n");
+      }
+      // Sync to editor if that file is active
+      syncVfsToEditor();
+    } else {
+      this.print(text, "dim");
+    }
+    return true;
+  }
+
+  _tree(parts) {
+    const target = parts[1] || ".";
+    const path = this.vfs._normPath(target === "." ? this.vfs.getCwd() : target);
+    const lines = [];
+    const buildTree = (dir, prefix) => {
+      const entries = this.vfs.listDir(dir);
+      entries.forEach((e, i) => {
+        const isLast = i === entries.length - 1;
+        const connector = isLast ? "└── " : "├── ";
+        const icon = e.isDir ? "📁 " : "📄 ";
+        lines.push(prefix + connector + icon + e.name);
+        if (e.isDir) {
+          const childPrefix = prefix + (isLast ? "    " : "│   ");
+          buildTree(dir + "/" + e.name, childPrefix);
+        }
+      });
+    };
+    lines.push(this.vfs.toRelative(path) || ".");
+    buildTree(path, "");
+    this.print(lines.join("\n"), "dim");
+    return true;
+  }
+
+  _find(parts) {
+    const target = parts[1] || ".";
+    const nameFlag = parts.indexOf("-name");
+    const pattern = nameFlag !== -1 ? parts[nameFlag + 1] : null;
+    const path = this.vfs._normPath(target === "." ? this.vfs.getCwd() : target);
+    const results = [];
+    for (const k of Object.keys(this.vfs._files)) {
+      if (!k.startsWith(path)) continue;
+      const rel = k.slice(path.length);
+      const basename = k.split("/").pop();
+      if (pattern) {
+        const re = new RegExp("^" + pattern.replace(/\*/g, ".*").replace(/\?/g, ".") + "$");
+        if (!re.test(basename)) continue;
+      }
+      results.push("." + rel);
+    }
+    this.print(results.join("\n") || "(no matches)", "dim");
+    return true;
+  }
+
+  _grep(parts) {
+    const flags = parts.filter(p => p.startsWith("-")).join("");
+    const args = parts.filter(p => !p.startsWith("-")).slice(1); // skip "grep"
+    if (args.length < 2) { this.print("grep: missing operand", "err"); return true; }
+    const pattern = args[0];
+    const files = args.slice(1);
+    const ignoreCase = flags.includes("i");
+    const re = new RegExp(pattern, ignoreCase ? "i" : "");
+    let found = false;
+    for (const f of files) {
+      const content = this.vfs.readFile(f);
+      if (content === null) { this.print(`grep: ${f}: No such file or directory`, "err"); continue; }
+      const lines = content.split("\n");
+      for (let i = 0; i < lines.length; i++) {
+        if (re.test(lines[i])) {
+          const prefix = files.length > 1 ? `${f}:` : "";
+          this.print(`${prefix}${lines[i]}`, "dim");
+          found = true;
+        }
+      }
+    }
+    if (!found) this.print("(no matches)", "dim");
+    return true;
+  }
+
+  _help(scenario) {
+    let lines = ["Built-in commands (work with virtual filesystem):"];
+    lines.push("  pwd  ls  cat  head  tail  cd  mkdir  touch  rm  cp  mv");
+    lines.push("  wc  echo  tree  find  grep  clear  help");
+    lines.push("");
+
+    // Scenario-specific commands
+    if (scenario && scenario.commands && scenario.commands.length) {
+      lines.push("Scenario commands:");
+      const seen = new Set();
+      for (const r of scenario.commands) {
+        const re = Array.isArray(r) ? r[0] : r.re;
+        let display = (typeof re === "string") ? re : re.source;
+        // Clean up regex for display
+        display = display.replace(/^\^/, "").replace(/\$$/, "").replace(/\(.*?\)/g, "...").replace(/\\\\/g, "\\").replace(/\\s\+/g, " ").slice(0, 60);
+        if (!seen.has(display)) { lines.push("  " + display); seen.add(display); }
+      }
+    }
+    this.print(lines.join("\n"), "dim");
+    return true;
+  }
+}
+
+/* ======================= EDITOR (Monaco with fallback) ======================= */
 let editorApi = {getValue:()=>"",setValue:()=>{},setLang:()=>{}};
-let editorReady = false, monacoStarted = false;   // защита от гонки Monaco/fallback
+let editorReady = false, monacoStarted = false;
+let currentFiles = {};
+let activeFileName = null;
+let expandedFolders = {};
+const vfs = new VFS();
+let vfsSnapshot = null;
+let preApplySnapshot = null;
+
+function syncEditorToVfs() {
+  if (activeFileName) {
+    const content = editorApi.getValue();
+    currentFiles[activeFileName] = content;
+    vfs.writeFile(activeFileName, content);
+  }
+}
+
+function syncVfsToEditor() {
+  if (activeFileName) {
+    const content = vfs.readFile(activeFileName);
+    if (content !== null && content !== editorApi.getValue()) {
+      editorApi.setValue(content);
+      currentFiles[activeFileName] = content;
+    }
+  }
+}
+
 function makeTextareaFallback(){
   if(editorReady) return;
   editorReady = true;
@@ -96,32 +703,54 @@ function makeTextareaFallback(){
   ta.addEventListener("keydown", e=>{ if(e.key==="Tab"){ e.preventDefault();
     const s=ta.selectionStart; ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(ta.selectionEnd);
     ta.selectionStart=ta.selectionEnd=s+2; }});
-  editorApi = {getValue:()=>ta.value, setValue:v=>ta.value=v, setLang:()=>{}};
+  ta.addEventListener("input", () => syncEditorToVfs());
+  editorApi = {
+    getValue:()=>ta.value,
+    setValue:v=>ta.value=v,
+    setLang:()=>{},
+    saveCurrent:()=>{
+      if(activeFileName && currentFiles[activeFileName]!==undefined) {
+        currentFiles[activeFileName]=ta.value;
+        vfs.writeFile(activeFileName, ta.value);
+      }
+    }
+  };
 }
 (function initMonaco(){
   window.require = { paths:{ vs:"https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs" } };
   const s = document.createElement("script");
   s.src = "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/loader.js";
   s.onload = () => { monacoStarted = true; require(["vs/editor/editor.main"], () => {
-    if(editorReady) return;                    // fallback уже создан — не дублируем
+    if(editorReady) return;
     editorReady = true;
-    monaco.editor.defineTheme("lab",{base:"vs-dark",inherit:true,rules:[],
-      colors:{"editor.background":"#0b0f14"}});
-    const ed = monaco.editor.create(document.getElementById("editor"),{
-      theme:"lab", automaticLayout:true, minimap:{enabled:false}, fontSize:13, tabSize:2});
-    editorApi = {getValue:()=>ed.getValue(), setValue:v=>ed.setValue(v),
-      setLang:l=>monaco.editor.setModelLanguage(ed.getModel(), l||"plaintext")};
-    loadScenario(current.id);
+    monaco.editor.defineTheme("lab",{base:"vs-dark",inherit:true,rules:[],colors:{"editor.background":"#0b0f14"}});
+    const ed = monaco.editor.create(document.getElementById("editor"),{theme:"lab", automaticLayout:true, minimap:{enabled:false}, fontSize:13, tabSize:2});
+    ed.onDidChangeModelContent(()=>{
+      if(activeFileName) {
+        currentFiles[activeFileName]=ed.getValue();
+        vfs.writeFile(activeFileName, ed.getValue());
+      }
+    });
+    editorApi = {
+      getValue:()=>ed.getValue(),
+      setValue:v=>ed.setValue(v),
+      setLang:l=>monaco.editor.setModelLanguage(ed.getModel(), l||"plaintext"),
+      saveCurrent:()=>{}
+    };
+    if(window._pendingLoad != null) loadScenario(window._pendingLoad);
   }); };
-  s.onerror = () => { makeTextareaFallback(); loadScenario(current.id); };
+  s.onerror = () => { makeTextareaFallback(); if(window._pendingLoad != null) loadScenario(window._pendingLoad); };
   document.head.appendChild(s);
-  setTimeout(()=>{ if(!editorReady && !monacoStarted){ makeTextareaFallback(); loadScenario(current.id);} }, 6000);
+  setTimeout(()=>{ if(!editorReady && !monacoStarted){ makeTextareaFallback(); if(window._pendingLoad != null) loadScenario(window._pendingLoad);} }, 6000);
 })();
 
-/* ======================= ТЕРМИНАЛ ======================= */
+/* ======================= TERMINAL ======================= */
 const term = document.getElementById("term");
 const input = document.getElementById("term-in");
+const breadcrumb = document.getElementById("breadcrumb");
 let history = [], hIdx = -1, executed = [];
+
+const termEngine = new TerminalEngine(vfs, print);
 
 function print(text, cls=""){
   const d = document.createElement("div");
@@ -129,25 +758,44 @@ function print(text, cls=""){
   d.textContent = text;
   term.appendChild(d); term.scrollTop = term.scrollHeight;
 }
+
 function runCommand(raw){
   const cmd = raw.trim();
   if(!cmd) return;
   print(current.prompt+" "+cmd, "cmd"); history.push(cmd); hIdx = history.length; executed.push(cmd);
   if(cmd === "clear"){ term.innerHTML=""; return; }
+
+  // Save editor state to VFS before command
+  syncEditorToVfs();
+
+  // 1. Try built-in VFS commands
+  if (termEngine.execute(cmd, current)) {
+    // After command, sync VFS back to editor (e.g., echo > file)
+    syncVfsToEditor();
+    renderFileTabs();
+    return;
+  }
+
+  // 2. Try scenario-specific commands (regex match)
   try {
-    const rule = current.commands
+    let rule = current.commands
       .map(r => Array.isArray(r) ? {re: r[0], out: r[1], cls: r[2]} : r)
       .find(r => RE(r.re).test(cmd));
-    if(rule){ if(rule.out) print(rule.out, rule.cls||""); }
-    else print(`bash: ${cmd.split(" ")[0]}: команда не входит в сценарий. Нажмите «Подсказки».`, "dim");
+    if(!rule){
+      // fallback to global linux commands
+      rule = GLOBAL_COMMANDS.find(r => RE(r[0]).test(cmd));
+    }
+    if(rule){ if(rule[1] || rule.out) print(rule[1]||rule.out, rule[2]||rule.cls||"dim"); }
+    else print(`bash: ${cmd.split(" ")[0]}: команда не входит в сценарий. Введите help для списка доступных команд.`, "dim");
   } catch(e) {
     print("⚠ ошибка симулятора: " + e.message, "err");
     console.error(e);
   }
 }
+
 function submitCommand(){
   const v = input.value;
-  input.value = "";                    // ввод очищается ВСЕГДА, до выполнения
+  input.value = "";
   try { runCommand(v); }
   catch(e) { print("⚠ ошибка симулятора: " + e.message, "err"); console.error(e); }
 }
@@ -158,13 +806,37 @@ input.addEventListener("keydown", e=>{
   else if(e.key==="l" && e.ctrlKey){ e.preventDefault(); term.innerHTML=""; }
   else if(e.key==="Tab"){ e.preventDefault();
     const v=input.value.toLowerCase();
-    const cand=current.commands.map(r=>{const p=Array.isArray(r)?r[0]:r.re; return (typeof p==="string")?new RegExp(p,"i").source:p.source;}).find(s=>s.toLowerCase().replace(/[^a-z]/g,"").startsWith(v.replace(/[^a-z]/g,"").slice(0,6)) && v.length>2);
-    if(cand) input.value=cand.split(/\\[s.\-]/)[0].replace(/\\|\^|\$/g,"").slice(0,50);
+    if (v.length < 2) return;
+    // Autocomplete from VFS files + scenario commands
+    const files = Object.keys(vfs.allRelativeFiles());
+    const match = files.find(f => f.toLowerCase().startsWith(v.split(/\s+/).pop()));
+    if (match) {
+      const parts = input.value.split(/\s+/);
+      parts[parts.length - 1] = match;
+      input.value = parts.join(" ");
+    }
   }
 });
 
-/* ======================= СЦЕНАРИИ: реестр и фильтр ======================= */
+/* ======================= SCENARIOS: registry and filter ======================= */
 const RE = p => (typeof p === "string") ? new RegExp(p, "i") : p;
+const GLOBAL_COMMANDS = [
+  ["^df -h.*",`Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        20G   12G  7.2G  63% /
+tmpfs           1.9G     0  1.9G   0% /dev/shm`,"dim"],
+  ["^du -sh.*",`4.0K\t./app.py
+12K\t./config.yaml`,"dim"],
+  ["^ps aux.*",`USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.1 225360  9136 ?        Ss   10:00   0:01 /sbin/init
+appuser   1234  2.5  5.2 450000 80000 ?        Sl   10:00   0:10 python main.py`,"dim"],
+  ["^ss -tulpn.*",`Netid  State  Recv-Q  Send-Q  Local Address:Port  Peer Address:PortProcess
+tcp    LISTEN 0       128     0.0.0.0:8000      0.0.0.0:*    users:(("python",pid=1234,fd=3))`,"dim"],
+  ["^curl.*",`# curl simulated — use scenario-specific curl with Host header
+Try: curl -H "Host: shop.example.com" http://GW_IP/api -I`,"dim"],
+  ["^dig.*",`;; ANSWER SECTION:
+shop.example.com.\t300\tIN\tA\t10.96.0.10`,"dim"],
+  ["^docker.*",`# docker simulated — try: docker ps / docker build -t demo:good .`,"dim"]
+];
 const ALL = window.SCENARIOS;
 let current = null;
 
@@ -192,69 +864,379 @@ function fillSelect(){
 }
 filter.oninput = fillSelect;
 
+function detectLang(name) {
+  if (!name) return "plaintext";
+  if (/\.ya?ml$/.test(name)) return "yaml";
+  if (/\.tf$/.test(name)) return "hcl";
+  if (/\.py$/.test(name)) return "python";
+  if (/\.go$/.test(name)) return "go";
+  if (/\.sql$/.test(name)) return "sql";
+  if (/\.json$/.test(name)) return "json";
+  if (/\.sh$/.test(name)) return "shell";
+  if (/\.js$/.test(name)) return "javascript";
+  if (/\.ts$/.test(name)) return "typescript";
+  if (/Dockerfile/.test(name)) return "dockerfile";
+  if (/\.toml$/.test(name)) return "toml";
+  if (/\.ini$|\.cfg$/.test(name)) return "ini";
+  if (/\.md$/.test(name)) return "markdown";
+  if (/\.html?$/.test(name)) return "html";
+  if (/\.css$/.test(name)) return "css";
+  if (/\.xml$/.test(name)) return "xml";
+  return "plaintext";
+}
+
+function switchToFile(name) {
+  if(editorApi.saveCurrent) editorApi.saveCurrent();
+  syncEditorToVfs();
+  activeFileName = name;
+  // Read from VFS (single source of truth)
+  const content = vfs.readFile(name) || currentFiles[name] || "";
+  editorApi.setValue(content);
+  currentFiles[name] = content;
+  if(editorApi.setLang) editorApi.setLang(detectLang(name));
+  document.getElementById("editor-file").textContent = "📄 " + name;
+  if(breadcrumb) breadcrumb.textContent = name;
+  renderFileTabs();
+}
+
+function renderFileTabs(){
+  const tabs = document.getElementById("file-tabs");
+  const header = document.getElementById("explorer-header");
+  const explorer = document.getElementById("explorer");
+  const noMsg = document.getElementById("no-files-msg");
+  const wrap = document.getElementById("editor-wrap");
+  const checkBtn = document.getElementById("check-code");
+  const codeResult = document.getElementById("code-result");
+  tabs.innerHTML = "";
+  if(explorer) explorer.innerHTML="";
+
+  // Get files from VFS
+  currentFiles = vfs.allRelativeFiles();
+  const names = Object.keys(currentFiles);
+  const hasFiles = names.length>0;
+
+  if(!hasFiles){
+    tabs.style.display="none";
+    if(header) header.style.display="none";
+    if(explorer) explorer.style.display="none";
+    if(noMsg) noMsg.style.display="block";
+    if(wrap) wrap.style.display="none";
+    if(checkBtn) checkBtn.style.display="none";
+    if(codeResult) codeResult.textContent="в этом сценарии код не проверяется — используйте терминал";
+    return;
+  }
+  tabs.style.display="flex";
+  if(header) header.style.display="block";
+  if(explorer) explorer.style.display="block";
+  if(noMsg) noMsg.style.display="none";
+  if(wrap) wrap.style.display="block";
+  if(checkBtn) checkBtn.style.display="inline-block";
+  if(codeResult) codeResult.textContent="";
+
+  // Build tree
+  const tree={};
+  names.forEach(n=>{
+    const parts=n.split("/");
+    let cur=tree;
+    parts.forEach((part,i)=>{
+      if(i===parts.length-1){ cur[part]="<FILE>"; }
+      else { if(!cur[part]) cur[part]={}; cur=cur[part]; }
+    });
+  });
+
+  function renderNode(node, prefix, depth, container) {
+    const keys = Object.keys(node).sort((a,b) => {
+      const aDir = node[a] !== "<FILE>";
+      const bDir = node[b] !== "<FILE>";
+      if (aDir !== bDir) return aDir ? -1 : 1;
+      return a.localeCompare(b);
+    });
+    for (const key of keys) {
+      const val = node[key];
+      const fullPath = prefix ? prefix + "/" + key : key;
+      if (val === "<FILE>") {
+        const isActive = fullPath === activeFileName;
+        const div = document.createElement("div");
+        div.className = "file-entry" + (isActive ? " active" : "");
+        div.style.paddingLeft = (8 + depth * 16) + "px";
+        div.innerHTML = `📄 ${key}`;
+        div.title = fullPath;
+        div.onclick = () => switchToFile(fullPath);
+        container.appendChild(div);
+      } else {
+        const isExpanded = expandedFolders[fullPath] !== false;
+        const div = document.createElement("div");
+        div.className = "folder";
+        div.style.paddingLeft = (8 + depth * 16) + "px";
+        div.innerHTML = `<span style="width:12px;text-align:center;font-size:10px;color:var(--dim)">${isExpanded ? "▾" : "▸"}</span> 📁 ${key}`;
+        div.onclick = () => { expandedFolders[fullPath] = !isExpanded; renderFileTabs(); };
+        container.appendChild(div);
+        if (isExpanded) {
+          const childContainer = document.createElement("div");
+          childContainer.className = "children";
+          container.appendChild(childContainer);
+          renderNode(val, fullPath, depth + 1, childContainer);
+        }
+      }
+    }
+  }
+  renderNode(tree, "", 0, explorer);
+
+  if(breadcrumb && activeFileName) breadcrumb.textContent = activeFileName;
+
+  // File tabs
+  names.forEach(name=>{
+    const tab=document.createElement("div");
+    tab.className="tab"+(name===activeFileName?" active":"");
+    tab.textContent=name.split("/").pop(); // show basename
+    tab.title=name;
+    tab.onclick=()=> switchToFile(name);
+    tabs.appendChild(tab);
+  });
+}
+
 function loadScenario(idx){
-  if(typeof idx === "string") idx = ALL.findIndex(s => s.id === idx);   // принимаем и id, и индекс
-  if(idx == null || idx < 0 || idx >= ALL.length || !ALL[idx]) idx = 0; // защита от гонки инициализации
+  if(typeof idx === "string") idx = ALL.findIndex(s => s.id === idx);
+  if(idx == null || idx < 0 || idx >= ALL.length || !ALL[idx]){
+    if(!editorReady){ window._pendingLoad=idx; return; }
+    idx = 0;
+  }
+  if(!editorReady){ window._pendingLoad=idx; return; }
+  window._pendingLoad = null;
   current = ALL[idx];
   executed = []; history = []; term.innerHTML = "";
+  expandedFolders = {};
+  preApplySnapshot = null;
   print(`# ${current.title}`, "warn");
-  print(`# Симулятор. «Подсказки» — список шагов. «Проверить решение» — чек-лист.\n`, "dim");
-  const goals = (current.solution||[]).map(s=>`<li>${s.l||s.label}</li>`).join("");
-  const filesList = Object.keys(current.files||{}).map(f=>`<span class="file" data-file="${f}">${f}</span>`).join(", ") || "—";
-  document.getElementById("brief").innerHTML =
-    (current.brief || "Описание отсутствует.") +
-    `<hr><div><b>📂 Стартовое состояние:</b> файлы ${filesList} (открыты в редакторе слева)</div>` +
-    `<div style="margin-top:6px"><b>🎯 Цели задания</b> (выполните в терминале):<ul style="margin:4px 0 0 18px;padding:0">${goals}</ul></div>`;
+  print(`# Симулятор. Подсказки — по кнопкам. «Проверить решение» — чек-лист.`, "dim");
+  print(`# Введите help для списка доступных команд.\n`, "dim");
+
+  // brief rendering
+  const briefHtml = current.brief || "Описание отсутствует.";
+  document.getElementById("brief").innerHTML = briefHtml;
+
+  // Setup VFS from scenario files
+  const scenarioFiles = {};
+  if(current.files){
+    Object.assign(scenarioFiles, current.files);
+  } else if(current.editorFile && current.editorStart){
+    scenarioFiles[current.editorFile] = current.editorStart;
+  }
+  vfs.loadFromScenario(scenarioFiles);
+  vfsSnapshot = vfs.snapshot();
+
+  // Setup currentFiles from VFS
+  currentFiles = vfs.allRelativeFiles();
+
+  // determine active file
+  if(current.editorFile && currentFiles[current.editorFile]!==undefined){
+    activeFileName = current.editorFile;
+  } else if(Object.keys(currentFiles).length){
+    activeFileName = Object.keys(currentFiles)[0];
+  } else {
+    activeFileName = null;
+  }
+
+  renderFileTabs();
+  const initialContent = activeFileName ? (currentFiles[activeFileName]||"") : (current.editorStart||"");
+  editorApi.setValue(initialContent);
+  if(editorApi.setLang && activeFileName) editorApi.setLang(detectLang(activeFileName));
+  document.getElementById("editor-file").textContent = activeFileName ? "📄 "+activeFileName : "—";
   document.getElementById("prompt").textContent = current.prompt || "ubuntu@lab:~$";
   document.getElementById("code-result").textContent = "";
   document.getElementById("check-result").style.display = "none";
-  document.getElementById("editor-file").textContent = "📄 " + (current.editorFile || "—");
-  editorApi.setValue(current.editorStart || (current.files ? Object.values(current.files)[0] : "") || "");
-  if(editorApi.setLang){
-    const f = current.editorFile || "";
-    editorApi.setLang(/\.ya?ml$/.test(f) ? "yaml" : /\.tf$/.test(f) ? "hcl" : /\.py$/.test(f) ? "python" : /\.go$/.test(f) ? "go" : /\.sql$/.test(f) ? "sql" : "shell");
+
+  // reset hints/solution
+  const hintsPanel=document.getElementById("hints-panel");
+  hintsPanel.style.display="none";
+  hintsPanel.innerHTML="";
+  const hints = current.hints || [];
+  if(!hints.length){
+    const fallback=(current.solution||[]).map(s=>s.l||s.label).slice(0,3);
+    if(fallback.length) current.hints=fallback;
   }
-  document.querySelectorAll("#brief .file").forEach(el=>{
-    el.onclick = ()=>{ const f=(current.files||{})[el.dataset.file]; if(f!==undefined) editorApi.setValue(f);
-      document.getElementById("editor-file").textContent = "📄 "+el.dataset.file; };
-  });
+  const finalHints=current.hints||[];
+  hintsPanel.innerHTML = finalHints.map((h,i)=>`<div class="hint" id="hint-${i}" style="display:none"><strong>Подсказка ${i+1}:</strong> ${h}</div>`).join("");
+  document.getElementById("solution-panel").style.display="none";
+  document.getElementById("solution-panel").innerHTML="";
+  document.getElementById("btn-hint1").disabled = finalHints.length<1;
+  document.getElementById("btn-hint2").disabled = finalHints.length<2;
+  document.getElementById("btn-hint3").disabled = finalHints.length<3;
+  current._hintOpen=[false,false,false];
   input.focus();
 }
 sel.onchange = ()=>loadScenario(+sel.value);
-document.getElementById("btn-reset").onclick = ()=>loadScenario(+sel.value);
-document.getElementById("btn-hints").onclick = ()=>{
-  print("# Шаги решения:", "dim");
-  (current.solution||[]).forEach(s=>print("  • "+(s.l||s.label), "dim"));
+document.getElementById("btn-reset").onclick = ()=>{
+  // Full reset: restore VFS from snapshot
+  if (vfsSnapshot) vfs.restore(vfsSnapshot);
+  preApplySnapshot = null;
+  loadScenario(+sel.value);
 };
 
-/* ======================= ПРОВЕРКИ ======================= */
+// Hints logic — independent accordion toggles, no duplication
+function toggleHint(n){
+  const idx=n-1;
+  const el=document.getElementById(`hint-${idx}`);
+  if(!el) return;
+  const isOpen = current._hintOpen[idx];
+  el.style.display = isOpen ? "none" : "block";
+  current._hintOpen[idx]=!isOpen;
+  const panel=document.getElementById("hints-panel");
+  panel.style.display = current._hintOpen.some(v=>v) ? "block" : "none";
+  if(!isOpen && n<3 && current.hints && current.hints[n]) document.getElementById(`btn-hint${n+1}`).disabled=false;
+}
+document.getElementById("btn-hint1").onclick=()=>toggleHint(1);
+document.getElementById("btn-hint2").onclick=()=>toggleHint(2);
+document.getElementById("btn-hint3").onclick=()=>toggleHint(3);
+
+/* ======================= SOLUTION PANEL ======================= */
+document.getElementById("btn-solution").onclick=()=>{
+  const panel=document.getElementById("solution-panel");
+  if(panel.style.display==="block"){ panel.style.display="none"; return; }
+  panel.style.display="block";
+
+  let html = "";
+  const sol = current.solutionDetail;
+  const solFiles = current.solutionFiles;
+
+  // Solution files tree
+  if (solFiles && Object.keys(solFiles).length) {
+    html += `<div style="margin-bottom:10px"><b>📁 Solution Files</b></div>`;
+    html += `<div id="sol-file-list" style="margin-bottom:8px">`;
+    for (const fname of Object.keys(solFiles)) {
+      html += `<span class="sol-file" data-file="${fname}" onclick="showSolutionFile('${fname}')">📄 ${fname}</span> `;
+    }
+    html += `</div>`;
+    html += `<div id="sol-file-content" style="display:none"><pre id="sol-file-code"></pre></div>`;
+    html += `<div class="sol-actions">`;
+    html += `<button onclick="applySolution()" style="border-color:var(--warn);color:var(--warn)">📥 Применить решение в редактор</button>`;
+    if (preApplySnapshot) {
+      html += `<button onclick="undoSolution()" style="border-color:var(--err);color:var(--err)">↩ Отменить</button>`;
+    }
+    html += `</div>`;
+  }
+
+  // Solution explanation
+  if(sol){
+    if(sol.why) html+=`<div style="margin-top:10px"><b>Почему исходная версия была неправильной:</b><br>${sol.why}</div>`;
+    if(sol.changes) html+=`<div style="margin-top:8px"><b>Что изменилось:</b><ul>${sol.changes.map(c=>`<li>${c}</li>`).join("")}</ul></div>`;
+    if(sol.code) html+=`<div style="margin-top:8px"><b>Полное решение:</b><pre>${sol.code.replace(/</g,"&lt;")}</pre></div>`;
+    if(sol.explanation) html+=`<div style="margin-top:8px">${sol.explanation}</div>`;
+    if(!sol.code && !sol.why && !solFiles) html=`<pre>${JSON.stringify(sol, null, 2).replace(/</g,"&lt;")}</pre>`;
+  } else if (!solFiles) {
+    // fallback to solution steps
+    const steps=(current.solution||[]).map(s=>`<li>${s.l||s.label}</li>`).join("");
+    html+=`<b>Эталонные шаги:</b><ul>${steps}</ul><div class="dim">Откройте файлы слева и сравните с проверкой кода.</div>`;
+  }
+
+  panel.innerHTML=html;
+  panel.scrollTop=0;
+};
+
+window.showSolutionFile = function(fname) {
+  const solFiles = current.solutionFiles;
+  if (!solFiles || !solFiles[fname]) return;
+  const contentDiv = document.getElementById("sol-file-content");
+  const codeEl = document.getElementById("sol-file-code");
+  contentDiv.style.display = "block";
+  codeEl.textContent = solFiles[fname];
+  // Highlight active
+  document.querySelectorAll("#sol-file-list .sol-file").forEach(el => {
+    el.classList.toggle("active", el.dataset.file === fname);
+  });
+};
+
+window.applySolution = function() {
+  const solFiles = current.solutionFiles;
+  if (!solFiles) return;
+  // Save pre-apply state for undo
+  preApplySnapshot = vfs.snapshot();
+  // Load solution files into VFS
+  for (const [name, content] of Object.entries(solFiles)) {
+    vfs.writeFile(name, content);
+  }
+  // Refresh editor
+  currentFiles = vfs.allRelativeFiles();
+  if (activeFileName && currentFiles[activeFileName] !== undefined) {
+    editorApi.setValue(currentFiles[activeFileName]);
+  }
+  renderFileTabs();
+  print("📥 Решение загружено в редактор. Используйте «Проверить код» для валидации.", "ok");
+  // Re-render solution panel to show undo button
+  document.getElementById("btn-solution").click();
+  document.getElementById("btn-solution").click();
+};
+
+window.undoSolution = function() {
+  if (!preApplySnapshot) return;
+  vfs.restore(preApplySnapshot);
+  preApplySnapshot = null;
+  currentFiles = vfs.allRelativeFiles();
+  if (activeFileName && currentFiles[activeFileName] !== undefined) {
+    editorApi.setValue(currentFiles[activeFileName]);
+  }
+  renderFileTabs();
+  print("↩ Решение отменено. Файлы восстановлены.", "warn");
+  document.getElementById("btn-solution").click();
+  document.getElementById("btn-solution").click();
+};
+
+/* ======================= CHECKS ======================= */
 function checkSolution(){
   const box = document.getElementById("check-result");
   box.style.display = "block";
+
+  // Terminal checks (commands executed)
   const sol = current.solution||[];
-  const rows = sol.map(s=>{
+  const termRows = sol.map(s=>{
     const ok = executed.some(c=>RE(s.re).test(c));
     return `<span class="${ok?"pass":"fail"}">${ok?"✓":"✗"}</span> ${s.l||s.label}`;
   });
-  const all = sol.every(s=>executed.some(c=>RE(s.re).test(c)));
-  box.innerHTML = rows.join("<br>") + `<br><b class="${all?"pass":"fail"}">${all?"🎉 Решение засчитано!":"Пока выполнено не всё — продолжайте."}</b>`;
+  const termAll = sol.every(s=>executed.some(c=>RE(s.re).test(c)));
+
+  // Editor checks (code content)
+  const editorChecks = current.editorChecks || [];
+  let editorRows = [];
+  let editorAll = true;
+  if (editorChecks.length) {
+    // Check ALL files in VFS
+    const allCode = Object.values(vfs.allRelativeFiles()).join("\n");
+    editorRows = editorChecks.map(c=>{
+      const ok = RE(c.re).test(allCode);
+      if (!ok) editorAll = false;
+      return `<span class="${ok?"pass":"fail"}">${ok?"✓":"✗"}</span> ${c.l||c.label}`;
+    });
+  }
+
+  let html = "";
+  if (termRows.length) {
+    html += "<b>Терминал:</b><br>" + termRows.join("<br>") + "<br>";
+  }
+  if (editorRows.length) {
+    html += "<b>Код:</b><br>" + editorRows.join("<br>") + "<br>";
+  }
+
+  const allPassed = (sol.length === 0 || termAll) && (editorChecks.length === 0 || editorAll);
+  html += `<br><b class="${allPassed?"pass":"fail"}">${allPassed?"🎉 Решение засчитано!":"Пока выполнено не всё — продолжайте."}</b>`;
+  box.innerHTML = html;
 }
 document.getElementById("btn-check").onclick = checkSolution;
 
 document.getElementById("check-code").onclick = ()=>{
+  syncEditorToVfs();
   const res = document.getElementById("code-result");
   const checks = current.editorChecks;
   if(!checks){ res.textContent = "в этом сценарии код не проверяется"; res.className="dim"; return; }
-  const val = editorApi.getValue();
+  // Check against ALL files combined
+  const allCode = Object.values(vfs.allRelativeFiles()).join("\n");
   res.innerHTML = checks.map(c=>{
-    const ok = RE(c.re).test(val);
+    const ok = RE(c.re).test(allCode);
     return `<span class="${ok?"pass":"fail"}">${ok?"✓":"✗"}</span>${c.l||c.label}`;
   }).join(" · ");
 };
 
-/* ======================= СТАРТ ======================= */
+/* ======================= START ======================= */
 fillSelect();
-// deep-link: playground.html?scenario=lab07 — открыть конкретный сценарий
 const wantId = new URLSearchParams(location.search).get("scenario");
 if (wantId && ALL.some(s => s.id === wantId)) loadScenario(wantId); else loadScenario(0);
 </script>

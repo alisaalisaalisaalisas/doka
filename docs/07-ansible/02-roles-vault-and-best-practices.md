@@ -160,14 +160,14 @@ ansible-lint roles/nginx          # статический анализ best pra
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Ansible Vault/Roles — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Пайплайн зеленый, прод сломан | Разница окружений / secrets не из Vault | Проверять конфиги через `conftest` + smoke-тесты после деплоя |
-| `terraform apply` висит на lock | Умерший CI оставил lock | `force-unlock` после проверки активности |
-| Ansible «работает» но ничего не меняет | `changed_when` не настроен | Явные `changed_when`/`failed_when` для команд |
-| GitOps откатывает ручной фикс | Drift между Git и кластером | Править только в Git; `selfHeal` оставить включенным |
+| `ERROR! Decryption failed` в CI | `ANSIBLE_VAULT_PASSWORD_FILE` не прокинут | `ansible-vault view --vault-password-file <(echo $VAULT_PASS)` |
+| `role not found` после `ansible-galaxy install` | `collections_paths` не включает `~/.ansible/collections` | `ansible-galaxy collection list -p /usr/share/ansible/collections` |
+| `changed_when: false` скрыл реальную ошибку | Команда упала но `changed_when` false → `failed_when` не сработал | `changed_when: result.rc == 0` + `failed_when: result.rc != 0` |
+| `vault.yml` в Git без `!vault` | `ansible-vault encrypt_string` скопирован без `!vault |` | `grep -r '\$ANSIBLE_VAULT'` — должен быть `!vault` tag |
 
 !!! warning «Идемпотентность — закон»
     Любой скрипт/плейбук/модуль должен быть безопасно перезапускаемым. Если второй прогон меняет состояние — это баг, который однажды уронит прод.

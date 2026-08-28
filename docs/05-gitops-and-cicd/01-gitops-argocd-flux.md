@@ -170,14 +170,14 @@ spec:
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (GitOps — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| Пайплайн зеленый, прод сломан | Разница окружений / secrets не из Vault | Проверять конфиги через `conftest` + smoke-тесты после деплоя |
-| `terraform apply` висит на lock | Умерший CI оставил lock | `force-unlock` после проверки активности |
-| Ansible «работает» но ничего не меняет | `changed_when` не настроен | Явные `changed_when`/`failed_when` для команд |
-| GitOps откатывает ручной фикс | Drift между Git и кластером | Править только в Git; `selfHeal` оставить включенным |
+| `Application` `OutOfSync` `prune` удалил `Service` | `prune: true` + ресурс не в Git | `argocd app diff`, `syncPolicy.prune: false` для shared ресурсов |
+| `FailedSync: comparison error: tls: unknown authority` | `repoURL` https с self-signed | `spec.source.repoURL` с `insecure: true` или CA bundle |
+| `Sync failed: InvalidSpecError: serviceAccountName not found` | SA не существует до `Kustomization` | `dependsOn: [infra]` или `argocd.argoproj.io/sync-wave: "-1"` для SA |
+| Drift не лечится `selfHeal: true` | `ignoreDifferences` перекрывает поле | `spec.ignoreDifferences[0].jsonPointers: /spec/replicas` только для HPA |
 
 !!! warning «Идемпотентность — закон»
     Любой скрипт/плейбук/модуль должен быть безопасно перезапускаемым. Если второй прогон меняет состояние — это баг, который однажды уронит прод.

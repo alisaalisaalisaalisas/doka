@@ -116,14 +116,14 @@ stateDiagram-v2
 
 <!-- enriched:v1 -->
 
-## 🧨 Типовые грабли Production
+## 🧨 Типовые грабли Production (Docker CLI — только эта тема)
 
 | Симптом | Причина | Быстрое решение |
 | :--- | :--- | :--- |
-| «Работало вчера» после обновления | Дрейф конфигурации вне Git | `git diff` по инфра-репозиторию + `drift detection` |
-| Падение под нагрузкой без ошибок в логах | Исчерпание лимитов (`ulimit`, conntrack, fds) | `dmesg -T \| grep -i denied`, `conntrack -S` |
-| Медленный деплой | Отсутствие кэша слоев/артефактов | Включить layer cache, артефакт-репозиторий |
-| «Плавающие» 502 раз в сутки | Health-check гонки при rolling update | `preStop sleep` + корректный `readinessProbe` |
+| `docker run` без `restart: unless-stopped` — не стартует после ребута | Нет политики рестарта | `--restart unless-stopped` или `restart:` в compose |
+| `docker logs` пустые, `-d` без `json-file` driver | Неверный `log-driver` | `docker inspect --format '{{.HostConfig.LogConfig.Type}}'`, `json-file` + `max-size` |
+| `no space left on device` на `docker build` | `/var/lib/docker` full, `overlay2` разросся | `docker system df`, `docker system prune -a --filter until=72h` |
+| `docker exec -it` зависает | PID 1 не пробрасывает сигналы (`SIGTERM` игнорируется) | `tini`/`dumb-init` как `ENTRYPOINT`, `STOPSIGNAL` |
 
 !!! warning "Правило пяти почему"
     Каждый инцидент заканчивается не фиксом, а **post-mortem** с 5×Why и action items в бэклоге. Иначе грабли возвращаются через квартал — но уже в пятницу вечером.
