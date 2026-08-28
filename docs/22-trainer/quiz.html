@@ -109,31 +109,31 @@ const topicSel = document.getElementById("topic"),
 let state = JSON.parse(localStorage.getItem(KEY) || "{}");  // hash -> {v, due, ivl}
 let deck = [], i = 0, shown = false, shuffled = false;
 let history = []; // last 20 grades for undo
-let stats = JSON.parse(localStorage.getItem(STATS_KEY) || "{}"); // {lastDay, streak, perDay: {day: count}}
+let srsStats = JSON.parse(localStorage.getItem(STATS_KEY) || "{}"); // {lastDay, streak, perDay: {day: count}}
 function saveStats(){
   const today = new Date().toISOString().slice(0,10);
-  if(stats.lastDay !== today){
+  if(srsStats.lastDay !== today){
     const yest = new Date(Date.now()-DAY).toISOString().slice(0,10);
-    if(stats.lastDay === yest) stats.streak = (stats.streak||0)+1;
-    else if(stats.lastDay) stats.streak = 1;
-    else stats.streak = 1;
-    stats.lastDay = today;
+    if(srsStats.lastDay === yest) srsStats.streak = (srsStats.streak||0)+1;
+    else if(srsStats.lastDay) srsStats.streak = 1;
+    else srsStats.streak = 1;
+    srsStats.lastDay = today;
   }
-  stats.perDay = stats.perDay || {};
-  stats.perDay[stats.lastDay] = (stats.perDay[stats.lastDay]||0)+1;
-  localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  srsStats.perDay = srsStats.perDay || {};
+  srsStats.perDay[srsStats.lastDay] = (srsStats.perDay[srsStats.lastDay]||0)+1;
+  localStorage.setItem(STATS_KEY, JSON.stringify(srsStats));
 }
 function renderStreak(){
   if(!streakEl) return;
   const today = new Date().toISOString().slice(0,10);
   const weekAgo = Date.now()-7*DAY;
   let weekNew = 0, weekRep = 0;
-  for(const [day,cnt] of Object.entries(stats.perDay||{})){
+  for(const [day,cnt] of Object.entries(srsStats.perDay||{})){
     const ts = new Date(day).getTime();
     if(ts >= weekAgo) { weekNew += cnt; }
   }
   const dueNow = DATA.filter(c=>{ const s=state[hash(c.q+c.t)]; return !s || (s.due||0) <= Date.now(); }).length;
-  streakEl.textContent = `📊 Streak: ${stats.streak||0} дней · новых за неделю: ${weekNew} · к повторению: ${dueNow}`;
+  streakEl.textContent = `📊 Streak: ${srsStats.streak||0} дней · новых за неделю: ${weekNew} · к повторению: ${dueNow}`;
 }
 
 const hash = s => { let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))|0; return "q"+h; };
@@ -214,7 +214,7 @@ goodBtn.onclick = ()=>grade("good");
 easyBtn.onclick = ()=>grade("easy");
 undoBtn.onclick = ()=>undo();
 shuffleBtn.onclick = ()=>{ shuffled = true; rebuild(); };
-resetBtn.onclick = ()=>{ if(confirm("Сбросить весь SRS-прогресс?")){ state={}; history=[]; localStorage.removeItem(KEY); localStorage.removeItem(STATS_KEY); stats={}; shuffled=false; rebuild(); } };
+resetBtn.onclick = ()=>{ if(confirm("Сбросить весь SRS-прогресс?")){ state={}; history=[]; localStorage.removeItem(KEY); localStorage.removeItem(STATS_KEY); srsStats={}; shuffled=false; rebuild(); } };
 examNowBtn.onclick = ()=>{ modeSel.value="exam"; shuffled=true; rebuild(); };
 topicSel.onchange = rebuild; modeSel.onchange = rebuild;
 document.addEventListener("keydown", (e)=>{
