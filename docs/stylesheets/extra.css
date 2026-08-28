@@ -77,13 +77,18 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;
-  margin-top: auto;
   align-self: flex-start;
+  white-space: nowrap;
 }
 .card-link:hover { text-decoration: underline; }
+/* markdown generates <p> around link — push it to bottom */
+.card > p { margin: 0; }
+.card > p:last-child { margin-top: auto; }
+.card > p:has(> .card-link) { margin-top: auto; }
 /* legacy fallback */
 .card-grid .card h3 { margin: 0 0 6px 0; font-size: 15px; color: var(--handbook-accent); }
 .card-grid .card p { margin: 0; font-size: 13px; color: var(--handbook-dim); }
+.card > p { font-size: inherit; }
 
 /* Badges */
 .badge {
