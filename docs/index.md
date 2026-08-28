@@ -71,39 +71,57 @@ flowchart TD
 <div class="card-grid" markdown>
 
 <div class="card" markdown>
-### 🐧 01. Linux, Сети и Bash <span class="badge">30 стр.</span>
-Ядро, systemd, сети, eBPF, хранилище, хардининг.
-[Открыть →](01-linux-and-networking/01-linux-core-and-systemd.md)
+<div class="card-title">🐧 01. Linux, Сети и Bash <span class="badge">30 стр.</span></div>
+<div class="card-desc">Ядро, systemd, сети, eBPF, хранилище, хардининг.</div>
+<a class="card-link" href="01-linux-and-networking/01-linux-core-and-systemd.md">Открыть →</a>
 </div>
 
 <div class="card" markdown>
-### ☸️ 04. Kubernetes <span class="badge">12 стр.</span>
-Архитектура, сети, Helm, HPA/VPA, Gateway API.
-[Открыть →](04-kubernetes/01-k8s-architecture-and-workloads.md)
+<div class="card-title">🐙 02. Git <span class="badge">10 стр.</span></div>
+<div class="card-desc">Workflows, rebase, LFS, подписи, монорепо.</div>
+<a class="card-link" href="02-git/01-git-internals-and-workflows.md">Открыть →</a>
 </div>
 
 <div class="card" markdown>
-### 📊 09. Observability <span class="badge">10 стр.</span>
-Prometheus, Alloy, Loki, Grafana as Code, SRE.
-[Открыть →](09-observability/01-prometheus-and-grafana.md)
+<div class="card-title">🐳 03. Docker <span class="badge">4 стр.</span></div>
+<div class="card-desc">OCI, Dockerfile, BuildKit, compose, security.</div>
+<a class="card-link" href="03-docker/01-docker-architecture-and-cli.md">Открыть →</a>
 </div>
 
 <div class="card" markdown>
-### 🏗️ 06-07. IaC <span class="badge">6 стр.</span>
-Terraform, Terragrunt, Ansible, Vault, AWX.
-[Открыть →](06-terraform/01-terraform-fundamentals.md)
+<div class="card-title">☸️ 04. Kubernetes <span class="badge">12 стр.</span></div>
+<div class="card-desc">Архитектура, сети, Helm, HPA/VPA, Gateway API.</div>
+<a class="card-link" href="04-kubernetes/01-k8s-architecture-and-workloads.md">Открыть →</a>
 </div>
 
 <div class="card" markdown>
-### 🐍 08. Python и Go <span class="badge">20 стр.</span>
-Скрипты, операторы Kopf/Kubebuilder, FastAPI.
-[Открыть →](08-programming-python-go/01-python-for-devops.md)
+<div class="card-title">🔄 05. GitOps & CI <span class="badge">7 стр.</span></div>
+<div class="card-desc">ArgoCD/Flux, Progressive Delivery, Tekton.</div>
+<a class="card-link" href="05-gitops-and-cicd/01-gitops-argocd-flux.md">Открыть →</a>
 </div>
 
 <div class="card" markdown>
-### 🤖 23. MLOps <span class="badge">9 стр.</span>
-MLflow, DVC, Feast, GPU/Kueue, LLMOps/RAG.
-[Открыть →](23-mlops/00-plan.md)
+<div class="card-title">🏗️ 06-07. IaC <span class="badge">6 стр.</span></div>
+<div class="card-desc">Terraform, Terragrunt, Ansible, Vault, AWX.</div>
+<a class="card-link" href="06-terraform/01-terraform-fundamentals.md">Открыть →</a>
+</div>
+
+<div class="card" markdown>
+<div class="card-title">📊 09. Observability <span class="badge">10 стр.</span></div>
+<div class="card-desc">Prometheus, Alloy, Loki, Grafana as Code, SRE.</div>
+<a class="card-link" href="09-observability/01-prometheus-and-grafana.md">Открыть →</a>
+</div>
+
+<div class="card" markdown>
+<div class="card-title">🐍 08. Python и Go <span class="badge">20 стр.</span></div>
+<div class="card-desc">Скрипты, операторы Kopf/Kubebuilder, FastAPI.</div>
+<a class="card-link" href="08-programming-python-go/01-python-for-devops.md">Открыть →</a>
+</div>
+
+<div class="card" markdown>
+<div class="card-title">🤖 23. MLOps <span class="badge">9 стр.</span></div>
+<div class="card-desc">MLflow, DVC, Feast, GPU/Kueue, LLMOps/RAG.</div>
+<a class="card-link" href="23-mlops/00-plan.md">Открыть →</a>
 </div>
 
 </div>
@@ -111,28 +129,34 @@ MLflow, DVC, Feast, GPU/Kueue, LLMOps/RAG.
 <div class="card-grid" markdown>
 
 <div class="card" markdown>
-### 🧪 Песочница <span class="badge badge-accent">1033 сценария</span>
-Терминал + Monaco прямо в браузере.
-[Открыть →](21-playground/index.md)
+<div class="card-title">🧪 Песочница <span class="badge badge-accent">1033 сценария</span></div>
+<div class="card-desc">Терминал + Monaco прямо в браузере.</div>
+<a class="card-link" href="21-playground/index.md">Открыть →</a>
 </div>
 
 <div class="card" markdown>
-### 🎯 Тренажёр SRS <span class="badge badge-ok">831 карточка</span>
-Anki-алгоритм, интервалы 1→70 дней.
-[Открыть →](22-trainer/index.md)
+<div class="card-title">🎯 Тренажёр SRS <span class="badge badge-ok">831 карточка</span></div>
+<div class="card-desc">Anki-алгоритм, интервалы 1→70 дней.</div>
+<a class="card-link" href="22-trainer/index.md">Открыть →</a>
 </div>
 
 <div class="card" markdown>
-### 🔬 Guided Labs <span class="badge">12 лаб</span>
-От systemd до Vault и сквозного E2E трека.
-[Открыть →](16-guided-labs/01-lab-linux-systemd-namespaces.md)
+<div class="card-title">🔬 Guided Labs <span class="badge">12 лаб</span></div>
+<div class="card-desc">От systemd до Vault и сквозного E2E трека.</div>
+<a class="card-link" href="16-guided-labs/01-lab-linux-systemd-namespaces.md">Открыть →</a>
+</div>
+
+<div class="card" markdown>
+<div class="card-title">📦 Ещё: Security · Data · Mesh · DR <span class="badge">12 стр.</span></div>
+<div class="card-desc">Vault, Ceph/Kafka/PG, Istio/Cilium, Velero.</div>
+<a class="card-link" href="10-security-and-cloud/01-devsecops-and-secrets.md">Открыть →</a>
 </div>
 
 </div>
 
 > 💡 Ищете что-то конкретное? Нажмите <kbd>/</kbd> или <kbd>S</kbd> для мгновенного поиска по всем **300+ страницам**.
 
-<details><summary>📚 Показать полный список разделов</summary>
+<details open><summary>📚 Полный список разделов (таблица)</summary>
 
 | Раздел | Что внутри | Где начать |
 |---|---|---|
