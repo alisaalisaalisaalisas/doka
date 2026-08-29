@@ -176,9 +176,14 @@ flowchart TD
 | **13 DR** | Velero, PITR, RPO/RTO | [DR](13-disaster-recovery-and-tools/01-k8s-backups-velero.md) |
 | **14 Interview** | 100 Q + system design | [Interview](14-interview-prep/01-devops-interview-core-qa.md) |
 | **15 Practice** | 100 задач с решениями | [Practice](15-hands-on-practice/01-100-devops-practical-tasks-part1.md) |
+| **16 Labs** | 12 лаб: systemd → E2E | [Labs](16-guided-labs/01-lab-linux-systemd-namespaces.md) |
+| **17 Break-Fix** | 4 блока инцидентов | [Break-Fix](17-break-fix/01-incident-simulations.md) |
 | **18 Templates** | PRR, Helm, CI | [Templates](18-templates/01-containers-and-k8s.md) |
 | **19 Career** | Homelab, портфолио | [Career](19-career/01-home-lab-setup.md) |
 | **20 Senior** | 17 тем + своды | [Senior](20-senior-stack/00-senior-stack-summary.md) |
+| **21 Playground** | 1033 сценария, терминал+Monaco | [Playground](21-playground/index.md) |
+| **22 Trainer** | 831 карточка, SRS | [Trainer](22-trainer/index.md) |
+| **23 MLOps** | 9 тем: MLflow, Feast, GPU | [MLOps](23-mlops/00-plan.md) |
 
 </details>
 
