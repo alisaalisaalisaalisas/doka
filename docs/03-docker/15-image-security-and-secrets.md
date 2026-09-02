@@ -1,135 +1,156 @@
-# Безопасность образов и секреты
+# 🔒 15. Безопасность образов и Управление Секретами
 
-> secrets, Trivy, Grype, SBOM, signing
+## 🛡️ Угрозы безопасности контейнерных образов
 
----
-
-## Теория
-
-### Что это и зачем
-
-secrets, Trivy, Grype, SBOM, signing — ключевая технология в 03-docker. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+Контейнерный образ — это неизменяемый артефакт, который развертывается на сотнях серверов. Ошибки при проектировании Dockerfile и пайплайнов сборки могут привести к компрометации всей корпоративной инфраструктуры.
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
+    subgraph Vectors["Векторы атак через образы"]
+        V1["1. Утечка секретов (SSH keys, AWS tokens, DB passwords)"]
+        V2["2. Запуск от пользователя root (UID 0 Privilege Escalation)"]
+        V3["3. Уязвимости в системных библиотеках (Known CVEs)"]
+        V4["4. Подмена образов и атаки Man-in-the-Middle (Untrusted Registry)"]
+    end
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
+    subgraph Defenses["Эшелонированная защита"]
+        D1["BuildKit Secret Mounts + GitGuardian / Trufflehog"]
+        D2["USER nonroot (UID 10001:10001)"]
+        D3["Автоматическое сканирование Trivy / Grype в CI/CD"]
+        D4["Подпись образов Cosign / Notary + Image Integrity Webhooks"]
+    end
 
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-docker info && docker run --rm hello-world
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    V1 --> D1
+    V2 --> D2
+    V3 --> D3
+    V4 --> D4
 ```
 
 ---
 
-## Проверь себя
+## 🚫 1. Антипаттерны работы с секретами
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+### ❌ Антипаттерн 1: Передача секрета через `ARG` или `ENV`
+```dockerfile
+# КАТАСТРОФА: Секрет навсегда останется в метаданных образа!
+ARG AWS_SECRET_ACCESS_KEY
+ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+RUN download-private-data.sh
+```
+Любой пользователь с доступом к образу выполнит `docker history --no-trunc` или `docker inspect` и увидит ваш ключ в открытом виде!
 
+### ❌ Антипаттерн 2: Запись и последующее удаление файла
+```dockerfile
+# КАТАСТРОФА: Секрет остается в промежуточном слое Layer 1!
+COPY id_rsa /root/.ssh/id_rsa
+RUN git clone git@github.com:company/secret.git && rm -rf /root/.ssh
+```
+
+### ✅ Безопасный подход: `RUN --mount=type=secret`
+Секрет существует только в оперативной памяти во время работы конкретной команды:
+```dockerfile
+# syntax=docker/dockerfile:1.7
+FROM alpine:3.19
+RUN --mount=type=secret,id=aws_token \
+    AWS_SECRET_KEY=$(cat /run/secrets/aws_token) ./fetch-assets.sh
+```
+
+---
+
+## 👤 2. Non-Root Containers: Принцип работы
+
+По умолчанию процессы внутри Docker запускаются с `UID 0 (root)`. Если процесс скомпрометирован через RCE-уязвимость, а ядро Linux имеет неисправленный баг (например, Dirty COW, OverlayFS privilege escalation), атакующий мгновенно получает **полный root-доступ к хостовой ноде**.
+
+### Создание выделенного системного пользователя:
+```dockerfile
+FROM alpine:3.19
+
+# Создание группы и пользователя с фиксированными явными UID/GID
+RUN addgroup -g 10001 -S appgroup && \
+    adduser -u 10001 -S appuser -G appgroup -s /sbin/nologin
+
+WORKDIR /app
+COPY --chown=appuser:appgroup . .
+
+# Переключение контекста на non-root
+USER 10001:10001
+
+EXPOSE 8080
+ENTRYPOINT ["./my-app"]
+```
+
+> [!IMPORTANT]
+> **Почему указывать `USER 10001:10001` (числовые UID), а не `USER appuser`?**
+> Kubernetes admission контроллеры (Pod Security Standards / Kyverno) проверяют безопасность полей `runAsNonRoot: true` и `runAsUser` **до** запуска контейнера. Если в Dockerfile указано текстовое имя `appuser`, K8s не может прочитать `/etc/passwd` до старта и может отклонить запуск пода.
+
+---
+
+## 🔍 3. Сканеры уязвимостей: Grype и Trivy
+
+Для проверки образов в CI/CD пайплайнах используются статические анализаторы:
+
+```mermaid
+graph LR
+    Image["Docker Image Artifact"] --> Grype["Grype (Anchore)"]
+    Image --> Trivy["Trivy (Aqua Security)"]
+    
+    Grype --> Report1["JSON / SARIF Report"]
+    Trivy --> Report2["JUnit / Table Report"]
+    
+    Report1 --> Decision["CI/CD Gate: Fail if CVE >= CRITICAL"]
+    Report2 --> Decision
+```
+
+### Сравнение и запуск Grype и Trivy:
+
+```bash
+# 1. Сканирование через Grype
+# Блокировать пайплайн при наличии критических уязвимостей
+grype myregistry.com/app:1.0 --fail-on critical --only-fixed
+
+# 2. Сканирование секретов в слоях через Trivy
+trivy image --security-checks secret,vuln myregistry.com/app:1.0
+
+# 3. Генерация отчета SARIF для интеграции с GitHub Security Tab
+trivy image --format sarif --output results.sarif myregistry.com/app:1.0
+```
+
+---
+
+## 🔎 4. Детекция утечек секретов: TruffleHog
+
+Перед сборкой образов исходный код и история коммитов проверяются сканерами энтропии и сигнатур секретов:
+
+```bash
+# Поиск приватных ключей, токенов AWS, Slack, GCP в репозитории
+trufflehog git file://. --since-commit HEAD~5 --fail
+```
+
+---
+
+## 📋 5. Чек-лист безопасности Dockerfile (Production Checklist)
+
+1. [ ] Включен парсер `# syntax=docker/dockerfile:1`.
+2. [ ] Используются проверенные базовые образы с фиксацией по Digest (`FROM alpine@sha256:...`).
+3. [ ] В образе нет утилит сборки, компиляторов и тестовых фреймворков (используется Multi-stage).
+4. [ ] Контейнер работает от непривилегированного пользователя (`USER 10001:10001`).
+5. [ ] Все секреты передаются исключительно через `--mount=type=secret` или Secret Manager рантайма (Vault, K8s Secrets).
+6. [ ] Директория приложения защищена правами доступа (только чтение `0555` или `0444`, запись только в `/tmp`).
+7. [ ] Присутствует `.dockerignore`, исключающий `.git`, `.env`, ключи и токены.
+8. [ ] Образ проверен Trivy/Grype на отсутствие незакрытых CVE со статусом High/Critical.
+9. [ ] Образ подписан через Cosign.
+
+---
+
+## 💥 6. Реальный Troubleshooting
+
+### Сценарий 1: Секрет попал в Git и закэшировался в слое образа
+**Симптомы:** Разработчик случайно добавил `.env` с боевыми паролями в коммит, затем удалил его следующим коммитом и запушил образ в публичный реестр.
+
+**Причина:** Образы Docker хранят неизменяемую историю всех слоев.
+
+**Решение (Emergency Response Plan):**
+1. **Немедленно отозвать и перегенерировать все скомпрометированные ключи и пароли** (удаление коммита не спасает, так как ключи уже могли быть выкачаны ботами сканирования).
+2. Очистить Git-историю утилитой `git-filter-repo` или `BFG Repo-Cleaner`.
+3. Принудительно удалить теги образов из реестра и запустить Docker Registry Garbage Collection.
+4. Добавить pre-commit хуки с `trufflehog` для всех разработчиков.

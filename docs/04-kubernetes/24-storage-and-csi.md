@@ -1,135 +1,170 @@
-# Хранилище и CSI
+# 💽 24. Storage и CSI: Персистентность Данных в Kubernetes
 
-> PV, PVC, StorageClass, CSI, snapshots, expansion
+> Kubernetes абстрагирует блочные, файловые и объектные хранилища через стандарт Container Storage Interface (CSI). StorageClass, PersistentVolume (PV) и PersistentVolumeClaim (PVC) реализуют двухуровневую модель управления жизненным циклом дисков.
 
 ---
 
-## Теория
+## 🏛️ Архитектура CSI и Жизненный Цикл Тома
 
-### Что это и зачем
-
-PV, PVC, StorageClass, CSI, snapshots, expansion — ключевая технология в 04-kubernetes. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+CSI разделяет логику взаимодействия с хранилищем на **Control Plane контроллеры** (выделение дисков в облаке) и **Node агенты** (форматирование и монтирование на хосте).
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    subgraph K8sCore["Kubernetes Core Control Plane"]
+        PVC["1. PVC Created (Pending)"] --> SC["StorageClass Look-up"]
+    end
+
+    subgraph CSISidecars["External CSI Sidecars (Controller Pod)"]
+        SC -->|Watch PVC| Provisioner["csi-provisioner<br/>(CreateVolume via Cloud API)"]
+        Provisioner -->|Creates| PV["2. PV Created (Bound)"]
+        Attacher["csi-attacher<br/>(AttachDisk to VM Instance)"]
+        Resizer["csi-resizer<br/>(ExpandVolume)"]
+        Snapshotter["csi-snapshotter<br/>(CreateSnapshot)"]
+    end
+
+    subgraph NodeLayer["Worker Node (Kubelet & CSI DaemonSet)"]
+        Attacher -->|VolumeAttachment Object| Kubelet["Kubelet Volume Manager"]
+        Kubelet --> DriverReg["node-driver-registrar"]
+        Kubelet --> CSINode["CSI Node Plugin (gRPC UNIX Socket)<br/>• NodeStageVolume (Format ext4/xfs)<br/>• NodePublishVolume (Bind-mount to Pod)"]
+        CSINode --> PodContainer["3. Pod Container Mountpoint"]
+    end
+
+    classDef k8s fill:#326ce5,stroke:#1d4ba8,stroke-width:2px,color:#fff;
+    classDef csi fill:#563d7c,stroke:#3b2a56,stroke-width:2px,color:#fff;
+    classDef node fill:#28a745,stroke:#19692c,stroke-width:2px,color:#fff;
+    class PVC,SC,PV k8s;
+    class Provisioner,Attacher,Resizer,Snapshotter,DriverReg csi;
+    class Kubelet,CSINode,PodContainer node;
 ```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
 
 ---
 
-## Практика
+## ⚖️ StorageClass и Режимы Привязки Томов
 
-### Минимальный пример
+### 1. `volumeBindingMode`: Immediate vs WaitForFirstConsumer
 
-```bash
-# Проверка версии и базовый запуск
-kubectl cluster-info && kubectl get nodes
-```
+- **`Immediate` (По умолчанию):** PV создается облачным провайдером сразу при создании PVC.
+  > [!WARNING]
+  > В мультизональных кластерах это часто приводит к тупику: диск создается в зоне `us-east-1a`, а планировщик позже решает запустить под в зоне `us-east-1b`, куда диск физически невозможно смонтировать!
+- **`WaitForFirstConsumer` (Рекомендуется для всех Production SC):** Создание PV откладывается до тех пор, пока планировщик не выберет конкретный рабочий узел для пода с учетом ресурсов, Taints и зоны.
+
+### 2. `reclaimPolicy`: Retain vs Delete
+- **`Delete`:** При удалении PVC физический том в облаке уничтожается вместе со всеми данными.
+- **`Retain`:** При удалении PVC объект PV переходит в статус `Released`, а данные на физическом диске сохраняются для ручного восстановления администратором.
+
+### 3. Режимы доступа (AccessModes)
+- `ReadWriteOnce` (**RWO**): Том может быть смонтирован на чтение/запись только к **одному узлу**.
+- `ReadOnlyMany` (**ROX**): Том может быть смонтирован только на чтение **многими узлами**.
+- `ReadWriteMany` (**RWX**): Том может монтироваться на чтение/запись **многими узлами** одновременно (NFS, CephFS, AWS EFS).
+- `ReadWriteOncePod` (**RWOP**): Доступ на чтение/запись строго к **одному поду** (K8s 1.22+).
+
+---
+
+## 🛠️ Production-Ready Конфигурации
+
+### 1. Production StorageClass (AWS EBS gp3 с шифрованием и динамическим расширением)
 
 ```yaml
-# Минимальная конфигурация
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-gp3-sc
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer # Создание диска в зоне размещения пода
+allowVolumeExpansion: true             # Возможность онлайн-расширения диска
+reclaimPolicy: Retain                  # Защита от случайной потери данных
+parameters:
+  type: gp3
+  iops: "3000"
+  throughput: "125"
+  encrypted: "true"
+```
+
+### 2. PVC и Pod с динамическим монтированием
+
+```yaml
 apiVersion: v1
-kind: ConfigMap
+kind: PersistentVolumeClaim
 metadata:
-  name: demo
-data:
-  key: value
+  name: postgres-data-pvc
+  namespace: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ebs-gp3-sc
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres-single
+  namespace: database
+spec:
+  containers:
+  - name: postgres
+    image: postgres:15-alpine
+    volumeMounts:
+    - name: data
+      mountPath: /var/lib/postgresql/data
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: postgres-data-pvc
 ```
 
-### Production-like пример
+### 3. Снимок тома (VolumeSnapshot)
 
 ```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
 metadata:
-  name: demo-prod
+  name: postgres-snapshot-before-upgrade
+  namespace: database
 spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+  volumeSnapshotClassName: ebs-snapshot-class
+  source:
+    persistentVolumeClaimName: postgres-data-pvc
 ```
 
 ---
 
-## Проверь себя
+## ⚡ CLI Шпаргалка: Управление Дисками и Снимками
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+```bash
+# 1. Просмотр классов хранилищ и их провайдеров
+kubectl get storageclass
 
+# 2. Проверка связывания PV и PVC
+kubectl get pvc,pv -A -o wide
+
+# 3. Онлайн-расширение диска (просто меняем storage в PVC!)
+kubectl patch pvc postgres-data-pvc -n database -p '{"spec":{"resources":{"requests":{"storage":"100Gi"}}}}'
+
+# 4. Просмотр активных вложений томов к узлам (VolumeAttachments)
+kubectl get volumeattachments
+
+# 5. Проверка доступных снимков томов
+kubectl get volumesnapshots -A
+```
+
+---
+
+## 🚒 Troubleshooting: Реальные Инциденты и Решения
+
+### Сценарий 1: Расширение диска зависло в `FileSystemResizePending`
+
+- **Симптом:** `kubectl describe pvc` показывает статус `FileSystemResizePending: Waiting for user to (re-)start a pod to finish file system resize of volume on node`.
+- **Первопричина:** Облачный диск успешно увеличен контроллером CSI (`csi-resizer`), но файловая система (`ext4`/`xfs`) расширяется только Kubelet'ом при активном монтировании тома.
+- **Решение:**
+  Если под не был запущен, запустите под, использующий данный PVC. Kubelet автоматически выполнит `resize2fs` или `xfs_growfs` в фоновом режиме.
+
+---
+
+### Сценарий 2: Ошибка зоны `1 node(s) had volume node-affinity conflict`
+
+- **Симптом:** Под висит в `Pending`, в Event: `volume node-affinity conflict`.
+- **Первопричина:** Использовался StorageClass с `volumeBindingMode: Immediate`. Диск был создан в `zone-a`, но свободные CPU/RAM были доступны только на нодах в `zone-b`.
+- **Решение:**
+  Пересоздать StorageClass с параметром `volumeBindingMode: WaitForFirstConsumer`.

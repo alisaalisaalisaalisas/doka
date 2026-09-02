@@ -1,135 +1,179 @@
-# Progressive delivery с Flux
+# 🚦 21. Progressive Delivery: Flagger, FluxCD и Canary-релизы с Istio
 
-> Flagger, canary, blue/green, webhook
+## 🧬 Концепция Progressive Delivery
 
----
+**Progressive Delivery** — это эволюция Continuous Delivery, объединяющая выкатку новых версий приложений с непрерывным анализом телеметрии (Prometheus / Datadog) и постепенным переключением пользовательского трафика (Canary, Blue/Green, A/B).
 
-## Теория
-
-### Что это и зачем
-
-Flagger, canary, blue/green, webhook — ключевая технология в 05-gitops-and-cicd. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+**Flagger** — это Kubernetes-оператор от создателей Flux, который автоматизирует процесс канареечных релизов, взаимодействуя с Service Mesh (Istio, Linkerd) или Ingress-контроллерами (Nginx, Contour, Envoy Gateway).
 
 ```mermaid
-graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+flowchart TD
+    subgraph FluxSync["1. Flux Reconciliation"]
+        GitCommit["Git Push: App v2"] --> FluxApply["Flux updates Deployment spec"]
+    end
+
+    subgraph FlaggerInit["2. Flagger Control Loop"]
+        FluxApply --> FlaggerDetect["Flagger intercepts Deployment update"]
+        FlaggerDetect --> ScaleCanary["Scales app-canary Pods"]
+    end
+
+    subgraph TrafficAnalysis["3. Canary Traffic Shifting & Metrics Loop"]
+        ScaleCanary --> Weight5["Route 5% traffic to Canary"]
+        Weight5 --> CheckMetrics{"Prometheus Check: Error Rate < 1% & Latency P99 < 200ms"}
+        CheckMetrics -->|Success| Weight15["Route 15% -> 30% -> 50%"]
+        Weight15 --> CheckMetrics
+        CheckMetrics -->|Failure (3 retries)| Rollback["Auto Rollback: Route 0% to Canary, Alert SRE"]
+    end
+
+    subgraph Promotion["4. Final Promotion"]
+        Weight15 -->|100% Analysis Succeeded| Promote["Copy v2 image to Primary Deployment"]
+        Promote --> ScaleDown["Scale Canary Pods to 0"]
+        ScaleDown --> Complete["Status: Succeeded"]
+    end
 ```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
 
 ---
 
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
-```
+## 📑 Production-манифест `Canary` (Flagger + Istio)
 
 ```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
+apiVersion: flagger.app/v1beta1
+kind: Canary
 metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
+  name: payment-service
+  namespace: payments
 spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
+  # 1. Ссылка на целевой Deployment, управляемый Flux
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: payment-service
 
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
+  # 2. Настройки сервисов (Flagger автоматически создаст payment-service-primary и payment-service-canary)
+  service:
+    port: 8080
+    targetPort: 8080
+    gateways:
+      - mesh
+      - istio-system/public-gateway
+    hosts:
+      - payment.company.com
+    trafficPolicy:
+      tls:
+        mode: DISABLE
 
-### Troubleshooting
+  # 3. Расписание и алгоритм канареечного анализа
+  analysis:
+    interval: 1m                      # Частота проверки метрик
+    threshold: 5                      # Допустимое количество ошибок до инициализации отката
+    maxWeight: 50                     # Максимальный процент трафика на канарейку до промоушена
+    stepWeight: 10                    # Шаг инкремента трафика (10% -> 20% -> 30% -> 40% -> 50%)
 
-**Симптом:** сервис не стартует / метрики отсутствуют.
+    # Метрики для оценки здоровья
+    metrics:
+      - name: request-success-rate
+        thresholdRange:
+          min: 99                     # Не менее 99% успешных HTTP ответов (не 5xx)
+        interval: 1m
+      - name: request-duration
+        thresholdRange:
+          max: 500                    # Задержка P99 не более 500ms
+        interval: 1m
+        templateRef:
+          name: istio-latency-p99
+          namespace: flux-system
 
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
+    # Вебхуки: Генерация синтетической нагрузки во время анализа
+    webhooks:
+      - name: load-test
+        url: http://flagger-loadtester.flux-system/
+        timeout: 5s
+        metadata:
+          cmd: "hey -z 1m -q 10 -c 2 http://payment-service-canary.payments:8080/healthz"
 
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+      - name: slack-alert
+        type: post-rollout
+        url: http://flagger-notifications.flux-system/slack
 ```
 
 ---
 
-## Проверь себя
+## 📊 Кастомный MetricTemplate для Prometheus
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+```yaml
+apiVersion: flagger.app/v1beta1
+kind: MetricTemplate
+metadata:
+  name: istio-latency-p99
+  namespace: flux-system
+spec:
+  provider:
+    type: prometheus
+    address: http://prometheus-k8s.monitoring:9090
+  query: |
+    histogram_quantile(0.99,
+      sum(
+        rate(istio_request_duration_milliseconds_bucket{
+          reporter="destination",
+          destination_workload_namespace="{{ namespace }}",
+          destination_workload=~"{{ target }}-canary"
+        }[{{ interval }}])
+      ) by (le)
+    )
+```
 
+---
+
+## 🛠️ CLI шпаргалка: Мониторинг Canary-релизов
+
+```bash
+# 1. Просмотр текущего веса трафика и статуса всех Canary ресурсов
+kubectl get canaries -A -w
+
+# 2. Инспекция фазы прогрессивной доставки
+kubectl describe canary payment-service -n payments
+
+# 3. Просмотр логов Flagger в процессе сдвига весов
+kubectl logs -n flux-system -l app.kubernetes.io/name=flagger -f
+
+# 4. Ручная приостановка канареечного анализа
+kubectl annotate canary payment-service -n payments flagger.app/manual-gate=pause --overwrite
+# Ручной аппрув для завершения промоушена
+kubectl annotate canary payment-service -n payments flagger.app/manual-gate=approve --overwrite
+```
+
+---
+
+## 🚨 Break-Fix: Разбор инцидентов Progressive Delivery
+
+### Инцидент 1: Canary зависает на 0% трафика (`Halt: no traffic detected`)
+
+**Симптом:**
+Выкатка останавливается с ошибкой: `Canary failed: metric request-success-rate has no data`.
+
+**Первопричина:**
+На сервис не поступает реальный пользовательский трафик в dev/staging среде, поэтому Prometheus возвращает `NaN` / `Empty Result`, что Flagger трактует как сбой.
+
+**Решение:**
+1. Использовать `webhooks` типа `loadtester` для генерации синтетических запросов (см. манифест выше).
+2. Настроить Prometheus query с обработкой пустых значений (`or on() vector(100)`):
+```promql
+sum(rate(istio_requests_total{response_code!~"5.*"}[1m])) / sum(rate(istio_requests_total[1m])) * 100 or on() vector(100)
+```
+
+---
+
+### Инцидент 2: Flagger заблокировал обновление из-за рассинхронизации ревизий
+
+**Симптом:**
+`Deployment` обновлен, но Flagger не начинает канареечный процесс и пишет: `Waiting for primary deployment to be healthy`.
+
+**Решение:**
+1. Проверить состояние `payment-service-primary` (основного деплоймента):
+```bash
+kubectl rollout status deployment/payment-service-primary -n payments
+```
+2. Если первичный деплоймент поврежден, выполнить сброс статуса Canary CRD:
+```bash
+kubectl patch canary payment-service -n payments --type=merge -p '{"status":{"phase":"Initialized"}}'
+```

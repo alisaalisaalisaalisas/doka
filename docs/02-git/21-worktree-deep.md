@@ -1,135 +1,131 @@
-# Worktree углублённо
+# 🌳 21. Git Worktree: Параллельная разработка и Архитектура общих объектов
 
-> worktree, parallel development, linked checkouts
+`git worktree` позволяет одновременно подключать несколько рабочих каталогов (Working Trees) к **одному общему репозиторию** `.git`. Это исключает необходимость повторного клонирования репозитория и позволяет параллельно собирать разные ветки без переключения контекста и сброса кэшей сборки.
 
 ---
 
-## Теория
+## 🏛️ 1. Архитектура Linked Worktrees
 
-### Что это и зачем
-
-worktree, parallel development, linked checkouts — ключевая технология в 02-git. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+При создании связанного worktree Git не дублирует базу объектов (`.git/objects`) и ссылки (`.git/refs`), а создает легковесный мета-каталог:
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    subgraph MainRepo["Основной репозиторий (/app/main-repo)"]
+        GitDir[".git/ (ODB, refs, config, logs)"]
+        WT_Main["Working Tree (ветка: main)"]
+    end
+
+    subgraph LinkedWT1["Связанный Worktree 1 (/app/wt-hotfix)"]
+        WT1_Dir["Working Tree (ветка: hotfix/cve-123)"]
+        WT1_GitFile[".git file -> gitdir: /app/main-repo/.git/worktrees/wt-hotfix"]
+    end
+
+    subgraph LinkedWT2["Связанный Worktree 2 (/app/wt-feature)"]
+        WT2_Dir["Working Tree (ветка: feature/v3-api)"]
+        WT2_GitFile[".git file -> gitdir: /app/main-repo/.git/worktrees/wt-feature"]
+    end
+
+    WT1_GitFile --> GitDir
+    WT2_GitFile --> GitDir
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
+### Структура каталога `.git/worktrees/<name>/`:
+Для каждого связанного worktree создается отдельный изолированный набор служебных файлов:
+- **`HEAD`** — собственный указатель текущей ветки worktree.
+- **`index`** — собственный staging area (индекс файлов).
+- **`commondir`** — текстовый файл с относительным путем к общей базе объектов.
+- **`gitdir`** — абсолютный путь к файлу `.git` внутри рабочего каталога.
+- **`locked`** — файл-маркер, защищающий worktree от сборки мусора.
 
 ---
 
-## Практика
+## 🔒 2. Правило исключительной блокировки ветки
 
-### Минимальный пример
+> [!IMPORTANT]
+> Git **категорически запрещает** чекаутить одну и ту же ветку более чем в одном worktree одновременно. Это предотвращает race condition и повреждение файла `.git/refs/heads/<branch>` при параллельных коммитах.
 
+Если вам необходимо посмотреть ту же ветку в другом каталоге, создайте временную ветку или используйте Detached HEAD:
 ```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+git worktree add --detach /path/to/review-wt origin/main
 ```
 
 ---
 
-## Проверь себя
+## 🛠️ 3. Инженерный CLI Cheat Sheet
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+| Команда | Описание |
+| :--- | :--- |
+| `git worktree add ../hotfix-dir hotfix/api` | Создать worktree с веткой `hotfix/api` в соседней директории |
+| `git worktree add -b feat-new ../feat-dir main` | Создать новую ветку `feat-new` от `main` и подключить в worktree |
+| `git worktree list` | Показать все активные worktree, их пути, коммиты и ветки |
+| `git worktree lock --reason="Build in progress" ../hotfix-dir` | Заблокировать worktree от случайного удаления через `prune` |
+| `git worktree unlock ../hotfix-dir` | Разблокировать worktree |
+| `git worktree remove ../hotfix-dir` | Корректно удалить worktree и его метаданные в `.git/worktrees/` |
+| `git worktree prune` | Очистить записи о worktrees, чьи директории были удалены через `rm -rf` |
 
+---
+
+## 💻 4. Bash-скрипт: Эфемерные изолированные окружения для CI/CD и тестов
+
+Скрипт создает изолированный worktree для запуска тяжелых интеграционных тестов в RAM-диске (`/dev/shm`), исключая влияние на основную ветку:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+TARGET_BRANCH="${1:-origin/main}"
+WT_ID="test_$(date +%s)_$RANDOM"
+WT_PATH="/dev/shm/$WT_ID"
+
+echo "🚀 Развертывание эфемерного Worktree в RAM ($WT_PATH)..."
+
+# Создаем worktree в оперативной памяти в состоянии Detached HEAD
+git worktree add --detach "$WT_PATH" "$TARGET_BRANCH"
+
+# Гарантируем корректную очистку при любом завершении скрипта (EXIT/ERR)
+cleanup() {
+    echo "🧹 Удаление эфемерного Worktree..."
+    git worktree remove --force "$WT_PATH" 2>/dev/null || true
+    rm -rf "$WT_PATH"
+}
+trap cleanup EXIT
+
+# Переходим в worktree и выполняем параллельный билд
+cd "$WT_PATH"
+echo "⚙️ Запуск тестов в изолированном дереве (Commit: $(git rev-parse --short HEAD))..."
+go test -v -race ./...
+
+echo "✅ Тесты успешно пройдены."
+```
+
+---
+
+## 🚨 5. Production Troubleshooting & Break-Fix
+
+### Сценарий 1: Ошибка `fatal: '<branch>' is already checked out at '...'`
+- **Симптом:** Инженер пытается переключиться на ветку в основном каталоге, но Git выдает ошибку, что ветка уже занята другим worktree.
+- **Диагностика:**
+  ```bash
+  # Находим, в каком именно каталоге открыта эта ветка
+  git worktree list
+  ```
+  Вывод:
+  ```text
+  /home/dev/project          a1b2c3d [main]
+  /home/dev/project-feature  f4e5d6c [feature/billing]
+  ```
+- **Исправление:**
+  ```bash
+  # Удаляем неиспользуемый worktree
+  git worktree remove /home/dev/project-feature
+  # Или переключаем его на другую временную ветку
+  git -C /home/dev/project-feature switch --detach
+  ```
+
+### Сценарий 2: Зависшие метаданные после удаления каталога через `rm -rf`
+- **Симптом:** Директория была удалена системной командой `rm -rf`, но `git worktree list` все еще показывает ее как активную, блокируя ветку.
+- **Исправление:**
+  ```bash
+  # Очистка всех битых ссылок в .git/worktrees/
+  git worktree prune -v
+  ```

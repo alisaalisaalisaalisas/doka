@@ -1,313 +1,629 @@
-# 🧪 03. Terraform: Тестирование, CI-автоматизация и Операции со Стейтом
+# 🧪 03. Тестирование, CI/CD Автоматизация, Рефакторинг и Импорт в Terraform
 
-## ⚙️ Уровни тестирования IaC
+## ⚙️ Пирамида тестирования Infrastructure as Code
 
-Тесты для инфраструктуры — это пирамида: чем выше уровень, тем дороже прогон.
+Надежность инфраструктурного кода строится на многоуровневой системе проверок: от мгновенного статического анализа синтаксиса до интеграционных тестов с реальным созданием ресурсов в изолированных песочницах (Sandbox Accounts).
 
 ```mermaid
 graph TB
-    L1["1. Static: fmt / validate / lint (tflint, trivy) — секунды"] --> L2
-    L2["2. Unit модулей: terraform test (.tftest.hcl) — минуты"] --> L3
-    L3["3. Integration: Terratest — реальные ресурсы в деве"] --> L4
-    L4["4. Smoke после деплоя: curl, kubectl, коннект к БД"]
-```
+    subgraph Pyramid["Пирамида тестирования IaC"]
+        L1["1. Static Analysis & Linting (fmt, validate, tflint, trivy) — < 5 сек"]
+        L2["2. Policy as Code (OPA/conftest, Checkov, Sentinel) — < 15 сек"]
+        L3["3. Unit Testing & Mocking (terraform test plan-mode) — < 30 сек"]
+        L4["4. Integration Testing (terraform test apply-mode, Terratest) — 5-15 мин"]
+        L5["5. Smoke & Post-Deployment (HTTP probing, K8s healthz) — < 2 мин"]
+    end
 
-| Уровень | Инструмент | Что ловит |
-| :--- | :--- | :--- |
-| Static | `tflint`, `trivy config`, `conftest` (OPA) | Ошибки провайдера, небезопасные Security Groups, отсутствие тегов |
-| Unit | `terraform test` (нативный, TF ≥ 1.6) | Логика locals/for_each/функций без облака |
-| Integration | Terratest (Go) | Что ресурс реально создаётся и работает |
-| Policy as Code | OPA/conftest, Sentinel, Checkov | Соответствие политикам компании |
+    L1 --> L2 --> L3 --> L4 --> L5
+```
 
 ---
 
-## 📝 Нативное тестирование: `terraform test` (TF ≥ 1.6)
+### Сравнение инструментов тестирования и валидации
 
-Файлы `*.tftest.hcl` рядом с модулем. Работают с mock-провайдерами — облако не нужно.
+| Уровень | Инструмент | Скорость | Требует облако? | Что проверяет |
+| :--- | :--- | :--- | :--- | :--- |
+| **Lint & Syntax** | `terraform fmt`, `tflint` | ~1-3 сек | Нет | Форматирование, недопустимые типы инстансов, устаревший HCL синтаксис |
+| **Security SAST** | `checkov`, `tfsec`, `trivy` | ~5-10 сек | Нет | Открытые порты 0.0.0.0/0, отсутствие шифрования S3/EBS, утечки секретов |
+| **Policy as Code** | `conftest` (OPA/Rego), `Sentinel` | ~5 сек | Нет | Корпоративные политики: обязательные теги, допустимые регионы |
+| **Unit Testing** | `terraform test` (TF >= 1.6) | ~10-20 сек | Нет (с mock-провайдерами) | Логика locals, вычисление CIDR, условия `for_each`, assertions |
+| **Integration** | `Terratest` (Go), `tftest apply` | ~5-30 мин | **Да** (Sandbox) | Реальное создание ресурсов, сквозная маршрутизация, DNS резолв |
+
+---
+
+## 🧪 Нативное тестирование: `terraform test` (TF ≥ 1.6)
+
+Встроенный фреймворк тестирования оперирует файлами `*.tftest.hcl` в каталоге `tests/`. Он поддерживает как сухой прогон плана (**Unit Test** с мок-провайдерами), так и реальное развертывание (**Integration Test**).
+
+```mermaid
+graph TD
+    TestFile["tests/network.tftest.hcl"] --> Mock["Mock Provider AWS (Без вызова API)"]
+    Mock --> Run1["run 'verify_cidr_math' (command = plan)"]
+    Run1 --> Assert1["assert: length(aws_subnet.private) == 3"]
+    Run1 --> Assert2["assert: aws_vpc.this.enable_dns_hostnames == true"]
+    Assert1 --> Result["Вывод отчета: SUCCESS / FAILURE"]
+    Assert2 --> Result
+```
+
+### Пример файла тестов `tests/vpc_unit.tftest.hcl`:
 
 ```hcl
-# tests/vpc.tftest.hcl
+# tests/vpc_unit.tftest.hcl
+# Мокирование провайдера AWS — тесты запускаются локально и в CI без облачных ключей!
 mock_provider "aws" {}
 
-run "defaults" {
+# Входные тестовые переменные
+variables {
+  environment        = "test"
+  vpc_cidr           = "10.50.0.0/16"
+  availability_zones = ["eu-central-1a", "eu-central-1b", "eu-central-1c"]
+  enable_nat_gateway = true
+}
+
+# Тестовый шаг 1: Проверка базовых вычислений подсетей в режиме plan
+run "verify_subnets_calculation" {
   command = plan
 
+  # Проверка создания ровно 3 подсетей
   assert {
-    condition     = aws_vpc.main.cidr_block == "10.0.0.0/16"
-    error_message = "VPC CIDR должен быть 10.0.0.0/16 по умолчанию"
+    condition     = length(aws_subnet.public) == 3
+    error_message = "Количество публичных подсетей должно строго соответствовать числу AZ!"
   }
 
+  # Проверка расчета CIDR блоков через cidrsubnet
   assert {
-    condition     = length(aws_subnet.private) == 3
-    error_message = "Ожидаем 3 приватные подсети (по AZ)"
+    condition     = aws_subnet.public["eu-central-1a"].cidr_block == "10.50.0.0/20"
+    error_message = "Неверный расчет CIDR блока для первой публичной подсети!"
+  }
+
+  # Проверка обязательных тегов
+  assert {
+    condition     = aws_vpc.this.tags["Environment"] == "test"
+    error_message = "Тег Environment в VPC не соответствует входной переменной!"
   }
 }
 
-variables {
-  environment = "test"
-  vpc_cidr    = "10.0.0.0/16"
+# Тестовый шаг 2: Проверка переопределения переменных и отключения NAT
+run "verify_nat_disabled" {
+  command = plan
+
+  variables {
+    enable_nat_gateway = false
+  }
+
+  assert {
+    condition     = length(aws_nat_gateway.this) == 0
+    error_message = "NAT Gateway не должен создаваться при enable_nat_gateway = false!"
+  }
 }
 ```
 
 ```bash
-terraform test                          # все тесты каталога tests/
-terraform test -verbose                 # с выводом плана каждого run
-```
+# Запуск всех тестов в каталоге tests/
+terraform test
 
-!!! tip "Что тестировать unit-тестами"
-    Только чистую логику: вычисления CIDR через `cidrsubnet`, маппинги `locals`, условия `count`/`for_each`. Проверять «создастся ли EC2» юнит-тестом бессмысленно — это работа интеграционного уровня.
+# Запуск с подробным выводом этапов выполнения
+terraform test -verbose
+```
 
 ---
 
-## 🐬 Интеграционные тесты: Terratest
+## 🐬 Интеграционное тестирование: Terratest (Go)
 
-Terratest создаёт реальные ресурсы в отдельном аккаунте/проекте, проверяет их и **обязательно уничтожает** (`defer terraform.Destroy`).
+Terratest позволяет писать интеграционные тесты на языке Go. Фреймворк выполняет полный цикл: инициализация -> создание реальной инфраструктуры в AWS/GCP/Azure -> проверка работоспособности (Healthchecks, HTTP-запросы, подключение к БД) -> **гарантированное уничтожение** ресурсов (`defer terraform.Destroy`).
 
 ```go
-// test/vpc_test.go
+// test/vpc_cluster_test.go
 package test
 
 import (
+	"crypto/tls"
+	"fmt"
+	"strings"
 	"testing"
+	"time"
 
+	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
+	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestVpcModule(t *testing.T) {
+func TestVpcAndAlbDeployment(t *testing.T) {
 	t.Parallel()
 
-	opts := &terraform.Options{
-		TerraformDir: "../examples/vpc",
+	// Генерация уникального префикса для предотвращения конфликтов в параллельных CI
+	uniqueID := strings.ToLower(random.UniqueId())
+	expectedClusterName := fmt.Sprintf("terratest-%s", uniqueID)
+
+	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+		TerraformDir: "../examples/complete-alb-vpc",
+
 		Vars: map[string]interface{}{
-			"environment": "terratest",
+			"environment":  "sandbox",
+			"cluster_name": expectedClusterName,
+			"aws_region":   "eu-central-1",
 		},
-	}
 
-	defer terraform.Destroy(t, opts)
-	terraform.InitAndApply(t, opts)
+		// Автоматические повторы при временных сбоях AWS API (Rate Limiting)
+		MaxRetries:         3,
+		TimeBetweenRetries: 10 * time.Second,
+	})
 
-	vpcID := terraform.Output(t, opts, "vpc_id")
-	assert.Regexp(t, "^vpc-[a-f0-9]+$", vpcID)
+	// Гарантированное уничтожение ресурсов после окончания теста
+	defer terraform.Destroy(t, terraformOptions)
+
+	// Выполнение terraform init && terraform apply
+	terraform.InitAndApply(t, terraformOptions)
+
+	// Получение выходных параметров
+	albDNS := terraform.Output(t, terraformOptions, "alb_dns_name")
+	vpcID := terraform.Output(t, terraformOptions, "vpc_id")
+
+	// 1. Проверка формата VPC ID
+	assert.True(t, strings.HasPrefix(vpcID, "vpc-"), "VPC ID должен начинаться с vpc-")
+
+	// 2. Сквозная проверка доступности веб-сервиса через ALB по HTTP
+	targetURL := fmt.Sprintf("http://%s/healthz", albDNS)
+	tlsConfig := tls.Config{}
+
+	// Ожидание ответа 200 OK в течение 3 минут (с прогревом ALB и регистрацией таргетов)
+	http_helper.HttpGetWithRetryWithCustomValidation(
+		t,
+		targetURL,
+		&tlsConfig,
+		30,               // 30 попыток
+		6*time.Second,    // интервал 6 сек
+		func(statusCode int, body string) bool {
+			return statusCode == 200 && strings.Contains(body, "healthy")
+		},
+	)
 }
 ```
 
 ```bash
-cd test && go mod init github.com/company/tf-tests && go get github.com/gruntwork-io/terratest && go test -timeout 45m
+# Инициализация и запуск Terratest
+cd test
+go mod tidy
+go test -v -timeout 45m -run TestVpcAndAlbDeployment
 ```
-
-- Запускать только на MR и по расписанию (nightly) — прогон стоит реальных денег.
-- Всегда уникальные имена ресурсов (`terratest.RandomUniqueIdentifier`) — иначе гонки между джобами.
 
 ---
 
-## 🤖 Atlantis: PR-driven автоматизация
+## 🛡️ Policy as Code и Статический Анализ (Security Gate)
 
-Atlantis слушает вебхуки GitLab/GitHub и сам выполняет `plan`/`apply` в комментариях MR. Альтернатива Terraform Cloud.
+Внедрение статических проверок в CI/CD блокирует небезопасные конфигурации до того, как они попадут в `terraform apply`.
 
 ```mermaid
 graph LR
-    MR[Merge Request] -->|webhook| A[Atlantis Server]
-    A --> P["atlantis plan → план в комментарий MR"]
-    Dev[Ревьюер] -->|"atlantis apply"| A
-    A --> C[(Облако + Remote State)]
-    C --> R["Результат применения в MR"]
+    HCL[HCL Код] --> TFLint[tflint: Валидация типов инстансов и атрибутов]
+    HCL --> Checkov[Checkov: SAST и соответствие CIS / SOC2]
+    HCL --> OPA[Conftest / OPA: Проверка бинарного tfplan в JSON]
+    OPA --> Gate{"Все проверки пройдены?"}
+    Gate -->|Да| Atlantis[Разрешить Merge и Apply]
+    Gate -->|Нет| Block[Блокировка MR в GitLab/GitHub]
 ```
 
-Минимальный `repos.yaml`:
+### 1. Checkov: Конфигурация и исключения
 
 ```yaml
+# .checkov.yaml
+framework:
+  - terraform
+quiet: true
+compact: true
+soft-fail: false # Упасть с ненулевым кодом возврата при нахождении HIGH/CRITICAL уязвимостей
+download-external-modules: true
+check:
+  - CKV_AWS_18  # S3 bucket access logging
+  - CKV_AWS_19  # S3 bucket SSE encryption
+  - CKV_AWS_144 # S3 cross-region replication
+  - CKV_AWS_260 # Ingress port 22 disabled to 0.0.0.0/0
+```
+
+Подавление ложноположительных срабатываний прямо в коде:
+```hcl
+resource "aws_security_group_rule" "allow_ssh_bastion" {
+  type        = "ingress"
+  from_port   = 22
+  to_port     = 22
+  protocol    = "tcp"
+  cidr_blocks = ["198.51.100.1/32"] # Ограниченный корпоративный IP
+
+  #checkov:skip=CKV_AWS_24: "SSH разрешен только с корпоративного VPN/Бастиона"
+  security_group_id = aws_security_group.bastion.id
+}
+```
+
+---
+
+### 2. OPA / Conftest: Корпоративные Rego-политики
+
+Политика запрещает создание открытых Security Group с портом 0.0.0.0/0 для всего, кроме HTTP/HTTPS:
+
+```rego
+# policy/terraform_sg.rego
+package terraform.security
+
+import future.keywords.in
+
+default allow = true
+
+# Поиск всех создаваемых правил Security Group в tfplan
+deny[msg] {
+    resource := input.resource_changes[_]
+    resource.type == "aws_security_group_rule"
+    resource.change.actions[_] in ["create", "update"]
+
+    cidr := resource.change.after.cidr_blocks[_]
+    cidr == "0.0.0.0/0"
+
+    port := resource.change.after.from_port
+    not port in [80, 443]
+
+    msg := sprintf("НАРУШЕНИЕ ПОЛИТИКИ: Ресурс '%v' открывает порт %v для всего мира (0.0.0.0/0)!", [resource.address, port])
+}
+```
+
+```bash
+# Валидация плана через Conftest
+terraform show -json tfplan.binary > tfplan.json
+conftest test tfplan.json -p policy/
+```
+
+---
+
+## 🚚 Декларативный рефакторинг (`moved`) и современный `import`
+
+### 1. Декларативный рефакторинг с блоком `moved` (TF ≥ 1.1)
+
+Больше не нужно вручную запускать `terraform state mv` на машинах инженеров. Блоки `moved` фиксируются в коде и выполняют перенос адресов в стейте автоматически при очередном `terraform plan/apply`.
+
+```hcl
+# 1. Переименование одиночного ресурса
+moved {
+  from = aws_instance.web_server
+  to   = aws_instance.frontend_app
+}
+
+# 2. Вынос существующего ресурса внутрь нового модуля
+moved {
+  from = aws_security_group.legacy_sg
+  to   = module.security.aws_security_group.app_sg
+}
+
+# 3. Бесшовный перевод с count на for_each
+moved {
+  from = aws_subnet.public[0]
+  to   = aws_subnet.public["eu-central-1a"]
+}
+moved {
+  from = aws_subnet.public[1]
+  to   = aws_subnet.public["eu-central-1b"]
+}
+```
+
+---
+
+### 2. Декларативный импорт с генерацией кода (`import` blocks, TF ≥ 1.5)
+
+Ранее `terraform import` требовал вручную писать HCL-код до импорта. Теперь Terraform умеет генерировать HCL-код автоматически.
+
+```hcl
+# import.tf
+import {
+  to = aws_s3_bucket.legacy_data
+  id = "company-legacy-archive-bucket"
+}
+
+import {
+  to = aws_instance.billing_worker
+  id = "i-0987654321fedcba0"
+}
+```
+
+```bash
+# 1. Автоматическая генерация HCL-кода для импортируемых ресурсов
+terraform plan -generate-config-out=generated_resources.tf
+
+# 2. Инспекция и приведение сгенерированного generated_resources.tf к стандартам проекта
+# 3. Применение импорта в стейт
+terraform apply -auto-approve
+
+# 4. Удаление временного import.tf
+rm import.tf
+```
+
+---
+
+## 🤖 Production GitOps: Atlantis и GitHub Actions с OIDC
+
+### 1. Архитектура Atlantis (PR-driven Automation)
+
+Atlantis слушает вебхуки из GitHub/GitLab, блокирует окружение от параллельных правок и выполняет `plan`/`apply` по командам в комментариях Pull Request.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Dev as Инженер (GitHub PR)
+    participant Atl as Atlantis Server
+    participant AWS as AWS Cloud API
+    participant State as Remote S3 State
+
+    Dev->>Atl: Push commit -> Webhook Event
+    Atl->>State: Acquire Lock on Workspace
+    Atl->>AWS: Execute 'terraform plan -out=tfplan'
+    AWS-->>Atl: Plan Diff Calculated
+    Atl-->>Dev: Комментарий в PR с полным диффом плана
+
+    Note over Dev,Atl: Коллега проводит Code Review и ставит Approve
+    Dev->>Atl: Комментарий: 'atlantis apply'
+    Atl->>AWS: Execute 'terraform apply tfplan'
+    AWS-->>Atl: Resources Created Successfully
+    Atl->>State: Release Lock & Commit State
+    Atl-->>Dev: Комментарий: 'Apply complete! Resources: 3 added.'
+    Atl->>Dev: Автоматический Merge Pull Request в main
+```
+
+```yaml
+# repos.yaml (Server-Side Config)
 repos:
-  - id: /.*/
-    allowed_overrides: [workflow]
-    apply_requirements: [approved, mergeable]   # apply только из одобренного MR
-    workflow: default
+  - id: github.com/company/infrastructure-live
+    branch: /main/
+    apply_requirements:
+      - approved     # Apply запрещен без аппрува от ревьюера
+      - mergeable    # Apply запрещен, если есть конфликты с main
+    allow_custom_workflows: false
+    allowed_overrides: []
+    workflow: production_secure
+
 workflows:
-  default:
+  production_secure:
     plan:
       steps:
         - init
-        - plan
+        - run: tflint --recursive
+        - run: checkov -d . --framework terraform
+        - plan:
+            extra_args: ["-detailed-exitcode"]
     apply:
       steps:
         - apply
 ```
 
-Ключевые настройки безопасности:
-
-- **`apply_requirements: [approved, mergeable]`** — никто не применяет стейт без ревью.
-- **Server-side workspace config** вместо репозиториев — не доверять `.yml` из чужих веток.
-- Секреты облачных провайдеров — только через Vault/IRSA/Workload Identity, не переменными Atlantis.
-- Для monorepo — `autoplan` по изменённым каталогам (`when_modified`).
-
 ---
 
-## 🚚 Операции со стейтом: миграции, импорт, дрейф
-
-### Перенос ресурсов между стейтами (без пересоздания)
-
-```bash
-# Вынести VPC из общего стейта в отдельный network-стейт
-terraform state mv -state-out=network.tfstate module.network.aws_vpc.main aws_vpc.main
-
-# В новом проекте подключить выгруженное как remote state data source
-terraform state pull > backup-before-mv.json   # ВСЕГДА бэкап перед операциями
-```
-
-### Импорт существующей инфраструктуры (TF ≥ 1.5, декларативно)
-
-```hcl
-# import.tf
-import {
-  to = aws_instance.app
-  id = "i-0abc123def456"
-}
-
-import {
-  to = module.rds.aws_db_instance.main
-  id = "prod-postgres-01"
-}
-```
-
-```bash
-terraform plan -generate-config-out=generated.tf   # HCL сгенерирован автоматически
-# Ревизия generated.tf руками → привести к стандартам модуля → apply
-```
-
-### Борьба с дрейфом
-
-```bash
-terraform plan -refresh-only                    # показать только изменения вне кода
-terraform apply -refresh-only                   # принять факт (стейт догнал реальность)
-terraform apply -refresh-only -target=aws_instance.app   # точечно
-```
-
-Регламент: **ночной cron** `plan -detailed-exitcode`; exit code `2` (есть diff) → алерт в Slack. Дрейф либо устраняется (откат рукам), либо легализуется (импорт в код).
-
----
-
-## ⚡ CI-пайплайн для Terraform (GitLab CI)
+### 2. GitHub Actions Production Pipeline с AWS OIDC (Без паролей и ключей!)
 
 ```yaml
-tf:
-  stage: verify
-  image: hashicorp/terraform:1.9
-  before_script:
-    - terraform init -backend-config="key=${CI_PROJECT_PATH}/${TF_DIR}"
-  script:
-    - terraform fmt -check -recursive
-    - terraform validate
-    - tflint --recursive
-    - conftest verify --policy policies/        # OPA-политики
-    - terraform plan -out=tfplan -detailed-exitcode || export RC=$?
-    - 'if [ "$RC" == "2" ]; then echo "Есть изменения"; fi'
-    - terraform show -json tfplan > plan.json
-  artifacts:
-    paths: [tfplan]
-    reports:
-      terraform: plan.json
-    expire_in: 1 week
+# .github/workflows/terraform.yml
+name: "Terraform Production GitOps"
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write # Требуется для запроса AWS OIDC JWT токена
+  contents: read
+  pull-requests: write
+
+jobs:
+  terraform-ci:
+    name: "Validate, Lint & Plan"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Аутентификация в AWS через OIDC Federation (Zero Hardcoded Secrets)
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::111122223333:role/GitHubActionsTerraformRole
+          aws-region: eu-central-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Run Checkov Security Scan
+        uses: bridgecrewio/checkov-action@master
+        with:
+          framework: terraform
+          soft_fail: false
+
+      - name: Terraform Plan
+        id: plan
+        if: github.event_name == 'pull_request'
+        run: |
+          terraform plan -no-color -out=tfplan.binary
+          terraform show -no-color tfplan.binary > tfplan.txt
+
+      - name: Post Plan Diff to PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const planOutput = fs.readFileSync('tfplan.txt', 'utf8');
+            const maxLen = 60000;
+            const truncated = planOutput.length > maxLen ? planOutput.substring(0, maxLen) + '\n...[TRUNCATED]' : planOutput;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### 📋 Terraform Plan Output\n\`\`\`hcl\n${truncated}\n\`\`\``
+            });
+
+      - name: Terraform Apply (On Merge to Main)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          terraform plan -out=tfplan.binary
+          terraform apply -auto-approve tfplan.binary
 ```
 
-Правила хорошего пайплайна:
+---
 
-1. `plan` — на каждый MR, артефакт плана прикладывается к MR.
-2. `apply` — только из защищённой ветки/тега, вручную (`when: manual`).
-3. Locking через backend (S3+DynamoDB / PG / GCS) — обязательное условие параллельных пайплайнов.
-4. Версии провайдеров пинить (`~>`, не `>=`) и кэшировать `.terraform` по ключу lockfile.
+## 🧨 Production Break-Fix Scenarios
+
+### Сценарий 1: Утечка стейта в логах CI из-за `sensitive = false`
+
+```text
+СИМПТОМ:
+В публичных логах GitHub Actions / GitLab CI отобразился мастер-пароль RDS базы данных:
+master_password: "SuperSecretPassword123!"
+```
+
+- **Root Cause:** Выходная переменная `output "rds_password"` или входная `variable "db_password"` не содержали модификатора `sensitive = true`.
+- **Решение:**
+  1. Немедленно выполнить ротацию скомпрометированного пароля в AWS Secrets Manager / Vault.
+  2. Добавить `sensitive = true` во входные и выходные переменные:
+     ```hcl
+     output "db_password" {
+       value     = aws_db_instance.main.password
+       sensitive = true
+     }
+     ```
+  3. В CI-пайплайне использовать маскирование (`::add-mask::`).
 
 ---
 
-## 🔬 Deep Dive: почему стейт-операции опаснее самого кода
+### Сценарий 2: Гонка пайплайнов (Race Condition) при одновременном Merge
 
-Большинство инцидентов с IaC — не плохой HCL, а операции со стейтом вслепую:
+```text
+СИМПТОМ:
+Два Pull Request были смержены одновременно. Первый apply прошел успешно,
+второй упал с ошибкой 'Error acquiring the state lock'.
+```
 
-- **`state rm` ≠ удаление ресурса** — ресурс отвязывается от управления, но живёт в облаке («осиротевшая» инфраструктура). Обратно — только через `import`.
-- **Порядок миграций**: сначала `state pull` бэкап → потом `mv` → потом `push`. Никогда не редактировать стейт руками в JSON.
-- **Два человека + один стейт** = повреждение. Lock обязателен даже локально (`terraform plan` уже берёт lock в remote backend).
-- **Sensitive-данные в стейте** (`aws_db_instance.password`): стейт шифровать на бэкенде (S3 SSE-KMS) + доступ к бакету = доступ ко всем секретам проекта. Это надо учитывать в threat model.
+- **Root Cause:** Отсутствие механизма Concurrency Groups в GitHub Actions.
+- **Решение:** Добавить ограничение конкурентности в workflow:
+  ```yaml
+  concurrency:
+    group: terraform-production-lock
+    cancel-in-progress: false # Дождаться окончания первого apply, не отменяя его!
+  ```
 
 ---
 
-## 🧨 Типовые грабли Production
-
-| Симптом | Причина | Быстрое решение |
-| :--- | :--- | :--- |
-| `Error acquiring the state lock` после падения CI | Джоба умерла, не сняв lock | `terraform force-unlock <LOCK_ID>` после проверки, что ничего не выполняется |
-| После `state mv` всё «пересоздаётся» | Разные адреса модулей/индексы | Сверить адреса через `terraform state list` до и после; план должен быть пустым |
-| Terratest оставил мусор в облаке | Тест упал до `defer Destroy` | Nightly-джоба поиска ресурсов с тегом `terratest` старше 1 дня |
-| Atlantis apply прошёл, а стейт в другом workspace | Разные workspaces локально и на сервере | Зафиксировать workspace-маппинг в server-side конфиге |
-| `plan` зелёный, `apply` красный «429 rate limit» | Провайдер упёрся в лимиты API | Увеличить retry провайдера, снизить `-parallelism`, разнести проекты по времени |
-| Импорт сгенерировал 3000 строк generated.tf | Импорт «как есть», без абстракций | Рефакторинг в модуль с переменными, а не коммит генерации |
-
-## 🧪 Hands-on Lab
+## 🧪 Hands-on Lab: Написание Unit-теста для модуля
 
 ```bash
-# 1. Юнит-тест модуля без облака
-mkdir -p demo && cd demo
-cat > main.tf <<'EOF'
-resource "aws_vpc" "main" { cidr_block = var.cidr }
-variable "cidr" { default = "10.0.0.0/16" }
-EOF
-cat > tests/main.tftest.hcl <<'EOF'
-mock_provider "aws" {}
-run "cidr" {
-  command = plan
-  assert { condition = aws_vpc.main.cidr_block == "10.0.0.0/16"
-           error_message = "CIDR mismatch" }
+# 1. Создание каталога лабораторной
+mkdir -p /tmp/tf-test-lab/tests && cd /tmp/tf-test-lab
+
+# 2. Создание файла модуля main.tf
+cat <<'EOF' > main.tf
+variable "environment" {
+  type    = string
+  default = "production"
+}
+
+variable "base_cidr" {
+  type    = string
+  default = "10.0.0.0/16"
+}
+
+locals {
+  tier_name = var.environment == "production" ? "prod-tier" : "non-prod-tier"
+}
+
+resource "local_file" "config" {
+  filename = "${path.module}/output_config.json"
+  content = jsonencode({
+    tier = locals.tier_name
+    cidr = var.base_cidr
+  })
+}
+
+output "calculated_tier" {
+  value = locals.tier_name
 }
 EOF
-terraform init && terraform test
 
-# 2. Безопасная миграция стейта (на локальном file backend)
-terraform state list
-terraform state pull > backup.json
-terraform state mv aws_vpc.main aws_vpc.renamed && terraform plan   # ожидаем: no changes
+# 3. Написание unit-теста tests/config.tftest.hcl
+cat <<'EOF' > tests/config.tftest.hcl
+run "verify_prod_tier" {
+  command = plan
+
+  variables {
+    environment = "production"
+    base_cidr   = "10.100.0.0/16"
+  }
+
+  assert {
+    condition     = output.calculated_tier == "prod-tier"
+    error_message = "Tier для production окружения должен быть строго prod-tier!"
+  }
+}
+
+run "verify_dev_tier" {
+  command = plan
+
+  variables {
+    environment = "development"
+  }
+
+  assert {
+    condition     = output.calculated_tier == "non-prod-tier"
+    error_message = "Tier для development окружения должен быть non-prod-tier!"
+  }
+}
+EOF
+
+# 4. Запуск теста
+terraform init
+terraform test
 ```
 
-## ✅ Чек-лист зрелости темы
+---
 
-- [ ] Каждый модуль покрыт `terraform test` (логика) или Terratest (ресурсы)
-- [ ] Plan виден в MR автоматически (Atlantis/TFC/CI-бот), apply — только после approve
-- [ ] Ночной контроль дрейфа с алертом
-- [ ] Бэкап стейта делается перед любой state-операцией
-- [ ] Стейт зашифрован на бэкенде, доступ ограничен IAM-политикой
-- [ ] Политики (OPA/Checkov) блокируют merge, а не просто предупреждают
+## ✅ Чек-лист зрелости: Тестирование и CI/CD
+
+- [ ] **Модули покрыты `terraform test`:** Проверена логика locals, валидации переменных и граничные условия.
+- [ ] **Статический анализ в pre-commit:** `tflint` и `terraform fmt` запускаются до отправки коммита.
+- [ ] **Security Gate блокирует PR:** Checkov / Trivy настроены с `soft-fail: false` на уязвимости HIGH/CRITICAL.
+- [ ] **Zero Hardcoded Secrets в CI:** Аутентификация в облаке работает исключительно через OIDC (AssumeRoleWithWebIdentity).
+- [ ] **Планы публикуются в PR:** Ревьюер видит полный дифф создаваемых/изменяемых ресурсов до Approve.
+- [ ] **Apply изолирован:** Прямой запуск `terraform apply` с локальных ноутбуков инженеров запрещен правами доступа IAM.
 
 ---
 
 ## 🧭 Что дальше
 
-| Шаг | Материал |
-| :--- | :--- |
-| 🔬 Закрепить | [Lab 05: план на MR](../16-guided-labs/05-lab-terraform-localstack.md) |
-| 🎤 Проверить себя | [Вопросы: Terraform](../14-interview-prep/04-100-devops-interview-questions-bank-part2.md) |
+| Шаг | Тема | Ссылка |
+| :--- | :--- | :--- |
+| 🛡️ Следующий шаг | OpenTofu, Разработка Провайдеров и Управление Дрейфом | [04-opentofu-providers-and-drift.md](file:///mnt/c/Users/aazimov/Desktop/qek/doka/docs/06-terraform/04-opentofu-providers-and-drift.md) |
+| 📜 Ansible | Архитектура Ansible и управление серверами | [01-ansible-architecture-and-playbooks.md](file:///mnt/c/Users/aazimov/Desktop/qek/doka/docs/07-ansible/01-ansible-architecture-and-playbooks.md) |
 
 ---
 
-## ✅ Проверь себя
+## ❓ Проверь себя
 
-**В1. Что проверяет terraform validate против plan?**
+**В1. Чем отличается тестирование через `terraform test` в режиме `command = plan` от `command = apply`?**
 <details><summary>Ответ</summary>
-validate — статика: синтаксис HCL, типы, обязательные аргументы, БЕЗ обращения к API/state. plan — динамика: реальный diff против инфры, интерполяция данных, refresh state. В CI: fmt → validate → plan (комментарий в MR), apply — только по мержу.
+В режиме <code>command = plan</code> выполняется синтаксический анализ, интерполяция выражений, locals, условий и генерация плана (включая работу с mock-провайдерами) без обращения к реальным облачным API и без выделения инфраструктуры. Это быстро и бесплатно (Unit Testing). В режиме <code>command = apply</code> Terraform реально создает ресурсы в тестовом аккаунте, проверяет постусловия и уничтожает созданное после окончания тестов (Integration Testing).
 </details>
 
-**В2. Terratest: как устроен типовой тест модуля?**
+**В2. Какую проблему решает блок `moved` по сравнению с командой `terraform state mv`?**
 <details><summary>Ответ</summary>
-go test: terraform.InitAndApply(stagingOptions) → assert'ы по outputs/реальным ресурсам (HTTP-проверка LB, SSH) → terraform.Destroy в defer. Медленно (реальная инфра!), поэтому гоняют nightly/stage-only, а в MR — plan-diff + policy checks.
+Команда <code>terraform state mv</code> является императивной и модифицирует стейт локально или удаленно вне системы контроля версий. Если в команде несколько инженеров или работает CI, каждый должен синхронизировать свои действия. Блок <code>moved</code> декларативен: он коммитится в Git вместе с рефакторингом кода, автоматически и безопасно применяется в любом окружении и пайплайне ровно один раз при вызове <code>plan/apply</code> без риска сбоев.
 </details>
 
-**В3. Atlantis решает какую проблему?**
+**В3. Почему при интеграции CI/CD с AWS рекомендуется использовать OIDC вместо постоянных IAM Access Keys?**
 <details><summary>Ответ</summary>
-GitOps для Terraform: plan выполняется автоматически по комментарию/PR и результат публикуется в MR; apply — комментарием atlantis apply с RBAC. Исчезают локальные запуски с продовыми кредами; locking встроенно защищает от параллельных планов.
-</details>
-
-**В4. Стейт разъехался с реальностью (drift). Команды приведения?**
-<details><summary>Ответ</summary>
-terraform plan показывает diff. Ручные правки вне tf: либо импортировать их (terraform import / import block), либо удалить из стейта (state rm) чтобы tf создал заново, либо вернуть инфру apply'ем. Профилактика: запрет ручных изменений IAM'ом + периодический plan по расписанию.
-</details>
-
-**В5. Как безопасно переименовать ресурс в коде без пересоздания?**
-<details><summary>Ответ</summary>
-moved block (Terraform 1.1+): moved { from = aws_instance.old, to = aws_instance.new } — план перенесёт адрес в стейте без destroy/create. Для legacy — terraform state mv.
+Постоянные Access Keys (AKIA...) имеют неограниченный срок действия, могут утечь через логи, артефакты или недобросовестных сотрудников и требуют регулярной ручной ротации. OIDC (OpenID Connect) позволяет GitHub Actions или GitLab CI запрашивать короткоживущие временные токены (STS AssumeRoleWithWebIdentity) на время работы конкретной джобы с жестким ограничением по репозиторию, ветке и окружению.
 </details>

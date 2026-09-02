@@ -1,135 +1,191 @@
-# Хуки продвинуто
+# 🪝 24. Git Hooks: Клиентские и Серверные хуки, Pre-Commit и Автоматизация безопасности
 
-> pre-commit, commit-msg, post-receive, Husky
+Git Hooks — это скрипты-триггеры, автоматически исполняемые Git на ключевых этапах жизненного цикла коммита, ветвления и отправки данных. Хуки разделяются на **клиентские (Client-side)** и **серверные (Server-side)**.
 
 ---
 
-## Теория
-
-### Что это и зачем
-
-pre-commit, commit-msg, post-receive, Husky — ключевая технология в 02-git. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+## 🏛️ 1. Архитектура и цепочка исполнения Hooks
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    subgraph ClientSide["Клиентская машина разработчика"]
+        direction TB
+        GitAdd["1. git add"] --> PreCommit["2. Hook: pre-commit (Линтеры, сканеры секретов)"]
+        PreCommit -->|Exit 0| PrepareMsg["3. Hook: prepare-commit-msg (Инъекция Jira ID)"]
+        PrepareMsg --> Editor["4. Редактирование сообщения коммита"]
+        Editor --> CommitMsg["5. Hook: commit-msg (Валидация Conventional Commits)"]
+        CommitMsg -->|Exit 0| PostCommit["6. Hook: post-commit (Уведомления)"]
+        PostCommit --> GitPush["7. git push"]
+        GitPush --> PrePush["8. Hook: pre-push (Smoke-тесты)"]
+    end
+
+    subgraph ServerSide["Удаленный Git-сервер (GitLab / Gitea)"]
+        direction TB
+        PrePush -->|Сетевой протокол| PreReceive["9. Hook: pre-receive (Корпоративные политики)"]
+        PreReceive -->|Exit 0| UpdateHook["10. Hook: update (По-веточная валидация)"]
+        UpdateHook -->|Exit 0| WriteRefs["11. Запись объектов и обновление refs"]
+        WriteRefs --> PostReceive["12. Hook: post-receive (CI/CD Webhook триггеры)"]
+    end
+
+    PreCommit -.->|Exit > 0: Abort| AbortC["Отказ в создании коммита"]
+    CommitMsg -.->|Exit > 0: Abort| AbortC
+    PreReceive -.->|Exit > 0: Reject| AbortP["Отказ в git push"]
+
+    style AbortC fill:#e74c3c,stroke:#c0392b,color:#fff
+    style AbortP fill:#e74c3c,stroke:#c0392b,color:#fff
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
+> [!CAUTION]
+> **Принцип безопасности:** Клиентские хуки не являются рубежом защиты, так как разработчик может обойти их флагом `git commit --no-verify`. **Единственным надежным барьером** для соблюдения политик безопасности и комплаенса являются **серверные хуки (pre-receive)**.
 
 ---
 
-## Практика
+## 💻 2. Production Hook: Валидация Conventional Commits (`commit-msg`)
 
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
+Сохраните в `.githooks/commit-msg` и сделайте исполняемым (`chmod +x`):
 
 ```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Файл с текстом сообщения коммита передается первым аргументом
+MSG_FILE="$1"
+COMMIT_MSG=$(head -n 1 "$MSG_FILE")
+
+# Регулярное выражение для формата: type(scope)!: subject
+REGEX="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9_-]+\))?!?: .+$"
+
+# Исключаем автоматические merge-коммиты
+if [[ "$COMMIT_MSG" =~ ^Merge ]]; then
+    exit 0
+fi
+
+if ! [[ "$COMMIT_MSG" =~ $REGEX ]]; then
+    echo "❌ ОШИБКА: Сообщение коммита не соответствует спецификации Conventional Commits!"
+    echo "📌 Пример: feat(auth): add OAuth2 JWT validation"
+    echo "📌 Ваш ввод: \"$COMMIT_MSG\""
+    exit 1
+fi
+
+echo "✅ Сообщение коммита валидно."
 ```
 
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
+Подключение общего каталога хуков для всей команды:
 ```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+git config core.hooksPath .githooks
 ```
 
 ---
 
-## Проверь себя
+## 🛡️ 3. Серверный Hook безопасности: `pre-receive` (Защита от утечки секретов и некорректных email)
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Этот скрипт размещается на сервере (GitLab Custom Hooks / Gitea) и блокирует отправку коммитов, содержащих секреты или созданных с неавторизованных корпоративных email-адресов:
 
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Читаем строки из stdin: <oldrev> <newrev> <refname>
+while read -r OLDREV NEWREV REFNAME; do
+    # Игнорируем удаление веток
+    if [ "$NEWREV" = "0000000000000000000000000000000000000000" ]; then
+        continue
+    fi
+
+    # Для новых веток сравниваем с базовой веткой main
+    if [ "$OLDREV" = "0000000000000000000000000000000000000000" ]; then
+        SPAN="$NEWREV --not $(git for-each-ref --format='%(refname)' refs/heads/ | grep -v "^$REFNAME$")"
+    else
+        SPAN="$OLDREV..$NEWREV"
+    fi
+
+    # 1. Проверка корпоративного домена автора email
+    AUTHORS=$(git log --format='%ae' $SPAN | sort -u)
+    for AUTHOR in $AUTHORS; do
+        if ! [[ "$AUTHOR" =~ @company\.com$ ]]; then
+            echo "❌ ОШИБКА: Запрещен push коммитов с не-корпоративным email: $AUTHOR"
+            exit 1
+        fi
+    done
+
+    # 2. Сканирование коммитов на наличие захардкоженных приватных ключей и токенов
+    for COMMIT in $(git rev-list $SPAN); do
+        DIFF_CONTENT=$(git diff-tree -p "$COMMIT")
+        if echo "$DIFF_CONTENT" | grep -Eq "BEGIN RSA PRIVATE KEY|BEGIN OPENSSH PRIVATE KEY|AKIA[0-9A-Z]{16}"; then
+            echo "🚨 КРИТИЧЕСКАЯ УЯЗВИМОСТЬ: В коммите $COMMIT обнаружен секретный ключ или токен AWS!"
+            exit 1
+        fi
+    done
+done
+
+echo "✅ Серверные проверки пройдены успешно."
+exit 0
+```
+
+---
+
+## 📦 4. Enterprise Framework: Конфигурация `.pre-commit-config.yaml`
+
+Стандарт индустрии для управления клиентскими проверками:
+
+```yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-merge-conflict
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.59.1
+    hooks:
+      - id: golangci-lint
+```
+
+Установка и запуск:
+```bash
+# Установка хуков в репозиторий
+pre-commit install --hook-type pre-commit --hook-type commit-msg
+
+# Прогон по всей кодовой базе (например, в CI)
+pre-commit run --all-files
+```
+
+---
+
+## 🛠️ 5. Инженерный CLI Cheat Sheet
+
+| Команда | Описание |
+| :--- | :--- |
+| `git config core.hooksPath .githooks` | Задать версионируемый каталог для хуков вместо `.git/hooks/` |
+| `git commit --no-verify` (или `-n`) | Обойти клиентские хуки `pre-commit` и `commit-msg` |
+| `git push --no-verify` | Обойти клиентский хук `pre-push` |
+| `chmod +x .git/hooks/*` | Сделать все хуки исполняемыми в Linux/macOS |
+| `pre-commit autoupdate` | Автоматически обновить версии репозиториев в `.pre-commit-config.yaml` |
+
+---
+
+## 🚨 6. Production Troubleshooting & Break-Fix
+
+### Сценарий: Хуки не запускаются после клонирования репозитория
+- **Симптом:** Файлы хуков лежат в репозитории, но Git их игнорирует.
+- **Причина:** 
+  1. Каталог `.git/hooks` не версионируется Git в целях безопасности.
+  2. Файлы скриптов не имеют флага исполнения (`+x`).
+- **Исправление:**
+  ```bash
+  # 1. Задаем путь к версионируемой папке хуков
+  git config core.hooksPath .githooks
+
+  # 2. Выставляем права на исполнение
+  chmod +x .githooks/*
+  ```

@@ -1,135 +1,239 @@
-# Grafana Alloy глубоко
+# 🧩 19. Grafana Alloy: Унифицированный телеметрический агент
 
-> Alloy, River, components, OTLP, pipelines
+Grafana Alloy — это современный Open Source телеметрический агент (эволюция Grafana Agent / Flow Mode), объединяющий сбор метрик (Prometheus), логов (Loki), трассировок (OpenTelemetry / Tempo) и непрерывного профилирования (Pyroscope) в едином высокопроизводительном рантайме.
 
 ---
 
-## Теория
+## 🏛️ Компонентная архитектура и направленный ациклический граф (DAG)
 
-### Что это и зачем
-
-Alloy, River, components, OTLP, pipelines — ключевая технология в 09-observability. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+В основе Alloy лежит декларативный язык конфигурации, вдохновленный Terraform HCL. Конфигурация описывает компоненты, которые автоматически выстраиваются движком в **Направленный ациклический граф (DAG)**.
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    subgraph Discovery["1. Discovery Layer"]
+        K8sPods["discovery.kubernetes.pods"]
+    end
+
+    subgraph Relabeling["2. Processing Layer"]
+        Relabel["discovery.relabel.pods (Фильтрация и обогащение метаданными)"]
+    end
+
+    subgraph Scraping["3. Scrape & Ingest Layer"]
+        Scraper["prometheus.scrape.k8s_pods"]
+        LokiSource["loki.source.kubernetes"]
+    end
+
+    subgraph Export["4. Pipeline & Exporters"]
+        PromRemote["prometheus.remote_write.mimir"]
+        LokiWrite["loki.write.loki_backend"]
+    end
+
+    K8sPods -->|targets| Relabel
+    Relabel -->|targets| Scraper
+    Relabel -->|targets| LokiSource
+    Scraper -->|forward_to| PromRemote
+    LokiSource -->|forward_to| LokiWrite
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
+### Ключевые свойства рантайма Alloy
+- **Реактивность (Data-Flow):** Изменение выходных данных одного компонента (например, появление нового пода в `discovery.kubernetes`) мгновенно инициирует пересчет зависимых узлов графа.
+- **Zero-Downtime Reload:** Горячее применение конфигурации (`SIGHUP` или `POST /-/reload`) без перезапуска процесса и потери буферов в оперативной памяти.
+- **Совместимость с OpenTelemetry:** Полная поддержка пайплайнов `otelcol.*` внутри синтаксиса Alloy.
 
 ---
 
-## Практика
+## 🌐 Кластеризация и шардирование сбора (Alloy Clustering)
 
-### Минимальный пример
+При запуске нескольких экземпляров Alloy (например, Deployment из 5 реплик) они могут объединяться в **Gossip-кластер** для равномерного распределения нагрузки без дублирования скрайпинга.
 
-```bash
-# Проверка версии и базовый запуск
-curl -s http://prometheus:9090/api/v1/query?query=up | jq .
+```mermaid
+graph LR
+    subgraph K8s["Kubernetes API (5000 Pods)"]
+        Targets["5000 Scrape Targets"]
+    end
+
+    subgraph AlloyCluster["Alloy Cluster (Consistent Hash Ring)"]
+        Alloy1["Alloy Node 1 (Scrapes 33% targets)"]
+        Alloy2["Alloy Node 2 (Scrapes 33% targets)"]
+        Alloy3["Alloy Node 3 (Scrapes 34% targets)"]
+        Alloy1 <-->|Memberlist Gossip| Alloy2
+        Alloy2 <-->|Memberlist Gossip| Alloy3
+        Alloy3 <-->|Memberlist Gossip| Alloy1
+    end
+
+    Targets --> AlloyCluster
 ```
 
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
+Флаг запуска: `alloy run --cluster.enabled=true --cluster.join-addresses=alloy-cluster:12345`
 
-### Production-like пример
+---
 
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
+## ⚙️ Production Конфигурация: `config.alloy`
 
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
+Полнофункциональный пайплайн для сбора метрик, логов, OTel-трасс и профилей:
 
-### Troubleshooting
+```alloy
+// 1. Автоматический дискавери подов в Kubernetes
+discovery.kubernetes "pods" {
+  role = "pod"
+}
 
-**Симптом:** сервис не стартует / метрики отсутствуют.
+// 2. Релейблинг и фильтрация целей для Prometheus
+discovery.relabel "k8s_pods" {
+  targets = discovery.kubernetes.pods.targets
 
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
+  rule {
+    source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+    regex         = "true"
+    action        = "keep"
+  }
 
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
+  rule {
+    source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+    target_label  = "__metrics_path__"
+    regex         = "(.+)"
+  }
 
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
+  rule {
+    source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port", "__meta_kubernetes_pod_ip"]
+    target_label  = "__address__"
+    regex         = "(.+);(.+)"
+    replacement   = "$2:$1"
+  }
 
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "namespace"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    target_label  = "pod"
+  }
+}
+
+// 3. Скрайпинг метрик Prometheus
+prometheus.scrape "pods" {
+  targets    = discovery.relabel.k8s_pods.output
+  forward_to = [prometheus.remote_write.prod_mimir.receiver]
+  scrape_interval = "15s"
+}
+
+// 4. Отправка метрик по Remote Write
+prometheus.remote_write "prod_mimir" {
+  endpoint {
+    url = "http://mimir-gateway.monitoring.svc:8080/api/v1/push"
+    headers = {
+      "X-Scope-OrgID" = "production",
+    }
+  }
+}
+
+// 5. Прием трасс OpenTelemetry (OTLP gRPC & HTTP)
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+  output {
+    traces  = [otelcol.processor.batch.default.input]
+    metrics = [otelcol.processor.batch.default.input]
+  }
+}
+
+// 6. Батчинг телеметрии для оптимизации сети
+otelcol.processor.batch "default" {
+  timeout = "1s"
+  send_batch_size = 8192
+
+  output {
+    traces  = [otelcol.exporter.otlp.tempo.input]
+    metrics = [prometheus.remote_write.prod_mimir.receiver]
+  }
+}
+
+// 7. Экспорт трасс в Grafana Tempo
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "tempo-distributor.monitoring.svc:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
+
+// 8. Сбор логов контейнеров
+loki.source.kubernetes "pod_logs" {
+  targets    = discovery.relabel.k8s_pods.output
+  forward_to = [loki.process.filter_noise.receiver]
+}
+
+// 9. Обработка и фильтрация логов
+loki.process "filter_noise" {
+  stage.drop {
+    source = ""
+    expression = ".*(healthz|readyz).*"
+  }
+
+  forward_to = [loki.write.prod_loki.receiver]
+}
+
+// 10. Запись логов в Loki
+loki.write "prod_loki" {
+  endpoint {
+    url = "http://loki-gateway.monitoring.svc:3100/loki/api/v1/push"
+    tenant_id = "production"
+  }
+}
 ```
 
 ---
 
-## Проверь себя
+## 🖥️ Live Debugging UI (Интерактивная панель отладки)
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Alloy включает встроенный веб-интерфейс на порту `12345`:
 
+```mermaid
+graph TD
+    UI["Alloy Web UI (:12345)"]
+    UI --> Graph["Graph View: Интерактивный граф всех компонентов DAG"]
+    UI --> Health["Component Health: Зеленый/Красный статус каждого блока"]
+    UI --> State["Live Inspection: Просмотр реальных переданных таргетов и сэмплов"]
+```
+
+```bash
+# Проверка состояния агента через терминал
+curl -s http://localhost:12345/-/ready
+curl -s http://localhost:12345/api/v0/components | jq .
+```
+
+---
+
+## 🔧 Диагностика и разрешение проблем (Troubleshooting)
+
+### Сценарий 1: Компонент в статусе "Degraded" или "Unhealthy"
+- **Симптом:** В UI Alloy компонент подсвечен красным, метрики не собираются.
+- **Диагностика:**
+  ```bash
+  # Просмотр логов пода Alloy
+  kubectl logs -n monitoring -l app.kubernetes.io/name=alloy --tail=100
+  ```
+- **Причина:** Ошибка подключения к нижележащему сервису (например, отказ Mimir / Loki или неверный `tenant_id`).
+- **Решение:** Проверьте доступность сетевых эндпоинтов и правильность заголовков авторизации в `endpoint.headers`.
+
+### Сценарий 2: Ошибка циклической зависимости (Cyclic Dependency Error)
+- **Симптом:** Alloy падает при старте с ошибкой `failed to build graph: cycle detected: component A -> B -> A`.
+- **Причина:** Выходной порт компонента `A` направлен в `B`, который передает данные обратно в `A`.
+- **Решение:** Разомкните цикл, направляя данные только вперед по конвейеру (Strict DAG).
+
+---
+
+## 🧠 Проверь себя
+
+1. Какое архитектурное преимущество дает модель Directed Acyclic Graph (DAG) в Alloy по сравнению со статическими YAML-конфигами старого Grafana Agent?
+2. Как режим `clustering` в Alloy предотвращает дублирование сбора метрик при запуске 10 реплик агента?
+3. Какие возможности предоставляет встроенный веб-интерфейс Alloy на порту `:12345`?
+4. Как внутри одного конфига Alloy связать прием OTel-трассировок по gRPC и их отправку в Tempo через Batch-процессор?
+5. Что происходит со сбором данных при выполнении горячей перезагрузки `POST /-/reload`?

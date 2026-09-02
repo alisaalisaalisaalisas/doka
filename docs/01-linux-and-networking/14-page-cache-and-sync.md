@@ -1,135 +1,96 @@
-# Page cache и синхронизация
+# 💾 14. Page Cache, Dirty Pages и Синхронизация (Sync)
 
-> page cache, dirty pages, sync, drop_caches
+## 🧠 Как Linux работает с дисковым вводом-выводом
 
----
+Физические накопители (HDD, SATA SSD, даже быстрые NVMe) работают медленнее оперативной памяти (DRAM) в десятки и сотни раз. 
 
-## Теория
-
-### Что это и зачем
-
-page cache, dirty pages, sync, drop_caches — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+Чтобы компенсировать эту разницу, ядро Linux использует всю не занятую приложениями память под **Page Cache (Кэш страниц)**:
+* **При чтении (Read):** Ядро загружает данные с диска в оперативную память. Повторное чтение происходит мгновенно из RAM.
+* **При записи (Write):** Приложение вызывает `write()`. Данные записываются в Page Cache в RAM за наносекунды, помечаются как **«грязные страницы» (Dirty Pages)**, и вызов `write()` мгновенно возвращает управление. Физический сброс на диск выполняется асинхронно фоновыми потоками ядра (`kworker/flush`).
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    App["Приложение (User Space)"] -->|write()| PageCache["Page Cache в RAM (Dirty Pages)"]
+    PageCache -->|Немедленный возврат OK| App
+    
+    subgraph KernelFlushing["Сброс на диск (Flushing Pipeline)"]
+        PageCache -->|Фоновый сброс (kworker/flush)| DiskQueue["Очередь контроллера"]
+        DiskQueue --> PhysicalDisk["Физический накопитель (SSD/NVMe)"]
+    end
+    
+    App -->|fsync() / fdatasync()| SyncWait["Блокировка до подтверждения записи диском"]
+    SyncWait --> PhysicalDisk
 ```
 
 ---
 
-## Проверь себя
+## ⚙️ Системные вызовы синхронизации: `sync`, `fsync`, `fdatasync`, `O_DIRECT`
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+| Системный вызов / Флаг | Что делает | Гарантия сохранности при отключении питания |
+| :--- | :--- | :---: |
+| **`write()`** | Пишет только в Page Cache в RAM. | ❌ Данные пропадут, если сервер выключится до сброса ядра на диск. |
+| **`sync()`** | Инициирует сброс **всех** грязных страниц всей операционной системы на диск. | ✅ Высокая |
+| **`fsync(fd)`** | Блокирует поток до тех пор, пока данные конкретного файла **И его метаданные** (размер, mtime, инода) не будут физически записаны на диск. | ✅ Полная (используется в WAL баз данных) |
+| **`fdatasync(fd)`** | То же, что `fsync`, но сбрасывает **только данные** файла (без метаданных вроде mtime, если размер не менялся). Быстрее `fsync`. | ✅ Полная |
+| **`O_DIRECT`** | Флаг открытия файла (`open`). **Полностью отключает Page Cache**. Данные идут напрямую между буфером User Space и диском (используется СУБД, имеющими собственный буферный пул). | Зависит от приложения |
 
+---
+
+## 🎛️ Тюнинг сброса грязных страниц (Sysctl)
+
+Ядро сбрасывает грязные страницы на основе параметров `/proc/sys/vm/`:
+
+* **`vm.dirty_background_ratio` (default `10`):** Процент RAM с грязными страницами, при достижении которого фоновые потоки `kworker` **начинают фоновую запись на диск**, не блокируя приложения.
+* **`vm.dirty_ratio` (default `20`):** Критический процент RAM с грязными страницами. При его превышении ядро **блокирует все пишущие процессы** и заставляет их синхронно ждать сброса данных на диск (система начинает визуально зависать).
+* **`vm.dirty_expire_centisecs` (default `3000` = 30 сек):** Максимальное время жизни грязной страницы в памяти до принудительного сброса.
+* **`vm.dirty_writeback_centisecs` (default `500` = 5 сек):** Интервал пробуждения фонового демона сброса.
+
+### Рекомендуемый профиль для Highload / SSD / DB:
+Для серверов с большими объемами RAM (64–512 ГБ) проценты по умолчанию слишком велики (20% от 256 ГБ — это 51 ГБ грязных данных в RAM, сброс которых может вызвать минутный дисковый фриз). 
+
+Рекомендуется задавать лимиты в **байтах**, а не процентах:
+```ini
+# /etc/sysctl.d/99-dirty-pages.conf
+# Начать фоновый сброс при накоплении 256 МБ грязных данных:
+vm.dirty_background_bytes = 268435456
+
+# Блокировать процессы только при накоплении 1 ГБ грязных данных:
+vm.dirty_bytes = 1073741824
+
+# Сбрасывать страницы каждые 10 секунд:
+vm.dirty_expire_centisecs = 1000
+```
+
+---
+
+## 🛠️ CLI Практика: Мониторинг Page Cache
+
+```bash
+# Текущий объем грязных страниц в памяти:
+cat /proc/meminfo | grep -E "Dirty|Writeback"
+
+# Мониторинг скорости сброса страниц (колонка bo = blocks out):
+vmstat 1 5
+
+# Принудительный сброс всех грязных буферов на диск прямо сейчас:
+sync
+
+# Очистка Page Cache (только для чистых бенчмарков, НЕ делать на проде!):
+# 1 = очистить pagecache
+# 2 = очистить dentries и inodes
+# 3 = очистить pagecache, dentries и inodes
+sync && echo 3 | sudo tee /proc/sys/vm/drop_caches
+```
+
+---
+
+## 🚨 Траблшутинг: Дисковые фризы и задержки (I/O Spikes)
+
+### Симптом: Сервер внезапно зависает на 5-10 секунд каждые несколько минут
+* **Причина:** Накопление огромного пула грязных страниц (`Dirty Pages`) в RAM с последующим лавинообразным сбросом на диск, исчерпывающим очередь ввода-вывода (Queue Depth).
+* **Диагностика:**
+  ```bash
+  # Запускаем iostat и смотрим на %util и w_await:
+  iostat -xz 1
+  ```
+* **Решение:** Уменьшите `vm.dirty_background_bytes` и `vm.dirty_bytes` до 256M–512M, чтобы сброс на диск происходил непрерывно мелкими порциями без пиковых очередей.

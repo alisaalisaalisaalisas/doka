@@ -314,6 +314,7 @@ nav:
       - Основы и HCL: 06-terraform/01-terraform-fundamentals.md
       - State, Модули и Terragrunt: 06-terraform/02-state-modules-and-terragrunt.md
       - Тестирование, CI и Операции со Стейтом: 06-terraform/03-terraform-testing-ci-and-state-ops.md
+      - "OpenTofu, Провайдеры и Drift": 06-terraform/04-opentofu-providers-and-drift.md
   - 7. Ansible:
       - Архитектура и Плейбуки: 07-ansible/01-ansible-architecture-and-playbooks.md
       - Роли, Vault и Best Practices: 07-ansible/02-roles-vault-and-best-practices.md
@@ -475,3 +476,15 @@ nav:
       - "23.7 Kubeflow Pipelines deep dive": 23-mlops/07-kubeflow-pipelines.md
       - "23.8 LLMOps и RAG": 23-mlops/08-llmops-rag.md
       - "23.9 Model Governance: A/B, shadow, lineage": 23-mlops/09-model-governance.md
+  - 24. Кибербезопасность и Анализ Угроз:
+      - "24.1 Основы ИБ, Модели Угроз и MITRE ATT&CK": 24-cybersecurity-and-threat-analysis/01-cybersecurity-fundamentals-and-threat-modeling.md
+      - "24.2 Безопасность Веб-Приложений и OWASP Top 10": 24-cybersecurity-and-threat-analysis/02-web-security-and-owasp-top-10.md
+      - "24.3 Безопасность Linux и Защита от PrivEsc": 24-cybersecurity-and-threat-analysis/03-linux-server-security-and-privilege-escalation.md
+      - "24.4 Безопасность Windows и Active Directory": 24-cybersecurity-and-threat-analysis/04-windows-and-active-directory-security.md
+      - "24.5 Архитектура Безопасности Apple (iOS/macOS)": 24-cybersecurity-and-threat-analysis/05-apple-ios-macos-security-architecture.md
+      - "24.6 Безопасность Android и Мобильных Приложений": 24-cybersecurity-and-threat-analysis/06-android-security-and-mobile-threats.md
+      - "24.7 Сетевые Атаки, Мониторинг и Защита Периметра": 24-cybersecurity-and-threat-analysis/07-network-attacks-and-perimeter-defense.md
+      - "24.8 DevSecOps и Безопасность Supply Chain": 24-cybersecurity-and-threat-analysis/08-devsecops-and-supply-chain-security.md
+      - "24.9 Реагирование на Инциденты (IR) и DFIR": 24-cybersecurity-and-threat-analysis/09-incident-response-and-digital-forensics.md
+      - "24.10 SOC, Threat Hunting и Чек-Листы Харденинга": 24-cybersecurity-and-threat-analysis/10-soc-threat-hunting-and-hardening-checklists.md
+

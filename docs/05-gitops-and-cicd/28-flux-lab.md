@@ -1,135 +1,217 @@
-# Lab: Flux end-to-end
+# 🧪 28. Лабораторная работа: Бутстрап Multi-Tenant кластера с FluxCD, Kustomization DAG и SOPS
 
-> GitRepository, Kustomization, HelmRelease, ImageAutomation
+## 🎯 Цель лабораторной работы
 
----
-
-## Теория
-
-### Что это и зачем
-
-GitRepository, Kustomization, HelmRelease, ImageAutomation — ключевая технология в 05-gitops-and-cicd. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+Развернуть с нуля полностью автоматизированный multi-tenant кластер Kubernetes под управлением **FluxCD v2** со следующей архитектурой:
+1. **Иерархический DAG зависимостей (Kustomization DAG)**: CRD $\rightarrow$ Инфраструктура $\rightarrow$ Тенанты $\rightarrow$ Приложения.
+2. **Сквозное шифрование секретов**: Использование **Mozilla SOPS** с алгоритмом **age**.
+3. **Изоляция арендаторов (Multi-Tenancy)**: Автоматическое выделение неймспейсов и ServiceAccount с ограниченным RBAC.
 
 ```mermaid
-graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+flowchart TD
+    subgraph FluxBootstrap["0. Flux System Root"]
+        GitRoot["GitRepository: flux-system"] --> KustRoot["Kustomization: flux-system"]
+    end
+
+    subgraph Tier0["Tier 0: Базовые ресурсы"]
+        KustRoot --> KustCRDs["Kustomization: cluster-crds (Namespaces, CRDs)"]
+    end
+
+    subgraph Tier1["Tier 1: Инфраструктурный слой"]
+        KustCRDs -->|"dependsOn"| KustInfra["Kustomization: infrastructure (Cert-Manager, Nginx)"]
+    end
+
+    subgraph Tier2["Tier 2: Тенанты и политики"]
+        KustInfra -->|"dependsOn"| KustTenants["Kustomization: tenant-policies (RBAC, NetworkPolicy)"]
+    end
+
+    subgraph Tier3["Tier 3: Бизнес-приложения"]
+        KustTenants -->|"dependsOn + SOPS Decrypt"| KustApps["Kustomization: tenant-apps (Microservices + Encrypted Secrets)"]
+    end
 ```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
 
 ---
 
-## Практика
+## 🛠️ Пошаговое руководство выполнения
 
-### Минимальный пример
+### Шаг 1: Генерация ключей шифрования `age` и секретов в кластере
 
 ```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
+# 1. Генерация пары ключей age
+age-keygen -o age.agekey
+
+# 2. Извлечение публичного ключа
+export SOPS_AGE_PUBKEY=$(grep 'public key:' age.agekey | awk '{print $NF}')
+echo "Public Key: $SOPS_AGE_PUBKEY"
+
+# 3. Создание неймспейса flux-system и загрузка приватного ключа в секрет
+kubectl create namespace flux-system --dry-run=client -o yaml | kubectl apply -f -
+
+kubectl create secret generic sops-age \
+  --namespace=flux-system \
+  --from-file=age.agekey=age.agekey
 ```
 
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
+---
+
+### Шаг 2: Бутстрап FluxCD в репозиторий GitHub / GitLab
+
+```bash
+# Экспорт персонального токена с правами repo/write
+export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxx"
+export GITHUB_USER="company-admin"
+
+# Запуск бутстрапа Flux
+flux bootstrap github \
+  --owner=$GITHUB_USER \
+  --repository=gitops-fleet-production \
+  --branch=main \
+  --path=./clusters/production \
+  --personal
 ```
 
-### Production-like пример
+---
+
+### Шаг 3: Создание структуры репозитория и `.sops.yaml`
+
+Клонируйте репозиторий и создайте дерево каталогов:
+
+```bash
+git clone https://github.com/$GITHUB_USER/gitops-fleet-production.git
+cd gitops-fleet-production
+
+mkdir -p clusters/production/base-crds
+mkdir -p clusters/production/infrastructure
+mkdir -p clusters/production/tenants
+mkdir -p clusters/production/apps/payments
+```
+
+Создайте файл `.sops.yaml` в корне репозитория:
 
 ```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
+creation_rules:
+  - path_regex: .*/apps/.*\.enc\.yaml$
+    age: "age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p"
+    encrypted_regex: "^(data|stringData)$"
+```
+
+---
+
+### Шаг 4: Декларация Kustomization DAG
+
+Создайте файл `clusters/production/flux-dag.yaml`:
+
+```yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
 metadata:
-  name: demo-prod
+  name: tier0-crds
+  namespace: flux-system
 spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+  interval: 10m
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./clusters/production/base-crds
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tier1-infrastructure
+  namespace: flux-system
+spec:
+  interval: 10m
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./clusters/production/infrastructure
+  dependsOn:
+    - name: tier0-crds
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tier2-tenants
+  namespace: flux-system
+spec:
+  interval: 10m
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./clusters/production/tenants
+  dependsOn:
+    - name: tier1-infrastructure
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tier3-apps
+  namespace: flux-system
+spec:
+  interval: 5m
+  prune: true
+  wait: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./clusters/production/apps
+  dependsOn:
+    - name: tier2-tenants
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
 ```
 
 ---
 
-## Проверь себя
+### Шаг 5: Создание зашифрованного секрета приложения через SOPS
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Создайте открытый манифест `clusters/production/apps/payments/secret.yaml`:
 
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: payment-credentials
+  namespace: payments
+type: Opaque
+stringData:
+  DB_PASSWORD: "SuperSecureProductionPassword2026!"
+  API_KEY: "live_pk_998877665544332211"
+```
+
+Зашифруйте файл:
+
+```bash
+sops --encrypt --in-place clusters/production/apps/payments/secret.yaml
+mv clusters/production/apps/payments/secret.yaml clusters/production/apps/payments/secret.enc.yaml
+```
+
+Отправьте изменения в Git:
+
+```bash
+git add .
+git commit -m "feat: complete multi-tenant flux DAG setup with encrypted secrets"
+git push origin main
+```
+
+---
+
+## 🔍 Валидация и проверка результатов
+
+```bash
+# 1. Принудительный опрос и просмотр статуса графа DAG
+flux reconcile source git flux-system
+flux get kustomizations
+
+# 2. Проверка успешной расшифровки секрета в кластере
+kubectl get secret payment-credentials -n payments -o jsonpath='{.data.DB_PASSWORD}' | base64 -d
+# Вывод: SuperSecureProductionPassword2026!
+
+# 3. Проверка дерева ресурсов
+flux tree kustomization flux-system
+```

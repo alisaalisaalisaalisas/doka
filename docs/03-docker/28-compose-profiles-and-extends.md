@@ -1,135 +1,172 @@
-# Compose profiles и extends
+# 🎛️ 28. Продвинутый Docker Compose: Profiles, Extends, Include и Слоевые Конфигурации
 
-> profiles, extends, env, interpolation
+## 🧩 Модульность и Масштабирование Compose файлов
 
----
-
-## Теория
-
-### Что это и зачем
-
-profiles, extends, env, interpolation — ключевая технология в 03-docker. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+В реальных проектах монолитный `docker-compose.yml` на 500 строк быстро становится неуправляемым. Спецификация Compose V2 предоставляет четыре мощных механизма декомпозиции и управления окружениями:
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-docker info && docker run --rm hello-world
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    subgraph ModularCompose["Механизмы модульности Compose V2"]
+        Profiles["1. Profiles (Селективный запуск: dev, debug, monitoring)"]
+        Include["2. Include (Подключение внешних compose файлов микросервисов)"]
+        Extends["3. Extends (Переиспользование сервисов с переопределением)"]
+        Override["4. Layered Overrides (compose.yaml + compose.override.yaml)"]
+    end
 ```
 
 ---
 
-## Проверь себя
+## 🎯 1. Профили сервисов: `profiles`
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Директива `profiles` позволяет группировать сервисы и запускать их только при явном указании профиля в CLI или переменной окружения. Сервисы без секции `profiles` запускаются всегда.
 
+```yaml
+services:
+  # Основной сервис приложения (запускается всегда)
+  api:
+    image: my-company/api:latest
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://user:pass@db:5432/app
+
+  db:
+    image: postgres:16-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Сервис только для профиля "debug"
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    ports:
+      - "5050:80"
+    profiles:
+      - debug
+      - admin
+
+  # Сервисы только для профиля "monitoring"
+  prometheus:
+    image: prom/prometheus:v2.50.0
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:10.3.0
+    ports:
+      - "3000:3000"
+    profiles:
+      - monitoring
+
+volumes:
+  pgdata:
+```
+
+### Запуск с нужными профилями:
+```bash
+# Запуск только основного стека (api + db)
+docker compose up -d
+
+# Запуск стека с включением мониторинга
+docker compose --profile monitoring up -d
+
+# Запуск со всеми инструментами отладки
+COMPOSE_PROFILES=debug,monitoring docker compose up -d
+```
+
+---
+
+## 📦 2. Модульное подключение подпроектов: `include`
+
+Директива `include` (появилась в Compose v2.20) решает проблему управления большими микросервисными репозиториями (Monorepos и Polyrepos). Каждый микросервис хранит свой собственный изолированный `compose.yaml`, а корневой файл просто объединяет их:
+
+```yaml
+# Корневой compose.yaml
+include:
+  - path: ./services/auth/compose.yaml
+  - path: ./services/billing/compose.yaml
+  - path: ./infra/kafka/compose.yaml
+    env_file: ./infra/kafka/.env.kafka
+
+services:
+  gateway:
+    image: traefik:v3.0
+    ports:
+      - "80:80"
+```
+
+> [!TIP]
+> Все пути к файлам и томам внутри включенных compose-файлов автоматически вычисляются **относительно директории этого включенного файла**, что предотвращает ошибки путей.
+
+---
+
+## 🧬 3. Наследование и DRY: `extends` и YAML Anchors
+
+### Механизм `extends`
+Позволяет наследовать конфигурацию сервиса из другого файла или внутри текущего файла:
+
+```yaml
+# common-services.yaml
+services:
+  base-worker:
+    image: company/python-base:3.11
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    environment:
+      LOG_LEVEL: INFO
+```
+
+Использование в основном `compose.yaml`:
+```yaml
+services:
+  email-worker:
+    extends:
+      file: common-services.yaml
+      service: base-worker
+    command: ["python", "email_consumer.py"]
+    environment:
+      QUEUE_NAME: emails
+
+  push-worker:
+    extends:
+      file: common-services.yaml
+      service: base-worker
+    command: ["python", "push_consumer.py"]
+```
+
+### Использование нативных якорей YAML (`&` и `*`):
+```yaml
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "20m"
+    max-file: "3"
+
+services:
+  service-a:
+    image: app-a:1.0
+    logging: *default-logging
+
+  service-b:
+    image: app-b:1.0
+    logging: *default-logging
+```
+
+---
+
+## 🔀 4. Слоевые переопределения (Dev / Staging / Prod Overrides)
+
+Docker Compose по умолчанию объединяет файлы в порядке:
+1. `compose.yaml` (или `docker-compose.yml`) — базовое описание сервисов.
+2. `compose.override.yaml` — автоматическое локальное переопределение для разработчика (монтирование исходников, debug порты).
+
+### Паттерн разделения сред:
+- `compose.yaml` (База: образы, сети, переменные по умолчанию)
+- `compose.prod.yaml` (Production: жесткие лимиты, выключенные порты наружу, реплики)
+
+Запуск на проде:
+```bash
+docker compose -f compose.yaml -f compose.prod.yaml up -d
+```

@@ -1,135 +1,124 @@
-# Стек TCP/IP и iptables
+# 🛡️ 20. Стек TCP/IP, Netfilter и iptables
 
-> TCP/IP, iptables, conntrack, NAT
+## 🧠 Архитектура Netfilter в Ядре Linux
+
+**Netfilter** — это фреймворк внутри ядра Linux, позволяющий перехватывать, модифицировать, фильтровать и перенаправлять сетевые пакеты на различных этапах их прохождения по сетевому стеку.
+
+Утилита **`iptables`** (и современная замена **`nftables`**) — это интерфейс управления правилами Netfilter.
 
 ---
 
-## Теория
-
-### Что это и зачем
-
-TCP/IP, iptables, conntrack, NAT — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+## 🗺️ Путь прохождения пакета (Packet Flow Lifecycle)
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    NIC_IN["1. Сетевой интерфейс (Входящий пакет)"] --> PREROUTING["PREROUTING (raw -> conntrack -> mangle -> nat)"]
+    
+    PREROUTING --> ROUTE1{"Решение маршрутизации: Пакет адресован локальному серверу?"}
+    
+    ROUTE1 -->|ДА (Local Host)| INPUT["INPUT (mangle -> filter -> nat)"]
+    INPUT --> LOCAL_APP["Локальное приложение (Socket / Port)"]
+    
+    ROUTE1 -->|НЕТ (Forward to other host)| FORWARD["FORWARD (mangle -> filter)"]
+    
+    LOCAL_APP --> ROUTE2["OUTPUT (raw -> conntrack -> mangle -> nat -> filter)"]
+    
+    FORWARD --> POSTROUTING["POSTROUTING (mangle -> nat / SNAT)"]
+    ROUTE2 --> POSTROUTING
+    
+    POSTROUTING --> NIC_OUT["2. Сетевой интерфейс (Исходящий пакет)"]
 ```
 
 ---
 
-## Проверь себя
+## 📊 Таблицы и Цепочки Netfilter
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+### 5 Таблиц (`Tables`):
+1. **`filter` (по умолчанию):** Основная фильтрация пакетов (разрешить/запретить). Цепочки: `INPUT`, `FORWARD`, `OUTPUT`.
+2. **`nat`:** Трансляция сетевых адресов (Network Address Translation). Подмена IP/портов. Цепочки: `PREROUTING` (DNAT), `OUTPUT`, `POSTROUTING` (SNAT/MASQUERADE).
+3. **`mangle`:** Модификация заголовков пакетов (TOS, TTL, маркировка `MARK` для policy routing).
+4. **`raw`:** Обработка пакетов **ДО** подсистемы отслеживания соединений (`conntrack`). Флаг `NOTRACK`.
+5. **`security`:** Интеграция с модулями безопасности SELinux/AppArmor (SEC言MARK).
 
+---
+
+## 🛠️ CLI Практика: Production Рецепты iptables
+
+### 1. Настройка безопасного файрвола для сервера (Stateless + Stateful)
+```bash
+# 1. Сброс всех старых правил
+sudo iptables -F
+sudo iptables -X
+sudo iptables -t nat -F
+
+# 2. Политики по умолчанию: ДРОПАТЬ ВСЁ входящее и транзитное
+sudo iptables -P INPUT DROP
+sudo iptables -P FORWARD DROP
+sudo iptables -P OUTPUT ACCEPT
+
+# 3. Разрешить локальный интерфейс (Loopback / 127.0.0.1)
+sudo iptables -A INPUT -i lo -j ACCEPT
+
+# 4. Разрешить уже установленные и зависимые соединения (Stateful Inspection!)
+sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+# 5. Дропать некорректные пакеты (Invalid state)
+sudo iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
+
+# 6. Открыть SSH (порт 22) с защитой от брутфорса (не более 4 подключений в минуту)
+sudo iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -m recent --set --name SSH
+sudo iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -m recent --update --seconds 60 --hitcount 4 --rttl --name SSH -j DROP
+sudo iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -j ACCEPT
+
+# 7. Открыть публичные веб-порты (HTTP 80, HTTPS 443)
+sudo iptables -A INPUT -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j ACCEPT
+
+# 8. Разрешить ICMP (ping) для диагностики:
+sudo iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+```
+
+### 2. Настройка NAT: Проброс портов (DNAT) и Маскарадинг (SNAT)
+```bash
+# Включаем IP Forwarding в ядре:
+sudo sysctl -w net.ipv4.ip_forward=1
+
+# Проброс входящего порта 80 на внутренний контейнер/хост (DNAT):
+sudo iptables -t nat -A PREROUTING -p tcp -i eth0 --dport 80 -j DNAT --to-destination 192.168.1.100:8080
+
+# Выход внутренней подсети 192.168.1.0/24 в интернет через внешний IP интерфейса eth0 (SNAT / MASQUERADE):
+sudo iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o eth0 -j MASQUERADE
+```
+
+### 3. Сохранение и просмотр правил
+```bash
+# Просмотр всех правил с номерами строк и счетчиками пакетов:
+sudo iptables -nvL --line-numbers
+sudo iptables -t nat -nvL
+
+# Удаление правила по номеру строки (например, строка 3 в INPUT):
+sudo iptables -D INPUT 3
+
+# Сохранение правил между перезагрузками (Ubuntu/Debian):
+# sudo apt install iptables-persistent
+sudo netfilter-persistent save
+```
+
+---
+
+## ⚡ Современный аналог: nftables
+
+В современных дистрибутивах `iptables` заменяется на **`nftables`** (единый движок с понятным синтаксисом):
+
+```bash
+# Пример таблицы в nftables (/etc/nftables.conf):
+table inet my_firewall {
+    chain inbound {
+        type filter hook input priority filter; policy drop;
+        
+        iif "lo" accept
+        ct state established,related accept
+        tcp dport { 22, 80, 443 } accept
+        icmp type echo-request accept
+    }
+}
+```

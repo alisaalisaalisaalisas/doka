@@ -1,135 +1,159 @@
-# Интерактивный rebase
+# 🛠️ 17. Интерактивный Rebase: Мастеринг git rebase -i и Autosquash
 
-> interactive rebase, fixup, squash, autosquash
+Интерактивный Rebase (`git rebase -i`) — это мощный инструмент рефакторинга истории Git, позволяющий объединять, разделять, редактировать, переупорядочивать и валидировать коммиты перед публикацией в upstream.
 
 ---
 
-## Теория
+## 🏛️ 1. Архитектура движка Rebase TODO
 
-### Что это и зачем
-
-interactive rebase, fixup, squash, autosquash — ключевая технология в 02-git. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+При запуске `git rebase -i <upstream>` Git создает служебный каталог `.git/rebase-merge/` и генерирует файл инструкций `git-rebase-todo`:
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
+    Start["Запуск git rebase -i HEAD~4"] --> GenerateTODO["Генерация .git/rebase-merge/git-rebase-todo"]
+    GenerateTODO --> Editor["Открытие списка в $EDITOR инженера"]
+    Editor --> ExecuteStep["Исполнение инструкций сверху вниз"]
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
+    subgraph Instructions["Команды TODO"]
+        direction TB
+        pick["pick: применить коммит как есть"]
+        reword["reword: изменить только текст сообщения"]
+        edit["edit: остановиться для изменения файлов (amend/split)"]
+        squash["squash: слить с предыдущим (объединить сообщения)"]
+        fixup["fixup: слить с предыдущим (выбросить сообщение)"]
+        exec["exec: выполнить bash команду (тесты, линтер)"]
+        drop["drop: полностью удалить коммит"]
+    end
 
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    ExecuteStep --> Instructions
+    Instructions --> NextStep{"Есть еще шаги?"}
+    NextStep -->|Да| ExecuteStep
+    NextStep -->|Нет| Finish["Успешное завершение: перемещение HEAD"]
 ```
 
 ---
 
-## Проверь себя
+## ⚡ 2. Профессиональный Workflow: `git commit --fixup` и `--autosquash`
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Ручное перетаскивание строк в `git-rebase-todo` чревато ошибками. Лучшая DevOps-практика для точечного исправления старых коммитов — использование **autosquash**:
 
+```mermaid
+graph LR
+    subgraph Step1["1. Создание Fixup-коммита"]
+        C1["a1b2: feat: add database migration"]
+        C2["c3d4: feat: add user api endpoint"]
+        Fix["e5f6: fixup! feat: add database migration"]
+    end
+
+    subgraph Step2["2. git rebase -i --autosquash"]
+        C1_new["a1b2': feat: add database migration (содержит правки e5f6)"]
+        C2_new["c3d4': feat: add user api endpoint"]
+    end
+
+    Fix -.->|Автоматически сливается в| C1
+    Step1 --> Step2
+```
+
+### Пошаговое выполнение:
+1. Вы находите коммит, в котором допущена ошибка: `git log --oneline`.
+2. Вносите исправления в файлы и выполняете:
+   ```bash
+   git add .
+   git commit --fixup a1b2c3d
+   ```
+   *Git автоматически создаст коммит с сообщением `fixup! <оригинальное сообщение>`.*
+3. Запускаете перебазирование:
+   ```bash
+   git rebase -i --autosquash origin/main
+   ```
+   *Git сам расставит фиксап-коммиты на нужные позиции и переведет их в статус `fixup`.*
+
+---
+
+## 🧪 3. Автоматизированное тестирование каждого коммита (`--exec`)
+
+Чтобы гарантировать, что ни один коммит в ветке не ломает билд (что критично для чистого `git bisect`), используйте команду `exec`:
+
+```bash
+# Запуск линтера и unit-тестов после применения каждого отдельного коммита
+git rebase origin/main --exec "npm test" --exec "golangci-lint run"
+```
+
+Если на коммите `X` тесты упадут, rebase автоматически прервется на этом шаге, позволяя сразу исправить дефект.
+
+---
+
+## ✂️ 4. Разделение одного коммита на несколько (Commit Splitting)
+
+Если в один коммит случайно попали две разные фичи:
+1. В `git rebase -i` замените `pick` на `edit` для нужного коммита.
+2. Когда Git остановится на этом шаге:
+   ```bash
+   # Сбрасываем коммит, оставляя файлы измененными в Working Tree
+   git reset HEAD~1
+
+   # Добавляем первую логическую группу файлов
+   git add src/auth/
+   git commit -m "feat(auth): implement JWT validation"
+
+   # Добавляем вторую логическую группу файлов
+   git add src/database/
+   git commit -m "feat(db): add user token table schema"
+
+   # Продолжаем процесс rebase
+   git rebase --continue
+   ```
+
+---
+
+## 🛠️ 5. Инженерный CLI Cheat Sheet
+
+| Команда | Назначение |
+| :--- | :--- |
+| `git rebase -i HEAD~N` | Интерактивный rebase последних $N$ коммитов |
+| `git rebase -i --root` | Интерактивный rebase всей истории с первого (root) коммита |
+| `git rebase -i --autosquash main` | Rebase с автоматической группировкой fixup/squash коммитов |
+| `git rebase --continue` | Продолжить выполнение цепочки после разрешения конфликтов |
+| `git rebase --skip` | Пропустить проблемный коммит |
+| `git rebase --abort` | Полный сброс и отмена rebase (возврат в исходную точку) |
+| `git rebase --edit-todo` | Изменить оставшийся список TODO прямо во время паузы |
+
+---
+
+## ⚙️ 6. Production-конфигурация `.gitconfig`
+
+```ini
+[rebase]
+    # Всегда автоматически применять autosquash при интерактивном rebase
+    autoSquash = true
+    # Автоматически сохранять незакоммиченные файлы в stash перед rebase и восстанавливать после
+    autoStash = true
+    # Автоматически включать отслеживание шагов
+    stat = true
+    # Показывать diff при открытии todo-листа
+    instructionFormat = (%an) %s
+```
+
+---
+
+## 🚨 7. Production Troubleshooting & Break-Fix
+
+### Сценарий 1: Случайно удалена вся строка коммита в редакторе TODO
+- **Симптом:** Инженер удалил строку в редакторе, и коммит пропал из ветки.
+- **Причина:** Удаление строки из списка TODO в Git эквивалентно действию `drop`.
+- **Восстановление:**
+  ```bash
+  # 1. Отменить текущий rebase, если он еще не завершен
+  git rebase --abort
+
+  # 2. Если rebase уже завершился, восстановить из reflog
+  git reset --hard ORIG_HEAD
+  ```
+
+### Сценарий 2: Ошибка "Cannot rebase: You have unstaged changes"
+- **Симптом:** При попытке запустить `git rebase` Git отказывается работать из-за наличия грязного рабочего дерева.
+- **Решение:**
+  ```bash
+  # Запуск с авто-стэшем
+  git rebase -i --autostash origin/main
+  ```

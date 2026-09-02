@@ -1,135 +1,91 @@
-# XFS и Btrfs
+# 🌲 16. Файловые Системы XFS и Btrfs
 
-> XFS, Btrfs, mkfs.xfs, subvolumes, reflink
+## ⚔️ Сравнение: ext4 vs XFS vs Btrfs
+
+В современном Linux выбор файловой системы зависит от профиля нагрузки:
+
+| Параметр | ext4 | XFS | Btrfs |
+| :--- | :--- | :--- | :--- |
+| **Архитектура** | Блочные группы, иноды | **Allocation Groups (AG)**, B+ деревья | **Copy-on-Write (CoW)**, B-деревья |
+| **Назначение** | Универсальная, стабильная (Debian/Ubuntu default) | Высоконагруженная, терабайтные файлы, параллельный I/O (RHEL default) | Мгновенные снапшоты, CoW, встроенный RAID, компрессия |
+| **Увеличение размера (Grow)** | Да (онлайн) | **Да (онлайн)** | Да (онлайн) |
+| **Уменьшение размера (Shrink)**| Да (офлайн) | ❌ **НЕЛЬЗЯ УМЕНЬШИТЬ** | Да (онлайн) |
+| **Снапшоты (Snapshots)** | ❌ Нет | ❌ Нет | **Мгновенные субтома / снапшоты** |
+| **Контрольные суммы данных** | ❌ Только метаданные | ❌ Только метаданные | **Да (защита от Silent Data Corruption)** |
+| **Прозрачное сжатие (Zstd)** | ❌ Нет | ❌ Нет | **Да (zstd, lzo, zlib)** |
 
 ---
 
-## Теория
+## 🚀 XFS: Архитектура Высокопроизводительного I/O
 
-### Что это и зачем
+**XFS** изначально разработана компанией Silicon Graphics (SGI) для параллельной работы с огромными файлами на дисковых массивах.
 
-XFS, Btrfs, mkfs.xfs, subvolumes, reflink — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
+### Ключевые фичи XFS:
+1. **Allocation Groups (AG):** Диск делится на независимые группы распределения (обычно 4–32 AG). Каждая AG имеет собственные структуры блокировок и деревья свободного места. Это позволяет **сотни потоков одновременно параллельно писать на диск без блокировок**.
+2. **Delayed Allocation (Отложенное выделение):** Место на диске резервируется, но фактические блоки выделяются только в момент сброса из Page Cache. Это гарантирует непрерывные экстенты без фрагментации.
+3. **Reflink (CoW копии):** Мгновенное дублирование файлов без физического копирования данных (`cp --reflink=always file1.img file2.img`).
 
-### Архитектура
+```bash
+# Форматирование в XFS с 16 Allocation Groups и поддержкой reflink:
+sudo mkfs.xfs -f -d agcount=16 -m reflink=1 /dev/sdb1
+
+# Просмотр параметров смонтированной XFS:
+xfs_info /mnt/data
+
+# Увеличение размера XFS на лету (онлайн-расширение после lvextend):
+sudo xfs_growfs /mnt/data
+
+# Проверка и ремонт XFS (только в отмонтированном виде!):
+sudo umount /mnt/data
+sudo xfs_repair /dev/sdb1
+```
+
+---
+
+## 🍃 Btrfs: Архитектура Copy-on-Write и Снапшоты
+
+**Btrfs (B-tree File System)** построена по принципу **Copy-on-Write (CoW)**: при изменении блока данных новый блок записывается в свободное место на диске, а указатель в дереве переключается на новый адрес. Старый блок не перезаписывается.
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    Root["Btrfs Filesystem (/data)"]
+    Root --> Subvol1["Субтом @ (Rootfs)"]
+    Root --> Subvol2["Субтом @home"]
+    Root --> Snap1["Снапшот @home_backup_2026-09-01 (Мгновенный CoW)"]
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
+### Преимущества Btrfs:
+* **Мгновенные снапшоты (Snapshots):** Создание точки восстановления базы данных или системы занимает 1 миллисекунду.
+* **Встроенный программный RAID:** Поддержка RAID0, RAID1, RAID10 прямо на уровне файловой системы без `mdadm`.
+* **Защита от «тихого повреждения данных» (Bitrot):** Контрольные суммы SHA256/xxhash проверяются при каждом чтении. При ошибке Btrfs автоматически восстанавливает поврежденный файл со здорового зеркала RAID.
 
 ```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
-```
+# 1. Создание Btrfs RAID1 на двух дисках со сжатием Zstandard:
+sudo mkfs.btrfs -m raid1 -d raid1 /dev/sdb /dev/sdc
+sudo mount -o compress=zstd:3,noatime /dev/sdb /mnt/btrfs
 
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
+# 2. Создание субтомов:
+sudo btrfs subvolume create /mnt/btrfs/app_data
 
-### Production-like пример
+# 3. Мгновенный снапшот субтома:
+sudo btrfs subvolume snapshot -r /mnt/btrfs/app_data /mnt/btrfs/app_data_snap_$(date +%F)
 
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+# 4. Фоновая проверка целостности контрольных сумм всех файлов (Scrub):
+sudo btrfs scrub start /mnt/btrfs
+sudo btrfs scrub status /mnt/btrfs
 ```
 
 ---
 
-## Проверь себя
+## 🚨 Траблшутинг Btrfs и баз данных
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
-
+### Проблема: База данных (Postgres / MySQL) жутко тормозит и фрагментирует диск на Btrfs
+* **Причина:** Из-за CoW каждое случайное обновление записи (Random Write) в 8 КБ блоке СУБД создает новый фрагментированный блок.
+* **Решение:** Отключите CoW для директории с базой данных до создания файлов:
+  ```bash
+  # Создаем папку и ставим флаг No-CoW (+C):
+  mkdir -p /var/lib/postgresql/data
+  chattr +C /var/lib/postgresql/data
+  # Проверяем атрибут (должна быть буква C):
+  lsattr -d /var/lib/postgresql/data
+  ```

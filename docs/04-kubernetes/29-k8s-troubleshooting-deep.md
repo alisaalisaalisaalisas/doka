@@ -1,135 +1,122 @@
-# Troubleshooting глубоко
+# 🩺 29. Kubernetes Troubleshooting: От CrashLoopBackOff до Инцидентов
 
-> events, logs, exec, ephemeral, crictl
+> В распределенной среде Kubernetes сбои неизбежны. Данное руководство представляет собой алгоритмический справочник SRE/DevOps инженера для быстрой локализации и устранения аварий любого уровня сложности.
 
 ---
 
-## Теория
-
-### Что это и зачем
-
-events, logs, exec, ephemeral, crictl — ключевая технология в 04-kubernetes. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+## 🧭 Дерево Принятия Решений: Диагностика Pod
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    Start["Под не работает / сбоит"] --> CheckStatus{"Какой статус в kubectl get pod?"}
+
+    CheckStatus -->|"Pending"| Sched["1. Проблема Планирования<br/>• Нехватка CPU/RAM (Insufficient)<br/>• Taints & Tolerations<br/>• PVC не привязан (Pending)"]
+    
+    CheckStatus -->|"ImagePullBackOff"| Registry["2. Проблема Образа<br/>• Опечатка в теге<br/>• ImagePullSecrets отсутствуют<br/>• Rate Limit реестра"]
+
+    CheckStatus -->|"CrashLoopBackOff"| AppCrash["3. Падение Контейнера<br/>• Exit 137: OOMKilled<br/>• Exit 1: App Error / Config Missing<br/>• Exit 0: Процесс завершился штатно"]
+
+    CheckStatus -->|"Running (0/1 Ready)"| Probes["4. Проблема Проверок<br/>• readinessProbe fails (порт/путь)<br/>• Deadlock приложения<br/>• Заблокирован трафик (NetworkPolicy)"]
+
+    CheckStatus -->|"Terminating (Завис)"| Stuck["5. Зависание при удалении<br/>• preStop hook висит<br/>• Finalizers блокируют объект<br/>• Диск CSI не отмонтируется"]
+
+    classDef err fill:#dc3545,stroke:#a71d2a,stroke-width:2px,color:#fff;
+    classDef warn fill:#ffc107,stroke:#ba8b00,stroke-width:2px,color:#000;
+    class CheckStatus,Start warn;
+    class Sched,Registry,AppCrash,Probes,Stuck err;
 ```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
 
 ---
 
-## Практика
+## 🔢 Коды Завершения Процессов (Exit Codes Reference)
 
-### Минимальный пример
+| Exit Code | Название | Причина и Интерпретация |
+|---|---|---|
+| **0** | Success / Completed | Процесс успешно завершил выполнение (для `Deployment` приводит к CrashLoop, если процесс не daemon). |
+| **1** | General Application Error | Ошибка в коде приложения (Runtime exception, не найден файл конфигурации). |
+| **137** | **SIGKILL (128 + 9)** | **OOMKilled** (память превысила `limits.memory`) либо принудительный `kill -9` от Kubelet по таймауту Grace Period. |
+| **139** | **SIGSEGV (128 + 11)** | Segmentation Fault (ошибка работы с памятью в C/Go бинарниках). |
+| **143** | **SIGTERM (128 + 15)** | Штатная остановка контейнера Kubelet'ом при обновлении или удалении. |
 
-```bash
-# Проверка версии и базовый запуск
-kubectl cluster-info && kubectl get nodes
-```
+---
+
+## 🛠️ Production-Ready Debug Pod (Швейцарский Нож Сетевого Инженера)
 
 ```yaml
-# Минимальная конфигурация
 apiVersion: v1
-kind: ConfigMap
+kind: Pod
 metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
+  name: net-troubleshooter
+  namespace: default
 spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+  containers:
+  - name: netshoot
+    image: nicolaka/netshoot:latest
+    command: ["/bin/bash", "-c", "sleep infinity"]
+    securityContext:
+      capabilities:
+        add: ["NET_ADMIN", "NET_RAW"]
 ```
 
 ---
 
-## Проверь себя
+## ⚡ CLI Шпаргалка: Быстрая Диагностика Инцидентов
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+```bash
+# 1. Поиск всех проблемных подов во всем кластере
+kubectl get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded
 
+# 2. Просмотр логов предыдущего (упавшего) экземпляра контейнера
+kubectl logs <pod-name> -c <container-name> --previous --tail=100
+
+# 3. Подключение Ephemeral Debug контейнера с общим PID пространством
+kubectl debug -it <pod-name> --image=nicolaka/netshoot --target=<container-name>
+
+# 4. Проверка событий ноды при переходе в NotReady
+kubectl describe node <node-name> | grep -A 10 "Conditions:"
+
+# 5. Просмотр системных логов Kubelet и containerd на хосте
+journalctl -u kubelet -u containerd -xe -f --no-tail -n 100
+
+# 6. Трассировка сетевого трафика внутри сетевого пространства пода (через nsenter)
+PID=$(crictl inspect --output go-template --template '{{.info.pid}}' <container-id>)
+nsenter -t $PID -n tcpdump -i any -nn port 80 or port 53
+```
+
+---
+
+## 🚒 Реальные Разборы Инцидентов (Break-Fix Scenarios)
+
+### Сценарий 1: Зависший под в статусе `Terminating` блокирует удаление Namespace
+
+- **Симптом:** Namespace удален (`Terminating`), но не исчезает сутками. Внутри висит под в `Terminating`.
+- **Первопричина:** На объекте пода или PVC установлен **Finalizer** (например `kubernetes.io/pvc-protection`), который ожидает очистки ресурса внешним контроллером.
+- **Диагностика:**
+  ```bash
+  kubectl get pod <pod-name> -o jsonpath='{.metadata.finalizers}'
+  ```
+- **Решение:**
+  Принудительно очистить финализаторы:
+  ```bash
+  kubectl get pod <pod-name> -o json | jq '.metadata.finalizers = []' | kubectl replace -f -
+  # Экстренное удаление
+  kubectl delete pod <pod-name> --grace-period=0 --force
+  ```
+
+---
+
+### Сценарий 2: Узел переходит в `NotReady: DiskPressure` из-за исчерпания Inodes
+
+- **Симптом:** Диск узла заполнен только на 40%, но Kubelet выселяет поды с ошибкой `NodeHasDiskPressure`.
+- **Первопричина:** Исчерпаны **Inodes** (файловые дескрипторы) из-за миллионов мелких лог-файлов или временных сокетов.
+- **Диагностика:**
+  ```bash
+  df -i /var/lib/containerd
+  # Показывает 100% IUse!
+  ```
+- **Решение:**
+  1. Очистить мертвые контейнеры и слои образов: `crictl rmi --prune`.
+  2. Найти директории с миллионами файлов:
+     ```bash
+     find /var/log -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n
+     ```

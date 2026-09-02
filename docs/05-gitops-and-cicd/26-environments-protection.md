@@ -1,135 +1,156 @@
-# Защита окружений
+# 🛡️ 26. Защита окружений, Separation of Duties и верификация цепочки поставок (SLSA / Cosign)
 
-> protected, approval, deployment, gates, manual
+## 🔐 Концепция Supply Chain Security и Separation of Duties
 
----
+В зрелой корпоративной инфраструктуре прямой деплой непроверенного кода в Production категорически недопустим. Требуется непрерывная цепочка доверия (**Chain of Trust**), соответствующая стандарту **SLSA (Supply-chain Levels for Software Artifacts)**:
 
-## Теория
-
-### Что это и зачем
-
-protected, approval, deployment, gates, manual — ключевая технология в 05-gitops-and-cicd. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+1. **Защита исходного кода**: Подписанные коммиты (GPG/SSH), Protected Branches, обязательный Code Review (правило 4 глаз).
+2. **Изоляция окружений**: Разделение прав доступа (Separation of Duties). Разработчик не может самостоятельно заапрувить собственный релиз в прод.
+3. **Криптографическая подпись артефактов**: Подпись собранных Docker-образов через **Sigstore Cosign** с использованием OIDC токенов CI.
+4. **Admission Control в кластере**: Запрет запуска неподписанных образов на уровне K8s контроллера (Kyverno / OPA Gatekeeper).
 
 ```mermaid
-graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+flowchart TD
+    subgraph GitSecurity["1. Git Perimeter"]
+        Dev["Developer (GPG Commit)"] -->|"PR Review (2 Approvals)"| MainBranch["Protected Branch 'main'"]
+    end
+
+    subgraph SecureCI["2. Isolated CI Pipeline"]
+        MainBranch --> Build["Hardened Build Job"]
+        Build -->|"Generate Container"| Image["Docker Image"]
+        Build -->|"Sign with Cosign (Keyless OIDC)"| CosignSign["Sigstore / Rekor Transparency Log"]
+        Build -->|"Generate SLSA Attestation"| Attest["SLSA Provenance Attestation"]
+    end
+
+    subgraph ProdGate["3. Production Gate"]
+        Image --> ApprovalGate{"Multi-Party Approval Gate (Lead + Sec)"}
+    end
+
+    subgraph K8sAdmission["4. Cluster Admission Control"]
+        ApprovalGate -->|Approved| Deploy["Deploy to K8s Prod"]
+        Deploy --> Kyverno["Kyverno Admission Controller"]
+        Kyverno -->|"Verify Cosign Signature & SLSA"| CheckSignature{"Signature Valid?"}
+        CheckSignature -->|Yes| RunPod["Pod Created"]
+        CheckSignature -->|No / Tampered| BlockPod["Admission Blocked (403)"]
+    end
 ```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
 
 ---
 
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
-```
+## 📑 Production-конфигурация: Подпись образов через Cosign в CI
 
 ```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
+sign_and_attest:
+  stage: release
+  image:
+    name: bitnami/cosign:2.4.0
+    entrypoint: [""]
+  variables:
+    COSIGN_YES: "true"                # Неинтерактивный режим
+  id_tokens:
+    SIGSTORE_ID_TOKEN:                # OIDC токен GitLab для Keyless подписи
+      aud: sigstore
+  script:
+    - echo "Signing container image with Sigstore Keyless..."
+    - cosign sign ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}
+
+    - echo "Attesting SLSA Provenance..."
+    - cosign attest --type slsaprovenance \
+        --predicate ./provenance.json \
+        ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}
 ```
 
-### Production-like пример
+---
+
+## 🛡️ Политика допуска Kyverno: Запрет неподписанных образов
 
 ```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
 metadata:
-  name: demo-prod
+  name: enforce-image-signatures
 spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+  validationFailureAction: Enforce   # Блокировать деплой при нарушении
+  background: false
+  rules:
+    - name: verify-signature-company-registry
+      match:
+        any:
+          - resources:
+              namespaces:
+                - production
+                - staging
+              kinds:
+                - Pod
+      verifyImages:
+        - imageReferences:
+            - "registry.company.com/*"
+          attestors:
+            - entries:
+                - keyless:
+                    issuer: "https://gitlab.company.com"
+                    subject: "https://gitlab.company.com/infrastructure/*"
 ```
 
 ---
 
-## Проверь себя
+## 🔒 Конфигурация Protected Environments в GitLab
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+В `Settings -> CI/CD -> Protected Environments`:
 
+```yaml
+# Декларативное описание политик доступа окружений
+environment_protections:
+  name: production
+  required_approval_count: 2         # Минимум 2 аппрува
+  allowed_to_deploy:
+    - role: Maintainer
+    - group: "infrastructure-leads"
+  allowed_to_approve:
+    - group: "security-auditors"
+    - group: "qa-release-engineers"
+  prevent_self_approval: true        # Автор коммита не имеет права аппрувить свой деплой
+```
+
+---
+
+## 🛠️ CLI шпаргалка: Аудит и проверка Cosign
+
+```bash
+# 1. Ручная проверка подписи образа через Cosign
+cosign verify \
+  --certificate-identity-regexp "https://gitlab.company.com/.*" \
+  --certificate-oidc-issuer "https://gitlab.company.com" \
+  registry.company.com/payments/api:v2.4.0
+
+# 2. Инспекция аттестации SLSA Provenance
+cosign verify-attestation \
+  --type slsaprovenance \
+  --certificate-oidc-issuer "https://gitlab.company.com" \
+  registry.company.com/payments/api:v2.4.0 | jq -r .payload | base64 -d | jq .
+
+# 3. Аудит заблокированных попыток деплоя в логах Kyverno
+kubectl logs -n kyverno -l app.kubernetes.io/name=kyverno | grep -i "signature verification failed"
+```
+
+---
+
+## 🚨 Break-Fix: Разбор инцидентов безопасности
+
+### Инцидент 1: Kyverno блокирует деплой с ошибкой `no valid signatures found`
+
+**Симптом:**
+```text
+Error from server: admission webhook "validate.kyverno.svc" denied the request: image registry.company.com/app:v1.2.0 failed signature verification
+```
+
+**Первопричина:**
+1. Истек срок действия OIDC Fulcio сертификата (в Keyless режиме сертификат действителен 10 минут во время сборки).
+2. Задержка синхронизации в Rekor Transparency Log.
+
+**Решение:**
+1. Проверить Rekor entry по хэшу SHA256:
+```bash
+rekor-cli search --sha $(crane digest registry.company.com/app:v1.2.0)
+```
+2. Убедиться, что время на нодах кластера синхронизировано через NTP (рассинхронизация часов нод ломает валидацию x509 сертификатов).

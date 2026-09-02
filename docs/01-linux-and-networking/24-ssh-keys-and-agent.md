@@ -1,135 +1,144 @@
-# SSH ключи и ssh-agent
+# 🔑 24. SSH: Протокол, Ключи, SSH-Agent и Безопасность
 
-> ssh-keygen, authorized_keys, ssh-agent, hardening
+## 🧠 Архитектура Протокола SSH (Secure Shell)
 
----
+Протокол SSH (RFC 4251) состоит из трех независимых уровней:
 
-## Теория
-
-### Что это и зачем
-
-ssh-keygen, authorized_keys, ssh-agent, hardening — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+1. **SSH Transport Layer (Транспортный уровень):** Обеспечивает шифрование, аутентификацию сервера по `host key`, проверку целостности данных и сжатие.
+2. **SSH User Authentication Protocol (Уровень аутентификации):** Аутентификация клиента перед сервером (по публичному ключу, паролю или GSSAPI).
+3. **SSH Connection Protocol (Уровень соединений):** Мультиплексирование нескольких логических каналов внутри одного шифрованного туннеля (интерактивный shell, SFTP, выполнение удаленных команд, перенаправление портов / SSH Tunneling).
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    Client["Клиент (SSH Client)"] --> Transport["1. Transport Layer (ECDH Key Exchange + Host Key)"]
+    Transport --> Auth["2. Authentication Layer (Public Key / Ed25519)"]
+    Auth --> Conn["3. Connection Layer (Shell, Port Forwarding, SFTP)"]
+    Conn --> Server["Сервер (sshd)"]
 ```
 
 ---
 
-## Проверь себя
+## 🔐 Сравнение Алгоритмов Ключей SSH
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+| Алгоритм | Стойкость | Скорость | Рекомендация |
+| :--- | :---: | :---: | :--- |
+| **`Ed25519`** (Эллиптическая кривая 25519) | **Максимальная** | **Сверхбыстрый** | **Золотой стандарт в 2026 году.** Короткий ключ (68 символов), защита от timing-атак. |
+| **`RSA 4096`** | Высокая | Медленный | Использовать **только** для совместимости с древними legacy-серверами. |
+| **`ECDSA`** (NIST кривые) | Средняя | Быстрый | ⚠️ Не рекомендуется (сомнения в случайности констант NIST, уязвим при плохом генераторе случайных чисел). |
+| **`DSA` / `RSA 1024`** | ❌ **Взломано** | — | **Запрещены** и отключены в современных версиях OpenSSH. |
 
+---
+
+## 🛠️ CLI Практика: Генерация Ключей и SSH-Agent
+
+### 1. Генерация современного ключа Ed25519
+```bash
+# Генерация с защищенным шифрованием приватного ключа (100 раундов KDF):
+ssh-keygen -t ed25519 -a 100 -C "alex@company.internal" -f ~/.ssh/id_ed25519
+
+# Копирование публичного ключа на удаленный сервер:
+ssh-copy-id -i ~/.ssh/id_ed25519.pub deploy@192.168.1.50
+```
+
+### 2. Работа с SSH-Agent (Менеджер ключей в памяти)
+SSH-Agent хранит расшифрованные приватные ключи в оперативной памяти, чтобы вам не приходилось вводить пароль от ключа при каждом подключении:
+
+```bash
+# 1. Запуск агента в текущей сессии:
+eval "$(ssh-agent -s)"
+
+# 2. Добавление ключа в память с ограничением времени жизни (например, на 4 часа):
+ssh-add -t 4h ~/.ssh/id_ed25519
+
+# 3. Список активных ключей в агенте:
+ssh-add -l
+
+# 4. Удаление всех ключей из памяти при уходе с рабочего места:
+ssh-add -D
+```
+
+---
+
+## ⚙️ Файл Конфигурации `~/.ssh/config` (Production Настройка)
+
+Файл `~/.ssh/config` автоматизирует алиасы, мультиплексирование и проброс через бастион-хост (Jump Host):
+
+```text
+# Общие настройки для всех подключений:
+Host *
+    ServerAliveInterval 30
+    ServerAliveCountMax 3
+    AddKeysToAgent yes
+    IdentitiesOnly yes
+
+# Подключение к закрытому серверу БД через Бастион (Jump Host):
+Host db-prod
+    HostName 10.0.1.25
+    User postgres
+    IdentityFile ~/.ssh/id_ed25519
+    # Мгновенный прыжок через бастион без агент-форвардинга (безопасно!):
+    ProxyJump bastion.company.com
+
+# Бастион-хост:
+Host bastion.company.com
+    HostName 203.0.113.10
+    User jumpuser
+    Port 2222
+    IdentityFile ~/.ssh/id_bastion
+
+# Мультиплексирование соединений (Повторные подключения открываются за 10 мс!):
+Host speed-server
+    HostName 192.168.1.100
+    User root
+    ControlMaster auto
+    ControlPath ~/.ssh/control-%r@%h:%p
+    ControlPersist 10m
+```
+
+---
+
+## 🔒 Харденинг Сервера `/etc/ssh/sshd_config`
+
+Для максимальной безопасности на всех серверах продакшна:
+
+```ini
+# /etc/ssh/sshd_config.d/99-security.conf
+
+# Запретить вход по паролям (только SSH-ключи!):
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+KbdInteractiveAuthentication no
+
+# Запретить вход под root напрямую:
+PermitRootLogin prohibit-password
+
+# Запретить пустые пароли:
+PermitEmptyPasswords no
+
+# Отключить устаревшие небезопасные алгоритмы:
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com
+MACs hmac-sha2-512-etm@openssh.com
+
+# Таймауты неактивности:
+ClientAliveInterval 300
+ClientAliveCountMax 2
+```
+Перезапуск демона: `sudo systemctl restart sshd`
+
+---
+
+## 🚨 Траблшутинг SSH
+
+```bash
+# Запуск с максимальным уровнем отладки (показывает каждую стадию рукопожатия и поиск ключей):
+ssh -vvv user@server.com
+
+# Ошибка "Too many authentication failures":
+# SSH-agent предлагает серверу все ключи подряд. Укажите жесткую привязку:
+ssh -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519 user@server.com
+
+# Ошибка "Host key verification failed" (Сервер переустановили, ключ изменился):
+# Удаляем старый отпечаток хоста:
+ssh-keygen -R server.company.com
+```

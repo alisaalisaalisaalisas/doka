@@ -1,135 +1,216 @@
-# ArgoCD проекты и RBAC
+# 🔐 14. ArgoCD Projects (AppProject) и гранулярный RBAC
 
-> Projects, RBAC, SSO, OIDC, RBAC matrix
+## 🛡️ Концепция мультиарендности (Multi-Tenancy) и AppProject
 
----
+В крупных enterprise-инсталляциях ArgoCD управляет ресурсами сотен команд. Предоставление разработчикам неограниченного доступа к `default` проекту создает критические риски: возможность перезаписать чужой namespace, захватить права `cluster-admin` или подключить недоверенный Git-репозиторий.
 
-## Теория
-
-### Что это и зачем
-
-Projects, RBAC, SSO, OIDC, RBAC matrix — ключевая технология в 05-gitops-and-cicd. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+`AppProject` (`argoproj.io/v1alpha1`) выступает в роли **логического периметра изоляции (Security Boundary)**, который жестко ограничивает:
+1. **Source Repositories**: Из каких конкретно Git/Helm репозиториев разрешено загружать манифесты.
+2. **Destinations**: На какие целевые K8s кластеры и в какие неймспейсы разрешено деплоить.
+3. **Cluster Resource Whitelist/Blacklist**: Разрешено ли создавать кластерные ресурсы (`ClusterRole`, `CustomResourceDefinition`, `Namespace`, `StorageClass`).
+4. **Namespace Resource Whitelist/Blacklist**: Запрет опасных ресурсов внутри неймспейса (например, запрет `Secret` или `Ingress`).
+5. **Project Scoped Roles & JWT Tokens**: Проектные сервисные аккаунты для CI/CD автоматизаций.
 
 ```mermaid
-graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+flowchart TD
+    subgraph Identity["Identity & Access (IdP)"]
+        UserAlice["Alice (OIDC: team-backend)"]
+        UserBob["Bob (OIDC: team-security)"]
+        CIService["CI Service Token (JWT)"]
+    end
+
+    subgraph RBAC["ArgoCD RBAC Engine (Casbin)"]
+        PolicyCSV["argocd-rbac-cm (Casbin policy.csv)"]
+        ProjRoles["Project Scoped Roles"]
+    end
+
+    subgraph AppProject["AppProject: backend-payments"]
+        AllowedRepos["Allowed Repos: git@github.com:company/payments-*"]
+        AllowedDests["Destinations: k8s-prod (ns: payments-*)"]
+        Blacklist["Cluster Blacklist: ClusterRole, CRD, PV"]
+        SyncWindows["Sync Windows: Block Prod deploys on Weekends"]
+    end
+
+    subgraph K8sCluster["Target Kubernetes Cluster"]
+        NSPayments["Namespace: payments-prod"]
+        NSOther["Namespace: kube-system (BLOCKED)"]
+    end
+
+    UserAlice --> PolicyCSV
+    CIService --> ProjRoles
+    PolicyCSV --> AppProject
+    ProjRoles --> AppProject
+    AppProject -->|"Allowed"| NSPayments
+    AppProject -.-x|"DENIED by Destination Rule"| NSOther
 ```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
 
 ---
 
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
-```
+## 📄 Манифест Production AppProject
 
 ```yaml
-# Минимальная конфигурация
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: payments-production
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: "Production perimeter for Payments Processing Domain"
+
+  # 1. Разрешенные репозитории с кодом
+  sourceRepos:
+    - "https://github.com/company/payments-*.git"
+    - "https://charts.company.com/helm/payments"
+
+  # 2. Разрешенные кластеры и неймспейсы
+  destinations:
+    - name: prod-eu-central
+      namespace: "payments-*"
+    - server: "https://10.0.100.1:6443"
+      namespace: "payments-*"
+
+  # 3. Полный запрет на управление кластерными ресурсами
+  clusterResourceWhitelist: []
+  clusterResourceBlacklist:
+    - group: "*"
+      kind: "*"
+
+  # 4. Разрешенные ресурсы внутри неймспейса
+  namespaceResourceWhitelist:
+    - group: "apps"
+      kind: "Deployment"
+    - group: "apps"
+      kind: "StatefulSet"
+    - group: ""
+      kind: "Service"
+    - group: ""
+      kind: "ConfigMap"
+    - group: ""
+      kind: "Secret"
+    - group: "networking.k8s.io"
+      kind: "Ingress"
+    - group: "monitoring.coreos.com"
+      kind: "ServiceMonitor"
+
+  # 5. Окна синхронизации (Sync Windows): Запрет деплоев по пятницам и выходным
+  syncWindows:
+    - kind: deny
+      schedule: "0 18 * * 5"         # Каждая пятница с 18:00
+      duration: 60h                  # Блокировка на 60 часов (все выходные)
+      applications:
+        - "*"
+      timeZone: "UTC"
+
+  # 6. Проектные роли с Casbin-политиками
+  roles:
+    - name: payment-deployer
+      description: "Service account for GitLab CI deployment pipeline"
+      policies:
+        - "p, proj:payments-production:payment-deployer, applications, get, payments-production/*, allow"
+        - "p, proj:payments-production:payment-deployer, applications, sync, payments-production/*, allow"
+        - "p, proj:payments-production:payment-deployer, applications, update, payments-production/*, allow"
+      jwtTokens:
+        - id: "gitlab-ci-token-2026"
+          issuedAt: 1767225600
+```
+
+---
+
+## 🔑 Глобальный RBAC: `argocd-rbac-cm` (Casbin Engine)
+
+Связывание групп корпоративного IdP (Keycloak, Okta, Azure AD) с ролями ArgoCD настраивается в `ConfigMap/argocd-rbac-cm`.
+
+```yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: demo
+  name: argocd-rbac-cm
+  namespace: argocd
 data:
-  key: value
-```
+  # Роль по умолчанию для всех прошедших аутентификацию (read-only)
+  policy.default: role:readonly
 
-### Production-like пример
+  # Определение прав в формате Casbin CSV:
+  # p, <role/subject>, <resource>, <action>, <object>, <effect>
+  # g, <user/idp_group>, <role>
+  policy.csv: |
+    # 1. Администраторы платформы
+    p, role:platform-admin, *, *, *, allow
 
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
+    # 2. Роль разработчиков Backend
+    p, role:backend-dev, applications, get, payments-*/*, allow
+    p, role:backend-dev, applications, sync, payments-*/*, allow
+    p, role:backend-dev, logs, get, payments-*/*, allow
+    p, role:backend-dev, exec, create, payments-*/*, allow
+    p, role:backend-dev, repositories, get, *, allow
 
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
+    # 3. Привязка групп из OIDC токена к ролям
+    g, "DevOps-Core-Team", role:platform-admin
+    g, "Payments-Squad-Devs", role:backend-dev
+    g, "Security-Auditors", role:readonly
 
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+  # Включение проверки области действия токена
+  scopes: '[groups, email]'
 ```
 
 ---
 
-## Проверь себя
+## 🛠️ CLI шпаргалка: Управление RBAC и Project
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+```bash
+# 1. Проверка прав пользователя через CLI утилиту тестирования RBAC
+argocd-util rbac can "Payments-Squad-Devs" sync 'applications' 'payments-production/payment-api' --namespace argocd
 
+# 2. Генерация JWT токена для проектной роли
+argocd proj role create-token payments-production payment-deployer --expires-in 8760h
+
+# 3. Список всех проектов и инспекция ограничений
+argocd proj list
+argocd proj get payments-production
+
+# 4. Проверка заблокированных sync windows
+argocd proj windows list payments-production
+```
+
+---
+
+## 🚨 Break-Fix: Разбор ошибок авторизации
+
+### Ошибка 1: `application destination server and namespace is not permitted in project`
+
+**Симптом:**
+```text
+rpc error: code = InvalidArgument desc = application destination {https://10.0.100.1:6443 payments-qa} is not permitted in project 'payments-production'
+```
+
+**Первопричина:**
+Приложение пытается задеплоиться в кластер или неймспейс, который отсутствует в секции `spec.destinations` манифеста `AppProject`.
+
+**Решение:**
+Добавить целевой namespace/сервер в `AppProject`:
+```bash
+kubectl patch appproject payments-production -n argocd --type='json' \
+  -p='[{"op": "add", "path": "/spec/destinations/-", "value": {"name": "prod-eu-central", "namespace": "payments-qa"}}]'
+```
+
+---
+
+### Ошибка 2: Пользователь с группой IdP видит пустой экран (Нет приложений)
+
+**Симптом:**
+Пользователь успешно входит через OIDC SSO, но список приложений пуст.
+
+**Диагностика:**
+1. Проверить полученные OIDC claims пользователя:
+```bash
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server | grep -i "claims"
+```
+2. Если группа в OIDC токене приходит как `["/Payments-Squad-Devs"]` (со слешем), а в Casbin прописано `"Payments-Squad-Devs"`, сопоставление не сработает.
+
+**Решение:**
+Указать точное имя группы в `argocd-rbac-cm` с учетом регистра и слешей:
+```yaml
+g, "/Payments-Squad-Devs", role:backend-dev
+```

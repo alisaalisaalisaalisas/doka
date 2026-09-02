@@ -1,135 +1,197 @@
-# CNI и NetworkPolicy
+# 🛡️ 22. CNI и NetworkPolicy: Сетевая Безопасность и Датаплейны
 
-> CNI, Cilium, Calico, NetworkPolicy, eBPF
+> Сетевой плагин CNI (Container Network Interface) формирует единую плоскую сеть кластера (Pod-to-Pod без NAT), а NetworkPolicy обеспечивает микросегментацию и нулевое доверие (Zero Trust) на уровнях L3/L4/L7.
 
 ---
 
-## Теория
-
-### Что это и зачем
-
-CNI, Cilium, Calico, NetworkPolicy, eBPF — ключевая технология в 04-kubernetes. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+## 🌐 Сравнение CNI Плагинов: Flannel vs Calico vs Cilium
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    subgraph Flannel["1. Flannel (Overlay Only)"]
+        F_VXLAN["VXLAN / host-gw Encapsulation"]
+        F_Sec["❌ Нет поддержки NetworkPolicy"]
+    end
+
+    subgraph Calico["2. Calico (Routed & Policy Engine)"]
+        C_BGP["BGP Underlay (Direct Route) / IP-in-IP"]
+        C_Sec["✅ Богатые NetworkPolicies (iptables / eBPF)"]
+    end
+
+    subgraph Cilium["3. Cilium (Next-Gen eBPF)"]
+        CI_eBPF["eBPF Socket / XDP Datapath"]
+        CI_Sec["✅ Identity-Based Security + L7 (HTTP/gRPC/Kafka)"]
+        CI_Enc["✅ Прозрачное шифрование WireGuard/IPsec"]
+    end
+
+    classDef f fill:#6c757d,stroke:#495057,stroke-width:2px,color:#fff;
+    classDef c fill:#fd7e14,stroke:#d9480f,stroke-width:2px,color:#fff;
+    classDef ci fill:#28a745,stroke:#19692c,stroke-width:2px,color:#fff;
+    class Flannel f;
+    class Calico c;
+    class Cilium ci;
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
+| Характеристика | Flannel | Calico | Cilium |
+|---|---|---|---|
+| **Архитектура датаплейна** | Linux Bridge / VXLAN | iptables / Linux IP routing / eBPF | Pure Linux Kernel **eBPF** |
+| **Маршрутизация** | Только Overlay (VXLAN) | Direct BGP (без инкапсуляции) или VXLAN | Direct Routing, VXLAN, Geneve |
+| **Поддержка NetworkPolicy** | ❌ Нет | ✅ Стандартные K8s + расширенные Calico | ✅ Стандартные K8s + Cilium L7 + FQDN |
+| **Наблюдаемость (Observability)** | Базовая | Calico Enterprise | **Hubble** (L3/L4/L7 Flow Tracing) |
+| **Шифрование трафика** | ❌ Нет | WireGuard | WireGuard, IPsec |
+| **Подходит для** | Тестовые стенды, edge | Энтерпрайз On-Premises (BGP) | Высоконагруженные облака и прод |
 
 ---
 
-## Практика
+## 🔒 Модель Безопасности NetworkPolicy
 
-### Минимальный пример
+По умолчанию в Kubernetes действует модель **Default-Allow**: любой под может взаимодействовать с любым другим подом в любом пространстве имен.
 
-```bash
-# Проверка версии и базовый запуск
-kubectl cluster-info && kubectl get nodes
+### Логика применения правил:
+1. Если на под **не ссылается** ни одна NetworkPolicy $\to$ трафик разрешен.
+2. Как только создается хотя бы одна NetworkPolicy, выбирающая под через `podSelector` $\to$ под переходит в режим изоляции (**Default-Deny** для выбранного типа `Ingress` или `Egress`).
+
+```mermaid
+graph TD
+    Incoming["Входящий пакет (Ingress)"] --> IsSelected{"Под изолирован правилом NetworkPolicy?"}
+    
+    IsSelected -->|Нет| AllowDirect["✅ Разрешено (Default-Allow)"]
+    IsSelected -->|Да| CheckRules{"Соответствует ли:<br/>1. podSelector?<br/>2. namespaceSelector?<br/>3. ipBlock CIDR + Port?"}
+    
+    CheckRules -->|Да| AllowMatch["✅ Разрешено"]
+    CheckRules -->|Нет| Drop["🚫 Пакет отброшен (Drop)"]
+
+    classDef ok fill:#28a745,stroke:#19692c,stroke-width:2px,color:#fff;
+    classDef no fill:#dc3545,stroke:#a71d2a,stroke-width:2px,color:#fff;
+    class AllowDirect,AllowMatch ok;
+    class Drop no;
 ```
 
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
+---
 
-### Production-like пример
+## 🛠️ Production-Ready Конфигурации
+
+### 1. Zero Trust: Default Deny All (Ingress + Egress)
+
+Фундаментальное правило для каждого production namespace:
 
 ```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
 metadata:
-  name: demo-prod
+  name: default-deny-all
+  namespace: production
 spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
+  podSelector: {} # Применяется ко ВСЕМ подам в namespace
+  policyTypes:
+  - Ingress
+  - Egress
 ```
 
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
+### 2. Комплексная трехуровневая NetworkPolicy (Web $\to$ Backend $\to$ Database)
 
-### Troubleshooting
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-security-policy
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/tier: backend
+  policyTypes:
+  - Ingress
+  - Egress
 
-**Симптом:** сервис не стартует / метрики отсутствуют.
+  # Разрешенный входящий трафик (Ingress)
+  ingress:
+  # 1. Трафик от Web-фронтенда внутри этого же namespace на порт 8080
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/tier: frontend
+    ports:
+    - protocol: TCP
+      port: 8080
+  # 2. Трафик от Ingress-контроллера из системного namespace
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: ingress-nginx
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8080
 
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
+  # Разрешенный исходящий трафик (Egress)
+  egress:
+  # 1. Обязательно: доступ к CoreDNS (kube-system) для резолва имен!
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
 
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+  # 2. Доступ к базе данных PostgreSQL в namespace 'database'
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: database
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: postgresql
+    ports:
+    - protocol: TCP
+      port: 5432
 ```
 
 ---
 
-## Проверь себя
+## ⚡ CLI Шпаргалка: Мониторинг и Проверка Сетевых Политик
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+```bash
+# 1. Просмотр всех NetworkPolicies во всех неймспейсах
+kubectl get networkpolicies -A -o wide
 
+# 2. Проверка статуса Cilium CNI
+cilium status
+
+# 3. Инспекция трафика в реальном времени через Hubble CLI (Cilium)
+hubble observe --namespace production --follow --verdict DROPPED
+
+# 4. Проверка статуса BGP-сессий в Calico
+calicoctl node status
+
+# 5. Тестирование соединения между подами
+kubectl run -it --rm net-test --image=nicolaka/netshoot -- nc -zvw3 postgres.database.svc.cluster.local 5432
+```
+
+---
+
+## 🚒 Troubleshooting: Реальные Инциденты и Решения
+
+### Сценарий 1: Pod теряет связь с миром и DNS после применения NetworkPolicy
+
+- **Симптом:** После применения NetworkPolicy приложение начинает выдавать ошибки `dial tcp: lookup postgres: i/o timeout`.
+- **Первопричина:** Была включена политика с `policyTypes: ["Egress"]`, но забыто правило, разрешающее исходящий трафик к CoreDNS на порт 53 (UDP/TCP).
+- **Решение:**
+  Всегда добавлять правило доступа к CoreDNS во все Egress-политики (см. пример конфигурации выше).
+
+---
+
+### Сценарий 2: NetworkPolicy создана, но трафик не блокируется
+
+- **Симптом:** `kubectl get netpol` показывает созданные правила, но тестовый под свободно подключается к изолированной БД.
+- **Первопричина:** В кластере установлен CNI плагин (например, чистый Flannel), который не имеет Policy Engine и игнорирует спецификацию NetworkPolicy.
+- **Решение:**
+  Установить CNI с поддержкой политик безопасности (Cilium или Calico).

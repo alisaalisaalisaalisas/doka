@@ -1,135 +1,147 @@
-# Процессы, потоки и планировщик
+# ⚙️ 09. Процессы, Потоки и Планировщик Задач Linux
 
-> processes, threads, scheduling, ps, top, nice
+## 🧠 Процессы и Потоки: Архитектура в Ядре
 
----
+В ядре Linux сущности процесса и потока унифицированы. Для ядра и процесс, и тред — это структура **`task_struct`** (Lightweight Process / LWP).
 
-## Теория
-
-### Что это и зачем
-
-processes, threads, scheduling, ps, top, nice — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+- **Процесс (Process):** Экземпляр программы с собственной изолированной виртуальной памятью, таблицей файловых дескрипторов, таблицей страниц памяти (Page Table) и пространствами имен (Namespaces). Создается через `fork()` или `clone()`.
+- **Поток / Тред (Thread):** Единица планирования процессора. Потоки одного процесса **разделяют общее адресное пространство памяти**, дескрипторы открытых файлов и обработчики сигналов, но имеют **собственный стек** и регистры CPU. Создаются системным вызовом `clone()` с флагами `CLONE_VM`, `CLONE_FS`, `CLONE_FILES`, `CLONE_SIGHAND`.
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    subgraph Process["Процесс (PID 1000)"]
+        Mem["Общая память процесса (Heap, Code, Global vars)"]
+        FD["Общие файловые дескрипторы (0, 1, 2, sockets)"]
+        
+        subgraph Thread1["Поток 1 (TID 1000 - Main)"]
+            Stack1["Стек потока 1"]
+            Regs1["Регистры CPU"]
+        end
+        
+        subgraph Thread2["Поток 2 (TID 1001 - Worker)"]
+            Stack2["Стек потока 2"]
+            Regs2["Регистры CPU"]
+        end
+        
+        Thread1 --> Mem
+        Thread2 --> Mem
+        Thread1 --> FD
+        Thread2 --> FD
+    end
 ```
 
 ---
 
-## Проверь себя
+## 📊 Состояния процессов (Process States)
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+```mermaid
+stateDiagram-v2
+    [*] --> R_Ready: fork() / clone()
+    R_Ready --> R_Running: Выбран планировщиком (CPU)
+    R_Running --> R_Ready: Истек квант времени (Preemption)
+    R_Running --> S_Interruptible: Ожидание события / сокета / таймера
+    S_Interruptible --> R_Ready: Сигнал / приход данных
+    R_Running --> D_Uninterruptible: Ожидание ответа от диска (I/O)
+    D_Uninterruptible --> R_Ready: Данные прочитаны с диска
+    R_Running --> T_Stopped: SIGSTOP / SIGTSTP (Ctrl+Z)
+    T_Stopped --> R_Ready: SIGCONT
+    R_Running --> Z_Zombie: exit() (Ожидание родительского wait())
+    Z_Zombie --> [*]: Родитель вызвал wait() / reap
+```
 
+| Состояние | Код | Описание | Можно ли завершить через `kill -9`? |
+| :--- | :---: | :--- | :---: |
+| **Running / Runnable** | `R` | Исполняется на ядре CPU прямо сейчас или ждет в очереди очереди запуска (runqueue). | Да |
+| **Interruptible Sleep** | `S` | «Спит» в ожидании таймера, события или данных из сети/пайпа. | Да |
+| **Uninterruptible Sleep** | `D` | **«Мертвый сон»:** процесс завис в системном вызове в ожидании дискового I/O или блокировки NFS. | **НЕТ** (только перезагрузка или завершение I/O) |
+| **Zombie** | `Z` | Процесс завершился, освободил память, но запись в таблице процессов осталась, пока родитель не вызовет `waitpid()`. | **НЕТ** (нужно убить родительский процесс `PPID`) |
+| **Stopped / Traced** | `T` | Остановлен сигналом остановки или находится под отладкой `gdb`/`strace`. | Да |
+
+---
+
+## ⏱️ Планировщик ядра (Schedulers: CFS & EEVDF)
+
+Планировщик Linux распределяет процессорное время между миллисекундами задач:
+
+1. **CFS (Completely Fair Scheduler):** Классический планировщик Linux (ядра до 6.5). Использовал красно-черное дерево (Red-Black Tree) и метрику **`vruntime`** (виртуальное время исполнения). Задача с наименьшим `vruntime` всегда запускалась следующей.
+2. **EEVDF (Earliest Eligible Virtual Deadline First):** Новый планировщик по умолчанию (начиная с Linux 6.6+). Заменяет CFS, устраняя задержки для интерактивных и latency-sensitive задач за счет учета индивидуальных дедлайнов выполнения.
+3. **Nice-значения (`nice` от -20 до +19):**
+   * `-20` — максимальный приоритет (забирает максимум CPU time).
+   * `0` — стандартный приоритет.
+   * `+19` — минимальный приоритет («фоновая задача», уступает всем).
+4. **Real-Time планирование (SCHED_FIFO, SCHED_RR):**
+   * Процессы реального времени имеют жесткий приоритет от 1 до 99 и вытесняют любые обычные CFS/EEVDF процессы.
+
+---
+
+## 🛠️ CLI Cheat Sheet: Мониторинг и Управление
+
+### 1. Детальный аудит процессов и потоков
+```bash
+# Просмотр процессов в виде дерева со всеми аргументами
+ps -ef --forest
+pstree -aps <PID>
+
+# Мониторинг отдельных потоков (TID) процесса в реальном времени
+pidstat -u -p ALL -t 1 5
+
+# Топ 10 процессов по потреблению CPU
+ps aux --sort=-%cpu | head -n 11
+
+# Поиск зависших процессов в D-state (I/O wait)
+ps -eo state,pid,user,cmd | awk '$1=="D"'
+
+# Поиск процессов-зомби и их родителей (PPID)
+ps -eo stat,pid,ppid,comm | grep -w "Z"
+```
+
+### 2. Изменение приоритетов и привязка к ядрам (CPU Affinity)
+```bash
+# Запуск команды с пониженным приоритетом
+nice -n 15 tar -czf backup.tar.gz /var/log
+
+# Изменение приоритета уже работающего процесса
+renice -n -5 -p <PID>
+
+# Привязка процесса к конкретным ядрам CPU (Core 0 и Core 1)
+taskset -cp 0,1 <PID>
+
+# Проверка текущей маски привязки к CPU
+taskset -p <PID>
+```
+
+### 3. Анализ переключений контекста и очередей CPU
+```bash
+# Мониторинг очереди задач (r), блокировок (b) и переключений контекста (cs)
+vmstat 1 10
+
+# Мониторинг voluntary и non-voluntary context switches конкретного процесса
+pidstat -w -p <PID> 1
+```
+
+---
+
+## 🚨 Траблшутинг проблем с CPU и процессами
+
+### 1. Высокий `Load Average` при низком `%CPU`
+* **Причина:** В метрику Load Average в Linux входят не только процессы в состоянии `R` (CPU), но и процессы в состоянии `D` (ожидание диска I/O или сетевой ФС вроде NFS).
+* **Диагностика:**
+  ```bash
+  # Проверяем %iowait в первой строке:
+  top
+  # Смотрим, какие процессы висят в D-state:
+  ps -eo state,pid,cmd | grep "^D"
+  # Проверяем дисковую очередь:
+  iostat -xz 1 5
+  ```
+
+### 2. Процессы-зомби плодятся и забивают PID-таблицу
+* **Причина:** Родительский процесс упал или заблокирован и не считывает код завершения дочерних процессов через `waitpid()`.
+* **Решение:**
+  ```bash
+  # Находим родителя зомби (PPID):
+  ps -o ppid= -p <ZOMBIE_PID>
+  # Перезапускаем или корректно завершаем родителя:
+  kill -15 <PARENT_PID>
+  # Если родитель завершится, зомби будут усыновлены процессом systemd (PID 1) и мгновенно очищены.
+  ```

@@ -1,135 +1,102 @@
-# Namespaces и изоляция
+# 📦 11. Пространства Имен (Namespaces) и Контейнеры
 
-> namespaces, unshare, контейнерная изоляция
+## 🧠 Что такое Linux Namespaces
+
+**Linux Namespaces (Пространства имен)** — фундаментальный механизм изоляции ядра, позволяющий предоставить процессу иллюзию того, что он работает на полностью выделенной независимой операционной системе.
+
+В то время как **Cgroups** ограничивают *количество* потребляемых ресурсов (сколько CPU/RAM можно использовать), **Namespaces** ограничивают *видимость* системы (что процесс может видеть и изменять).
 
 ---
 
-## Теория
-
-### Что это и зачем
-
-namespaces, unshare, контейнерная изоляция — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+## 🧩 8 Пространств Имен Linux
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    Kernel["Ядро Linux"] --> PID["1. PID (Изоляция таблицы процессов)"]
+    Kernel --> NET["2. NET (Сетевые интерфейсы, сокеты, iptables)"]
+    Kernel --> MNT["3. MNT (Точки монтирования файловых систем)"]
+    Kernel --> IPC["4. IPC (Очереди сообщений, семафоры, shared memory)"]
+    Kernel --> UTS["5. UTS (Имя хоста / Hostname и домен)"]
+    Kernel --> USER["6. USER (Маппинг UID/GID пользователей)"]
+    Kernel --> CGROUP["7. CGROUP (Изолированный вид дерева cgroups)"]
+    Kernel --> TIME["8. TIME (Смещение системных часов / uptime)"]
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
+| Пространство имен | Флаг `clone()` | Что изолирует | Зачем контейнерам |
+| :--- | :--- | :--- | :--- |
+| **PID** | `CLONE_NEWPID` | Номера процессов | Внутри контейнера процесс видит себя как `PID 1` и не видит хост-процессы. |
+| **NET** | `CLONE_NEWNET` | Сетевые интерфейсы, IP, порты, таблицы маршрутизации | Контейнер получает свой виртуальный `eth0`, `lo`, стек сокетов и файрвол. |
+| **MNT (Mount)** | `CLONE_NEWNS` | Дерево смонтированных файловых систем | Свой корень системы (`/`) без доступа к дискам хоста. |
+| **IPC** | `CLONE_NEWIPC` | Inter-Process Communication (Shared Memory, Semaphores) | Процессы разных контейнеров не могут читать разделяемую память друг друга. |
+| **UTS** | `CLONE_NEWUTS` | Hostname и NIS domain name | Позволяет задать контейнеру собственное сетевое имя (например `web-pod-1`). |
+| **USER** | `CLONE_NEWUSER` | User ID (UID) и Group ID (GID) | Root внутри контейнера (`UID 0`) становится непривилегированным юзером (`UID 100000`) на хосте (Rootless containers). |
+| **CGROUP** | `CLONE_NEWCGROUP`| Виртуальное дерево `/sys/fs/cgroup` | Контейнер видит только свои лимиты, не зная об иерархии хоста. |
+| **TIME** | `CLONE_NEWTIME`| Системные часы (`CLOCK_MONOTONIC`, `CLOCK_BOOTTIME`)| Возможность менять время в контейнере без сдвига часов на всем сервере. |
 
 ---
 
-## Практика
+## 🛠️ Практика: Создание контейнера вручную с помощью `unshare`
 
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
+Вы можете создать изолированный контейнер одной системной командой без Docker:
 
 ```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
+# 1. Создаем изолированное окружение со своими PID, NET, MNT, UTS и IPC
+sudo unshare --pid --net --mount --uts --ipc --fork /bin/bash
 
-### Troubleshooting
+# 2. Внутри нового шелла:
+# Задаем изолированное имя хоста
+hostname my-isolated-container
+hostname
+# (На хосте имя не изменилось!)
 
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+# 3. Монтируем изолированный /proc, чтобы ps показывал только наши процессы:
+mount -t proc proc /proc
+ps aux
+# Вывод:
+# USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+# root         1  0.0  0.0   9456  4120 pts/0    S    12:00   0:00 /bin/bash
+# root         2  0.0  0.0  10234  1890 pts/0    R+   12:01   0:00 ps aux
 ```
 
 ---
 
-## Проверь себя
+## 🔍 Инструменты исследования: `lsns` и `nsenter`
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+### 1. Просмотр активных пространств имен (`lsns`)
+```bash
+# Список всех пространств имен в ОС и количество процессов в каждом:
+lsns
 
+# Просмотр только сетевых пространств имен:
+lsns -t net
+```
+
+### 2. Подключение к пространству имен любого контейнера (`nsenter`)
+Если в контейнере нет утилит `curl`, `tcpdump` или `ss`, вы можете «проникнуть» в его сетевое окружение прямо с хоста:
+
+```bash
+# 1. Находим PID главного процесса контейнера:
+CONTAINER_PID=$(docker inspect --format '{{ .State.Pid }}' <CONTAINER_ID>)
+
+# 2. Заходим в сетевой namespace контейнера и запускаем tcpdump с хоста:
+sudo nsenter -t $CONTAINER_PID -n tcpdump -i any -nn port 80
+
+# 3. Полный вход в окружение контейнера (сеть + процессы + монтирование):
+sudo nsenter -t $CONTAINER_PID -m -u -i -n -p /bin/bash
+```
+
+---
+
+## 🚨 Траблшутинг: Проблемы с изоляцией и Mount Propagation
+
+### 1. Как работает Mount Propagation (`shared`, `slave`, `private`)
+Когда контейнер или сервис монтирует папку, влияет ли это на хост?
+* **`private`:** Монтирования внутри namespace не видны снаружи, монтирования на хосте не видны внутри.
+* **`slave`:** Монтирования на хосте автоматически пробрасываются в контейнер, но монтирования из контейнера наружу не попадают.
+* **`shared`:** Монтирования с обеих сторон синхронизируются (нужно для CSI-драйверов Kubernetes).
+
+```bash
+# Изменение режима монтирования для папки:
+mount --make-rshared /mnt/data
+mount --make-rslave /var/lib/docker
+```

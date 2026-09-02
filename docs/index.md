@@ -124,6 +124,12 @@ flowchart TD
 [Открыть →](23-mlops/00-plan.md){ .card-link }
 </div>
 
+<div class="card" markdown>
+<div class="card-title">🛡️ 24. Кибербезопасность <span class="badge">10 стр.</span></div>
+<div class="card-desc">MITRE, OWASP, Apple/Android, AD, DFIR, SOC.</div>
+[Открыть →](24-cybersecurity-and-threat-analysis/01-cybersecurity-fundamentals-and-threat-modeling.md){ .card-link }
+</div>
+
 </div>
 
 <div class="card-grid" markdown>
@@ -184,6 +190,7 @@ flowchart TD
 | **21 Playground** | 1033 сценария, терминал+Monaco | [Playground](21-playground/index.md) |
 | **22 Trainer** | 831 карточка, SRS | [Trainer](22-trainer/index.md) |
 | **23 MLOps** | 9 тем: MLflow, Feast, GPU | [MLOps](23-mlops/00-plan.md) |
+| **24 Security & Threats** | 10 тем: MITRE, OWASP, Apple/Android, Windows AD, DFIR, SOC | [Security](24-cybersecurity-and-threat-analysis/01-cybersecurity-fundamentals-and-threat-modeling.md) |
 
 </details>
 

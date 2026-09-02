@@ -1,135 +1,126 @@
-# Merge vs Rebase
+# 🔀 16. Merge vs Rebase: Стратегии слияния, Алгоритм ORT и Топология истории
 
-> merge, rebase, strategies, octopus
+Интеграция изменений между ветками в Git строится вокруг двух фундаментальных подходов: **Merge** (сохранение истинной нелинейной топологии графа) и **Rebase** (линеаризация истории путем перебазирования коммитов).
 
 ---
 
-## Теория
-
-### Что это и зачем
-
-merge, rebase, strategies, octopus — ключевая технология в 02-git. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+## 🏛️ 1. Механика 3-Way Merge и Fast-Forward
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    subgraph FastForward["1. Fast-Forward Merge (Указатель просто сдвигается)"]
+        FF_Base["Commit A"] --> FF_Head["Commit B (main & feature)"]
+    end
+
+    subgraph ThreeWay["2. True 3-Way Merge (Создается Merge Commit)"]
+        Base["Merge Base (LCA)"] --> Ours["Commit Main (HEAD)"]
+        Base --> Theirs["Commit Feature"]
+        Ours --> MergeCommit["Merge Commit M (Parents: Main, Feature)"]
+        Theirs --> MergeCommit
+    end
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
+### Алгоритм 3-Way Merge:
+1. Git находит **наименьшего общего предка (Lowest Common Ancestor, LCA)** между ветками — так называемый `Merge Base`.
+2. Вычисляется дельта $D_1 = \text{Base} \to \text{Ours}$ (изменения в текущей ветке).
+3. Вычисляется дельта $D_2 = \text{Base} \to \text{Theirs}$ (изменения в целевой ветке).
+4. Дельты объединяются. Если изменения не затрагивают одни и те же строки, Git автоматически формирует снимок `tree` и создает коммит с **двумя родителями**.
 
 ---
 
-## Практика
+## ⚡ 2. Стратегии слияния: Алгоритм ORT против Recursive
 
-### Минимальный пример
+С версии Git 2.33+ стратегией слияния по умолчанию стал алгоритм **`ort`** (*Ostensibly Recursive's Twin*), заменивший устаревший `recursive`:
 
-```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
-```
+| Характеристика | Алгоритм `recursive` (legacy) | Алгоритм `ort` (modern) |
+| :--- | :--- | :--- |
+| **Производительность** | Медленный на больших деревьях | В 10-100 раз быстрее за счет кэширования и ленивого разрешения |
+| **Переименования** | Часто порождает ложные конфликты | Продвинутое отслеживание переименований каталогов и файлов |
+| **Рекурсивные предки** | Создает временный merge commit в ODB | Вычисляет виртуального предка в оперативной памяти |
+| **Конфликты Rebase** | Пересчитывает слияния с нуля при каждом шаге | Запоминает промежуточные результаты для ускорения |
 
 ---
 
-## Проверь себя
+## 🔄 3. Механика Rebase: Перебазирование коммитов
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Команда `git rebase <upstream>` переносит цепочку коммитов текущей ветки, создавая их заново поверх последнего коммита указанной целевой ветки.
 
+```mermaid
+graph LR
+    subgraph BeforeRebase["До Rebase"]
+        B["Base"] --> M1["Main"]
+        B --> F1["Feature C1"]
+        F1 --> F2["Feature C2"]
+    end
+
+    subgraph AfterRebase["После Rebase (Linear History)"]
+        B2["Base"] --> M2["Main"]
+        M2 --> F1_new["Feature C1' (Новый SHA)"]
+        F1_new --> F2_new["Feature C2' (Новый SHA)"]
+    end
+
+    style F1_new fill:#e67e22,stroke:#d35400,color:#fff
+    style F2_new fill:#e67e22,stroke:#d35400,color:#fff
+```
+
+> [!CAUTION]
+> **Золотое правило Rebase:** Никогда не выполняйте `rebase` над ветками, которые уже были отправлены в публичный удаленный репозиторий и используются другими инженерами. Перебазирование меняет SHA всех коммитов!
+
+---
+
+## ⚖️ 4. Сравнительная матрица: Merge vs Rebase
+
+| Критерий | Merge (`git merge`) | Rebase (`git rebase`) |
+| :--- | :--- | :--- |
+| **Топология истории** | Нелинейная, отражает реальный ход разработки | Идеально плоская, линейная |
+| **Сохранение контекста** | Сохраняет точное время коммитов и связи | Создает новые коммиты с новыми датами коммитера |
+| **Разрешение конфликтов** | Конфликты решаются один раз в Merge-коммите | Конфликты могут возникать по очереди на каждом коммите |
+| **Откат функционала** | Легко откатить весь feature-набор через откат одного merge-коммита | Требуется интерактивный rebase или откат цепочки коммитов |
+| **Использование в DevOps** | Релизные ветки, интеграция окружений (`staging`) | Фиче-ветки перед созданием Pull/Merge Request (PR/MR) |
+
+---
+
+## 🛠️ 5. Инженерный CLI Cheat Sheet
+
+| Команда | Описание |
+| :--- | :--- |
+| `git merge-base main feature` | Найти точный SHA общего предка двух веток |
+| `git merge --no-ff feature` | Принудительно создать merge commit даже при возможности fast-forward |
+| `git merge --ff-only feature` | Выполнить слияние только в режиме fast-forward; упасть с ошибкой при дивергенции |
+| `git merge --abort` | Полный откат состояния при возникновении конфликта во время слияния |
+| `git merge -X ours feature` | Автоматически отдавать приоритет текущей ветке при строковых конфликтах (в рамках ORT) |
+| `git merge -X theirs feature` | Автоматически отдавать приоритет вливаемой ветке |
+| `git rebase main` | Перебазировать текущую ветку поверх `main` |
+| `git rebase --onto main legacy-feature new-feature` | Вырезать ветку `new-feature` от `legacy-feature` и пересадить на `main` |
+| `git rebase --abort` | Полная отмена процесса перебазирования и возврат к исходному состоянию |
+
+---
+
+## 🚨 6. Production Troubleshooting & Break-Fix
+
+### Сценарий 1: Случайный `git push --force` после Rebase затер чужую работу
+- **Симптом:** Инженер выполнил `git rebase origin/main` и запушил с флагом `-f`, перезаписав коммиты коллеги, запушенные 5 минут назад.
+- **Предотвращение:** Всегда использовать безопасный флаг `--force-with-lease`:
+  ```bash
+  # Отклонит отправку, если remote ветка обновилась кем-то другим
+  git push --force-with-lease
+  ```
+- **Восстановление затертых коммитов через reflog удаленного репозитория (или локального коллеги):**
+  ```bash
+  # 1. Коллега находит потерянный коммит в своем локальном reflog
+  git reflog show origin/main
+
+  # 2. Восстанавливает правильную ветку
+  git checkout -b rescue-branch origin/main@{1}
+  git push origin rescue-branch
+  ```
+
+### Сценарий 2: Застревание в циклическом конфликте во время многокоммитного Rebase
+- **Симптом:** Ветка из 20 коммитов перебазируется, и один и тот же блок кода конфликтует на каждом втором коммите.
+- **Решение:** Включение механизма повторного использования разрешений конфликтов (**git rerere**):
+  ```bash
+  # Включение глобального кэша разрешений конфликтов
+  git config --global rerere.enabled true
+  git config --global rerere.autoupdate true
+  ```
+  После включения Git запоминает, как вы разрешили конфликт в первый раз, и автоматически применяет то же решение на всех последующих шагах rebase.

@@ -1,135 +1,226 @@
-# Lab: ArgoCD end-to-end
+# 🧪 29. Лабораторная работа: Развертывание ArgoCD, ApplicationSet, Sync Waves и Lua Health Checks
 
-> Application, ApplicationSet, sync, rollback
+## 🎯 Цель лабораторной работы
 
----
-
-## Теория
-
-### Что это и зачем
-
-Application, ApplicationSet, sync, rollback — ключевая технология в 05-gitops-and-cicd. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+Построить полноценный GitOps-пайплайн на базе **ArgoCD**:
+1. Развернуть и защитить инстанс ArgoCD.
+2. Создать изолированный `AppProject` с ограничениями неймспейсов.
+3. Развернуть микросервисы через **ApplicationSet Git Directory Generator**.
+4. Настроить поэтапную синхронизацию через **Sync Waves** (Миграция БД $\rightarrow$ Бэкенд $\rightarrow$ Фронтенд).
+5. Написать и протестировать кастомный **Lua Health Check** для стороннего CRD.
 
 ```mermaid
-graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+flowchart TD
+    subgraph LabArchitecture["Архитектура лаборатории"]
+        AppSet["ApplicationSet: microservices-factory"] --> AppAuth["App: auth-service"]
+        AppSet --> AppPay["App: payment-service"]
+
+        subgraph WavePipeline["Конвейер Sync Waves внутри payment-service"]
+            WaveNeg1["Wave -1: DB Migration Job (PreSync)"] --> CheckDB{"DB Migration Healthy?"}
+            CheckDB -->|Yes| Wave0["Wave 0: Payment Backend API + Secret"]
+            Wave0 --> CheckAPI{"API Healthy (Readiness Probe)?"}
+            CheckAPI -->|Yes| Wave1["Wave 1: Ingress Gateway + Smoke Test"]
+        end
+    end
 ```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
 
 ---
 
-## Практика
+## 🛠️ Пошаговое руководство выполнения
 
-### Минимальный пример
+### Шаг 1: Установка ArgoCD и настройка доступа
 
 ```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
+# 1. Создание неймспейса и установка официального манифеста
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# 2. Ожидание готовности подов
+kubectl wait --for=condition=ready pod --all -n argocd --timeout=300s
+
+# 3. Получение пароля администратора по умолчанию
+export ARGO_ADMIN_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+echo "Admin Password: $ARGO_ADMIN_PASSWORD"
+
+# 4. Проброс порта для доступа к Web UI / CLI
+kubectl port-forward svc/argocd-server -n argocd 8080:443 &
+
+# 5. Вход через CLI
+argocd login localhost:8080 --username admin --password $ARGO_ADMIN_PASSWORD --insecure
 ```
 
+---
+
+### Шаг 2: Создание защищенного `AppProject`
+
+Создайте манифест `project-ecommerce.yaml`:
+
 ```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
 metadata:
-  name: demo
-data:
-  key: value
+  name: ecommerce-core
+  namespace: argocd
+spec:
+  description: "E-Commerce Microservices Domain"
+  sourceRepos:
+    - "https://github.com/argoproj/argocd-example-apps.git"
+    - "https://github.com/company/ecommerce-fleet.git"
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: "ecom-*"
+  clusterResourceBlacklist:
+    - group: "*"
+      kind: "*"
+  namespaceResourceWhitelist:
+    - group: "apps"
+      kind: "Deployment"
+    - group: "batch"
+      kind: "Job"
+    - group: ""
+      kind: "Service"
+    - group: ""
+      kind: "ConfigMap"
+    - group: ""
+      kind: "Secret"
 ```
 
-### Production-like пример
+Примените манифест:
+```bash
+kubectl apply -f project-ecommerce.yaml
+```
+
+---
+
+### Шаг 3: Автоматизация деплоя через ApplicationSet
+
+Создайте манифест `appset-microservices.yaml`:
 
 ```yaml
-# production.yaml — с лимитами, probe, ресурсами
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ecom-microservices
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - service: "payments"
+            namespace: "ecom-payments"
+            replicas: "2"
+          - service: "catalog"
+            namespace: "ecom-catalog"
+            replicas: "3"
+  template:
+    metadata:
+      name: 'ecom-{{service}}'
+    spec:
+      project: ecommerce-core
+      source:
+        repoURL: https://github.com/argoproj/argocd-example-apps.git
+        targetRevision: HEAD
+        path: guestbook
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+```
+
+Примените ApplicationSet:
+```bash
+kubectl apply -f appset-microservices.yaml
+```
+
+---
+
+### Шаг 4: Настройка Sync Waves и PreSync Hook
+
+Создайте манифест с упорядоченными волнами `payment-stack.yaml`:
+
+```yaml
+# 1. Волна -1: Миграция БД (Запускается первой)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-schema-migration
+  namespace: ecom-payments
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: busybox
+          command: ["sh", "-c", "echo 'Migrating DB schema...'; sleep 5; echo 'Done!'"]
+---
+# 2. Волна 0: Основной микросервис API
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo-prod
+  name: payment-api
+  namespace: ecom-payments
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
-  replicas: 3
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payment-api
   template:
+    metadata:
+      labels:
+        app: payment-api
     spec:
       containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+        - name: server
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 2
 ```
 
 ---
 
-## Проверь себя
+### Шаг 5: Добавление кастомного Lua Health Check
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Добавьте проверку для Custom Resource в `argocd-cm`:
 
+```bash
+kubectl patch configmap argocd-cm -n argocd --type merge -p '{
+  "data": {
+    "resource.customizations.health.batch_Job": "hs = {}\nif obj.status ~= nil then\n  if obj.status.succeeded ~= nil and obj.status.succeeded > 0 then\n    hs.status = \"Healthy\"\n    return hs\n  end\n  if obj.status.failed ~= nil and obj.status.failed > 0 then\n    hs.status = \"Degraded\"\n    return hs\n  end\nend\nhs.status = \"Progressing\"\nreturn hs"
+  }
+}'
+```
+
+---
+
+## 🔍 Валидация и проверка результатов
+
+```bash
+# 1. Просмотр созданных через ApplicationSet приложений
+argocd app list
+
+# 2. Проверка состояния синхронизации и волн
+argocd app get ecom-payments
+
+# 3. Запуск ручной синхронизации с отображением фаз
+argocd app sync ecom-payments --show-operation
+
+# 4. Проверка созданных подов в изолированных неймспейсах
+kubectl get pods -n ecom-payments
+kubectl get pods -n ecom-catalog
+```

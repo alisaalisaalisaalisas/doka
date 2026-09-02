@@ -1,135 +1,106 @@
-# Logrotate и rsyslog глубоко
+# 📜 29. Логирование: Rsyslog, Journald и Logrotate
 
-> logrotate, rsyslog, remote logging, journal-remote
+## 🧠 Архитектура Сбора Логов в Linux
 
----
+В современном дистрибутиве Linux логирование разделено на две взаимодополняющие подсистемы:
 
-## Теория
-
-### Что это и зачем
-
-logrotate, rsyslog, remote logging, journal-remote — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+1. **`systemd-journald` (Бинарный журнал):** Собирает все системные события, вывод `stdout`/`stderr` сервисов и логи ядра `kmsg`. Хранит метаданные (PID, UID, Unit Name) в индексированном бинарном формате.
+2. **`rsyslog` (Текстовый демон + Сетевой транспорт):** Читает сообщения из журнала (через модуль `imjournal`) или UNIX-сокета (`/dev/log`), фильтрует их, раскладывает по классическим текстовым файлам (`/var/log/syslog`, `/var/log/auth.log`) и пересылает по сети по протоколам Syslog / RELP / TLS в SIEM (Elasticsearch, OpenSearch, Graylog, Splunk).
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    App["Приложения (stdout / /dev/log)"] --> Journald["systemd-journald (Бинарный /run/log/journal)"]
+    Kernel["Ядро Linux (kmsg)"] --> Journald
+    
+    Journald --> Rsyslog["Rsyslog Daemon"]
+    
+    Rsyslog --> LocalFiles["Локальные файлы (/var/log/auth.log, syslog)"]
+    Rsyslog --> RemoteSIEM["Централизованный сервер логов / SIEM (TLS / TCP 514)"]
+    
+    LocalFiles --> Logrotate["Logrotate (Сжатие, ротация, очистка диска)"]
 ```
 
 ---
 
-## Проверь себя
+## 📑 Rsyslog: Модули, Фасилити и Уровни Важности
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Rsyslog классифицирует логи по двум координатам: **Facility (Источник)** и **Severity (Важность)**.
 
+### Уровни важности (Severity / Priority):
+`0: emerg` $\rightarrow$ `1: alert` $\rightarrow$ `2: crit` $\rightarrow$ `3: err` $\rightarrow$ `4: warning` $\rightarrow$ `5: notice` $\rightarrow$ `6: info` $\rightarrow$ `7: debug`.
+
+### Конфигурация пересылки логов по сети:
+Файл `/etc/rsyslog.d/50-remote-forward.conf`:
+
+```text
+# 1. Включаем очередь в памяти и на диске на случай обрыва сети:
+$ActionQueueType LinkedList
+$ActionQueueFileName remote_queue
+$ActionResumeRetryCount -1
+$ActionQueueSaveOnShutdown on
+
+# 2. Пересылка всех логов уровня warning и выше на центральный сервер по TCP:
+*.warning @@logs.company.internal:514
+
+# 3. Пересылка только логов аутентификации (auth, authpriv) по защищенному TLS:
+auth,authpriv.* @@(o)secure-siem.company.internal:6514
+```
+
+---
+
+## 🔄 Logrotate: Ротация, Сжатие и Очистка Логов
+
+**`logrotate`** предотвращает переполнение диска текстовыми логами. Он запускается ежедневно через cron/systemd timer, считывает статус из `/var/lib/logrotate/status` и производит ротацию.
+
+### Production-шаблон конфигурации: `/etc/logrotate.d/myapp`
+
+```text
+/var/log/myapp/*.log {
+    # Ротировать ежедневно
+    daily
+    # Хранить 14 архивных файлов (за последние 2 недели)
+    rotate 14
+    # Не выдавать ошибку, если файла лога нет
+    missingok
+    # Не ротировать пустые файлы
+    notifempty
+    # Сжимать старые логи gzip-ом
+    compress
+    # Отложить сжатие на 1 цикл (текущий вчерашний лог .1 остается несжатым для надежности)
+    delaycompress
+    # Создать новый пустой файл лога с правами 0640 для пользователя www-data
+    create 0640 www-data adm
+    # Выполнить postrotate-скрипт один раз для всей папки, а не для каждого файла
+    sharedscripts
+    # Уведомляем сервис о переоткрытии файловых дескрипторов:
+    postrotate
+        systemctl kill -s HUP myapp.service >/dev/null 2>&1 || true
+    endscript
+}
+```
+
+---
+
+## ⚠️ copytruncate vs create + postrotate
+
+Это главная дилемма при настройке ротации:
+
+| Режим | Как работает | Плюсы | Минусы / Риски |
+| :--- | :--- | :--- | :--- |
+| **`create + postrotate`** *(Рекомендуется)* | Переименовывает старый файл, создает новый и шлет сервису сигнал `SIGHUP` / `SIGUSR1`. | **100% гарантия отсутствия потери строк логов.** | Приложение обязано уметь переоткрывать файлы по сигналу. |
+| **`copytruncate`** | Копирует лог в архивный файл, а затем очищает текущий файл на лету (`> file.log`). | Работает с любыми кривыми приложениями, не умеющими переоткрывать логи. | **Есть риск потери логов!** Данные, записанные между операцией копирования и обрезания файла, теряются навсегда. |
+
+---
+
+## 🛠️ CLI Практика: Отладка и Тестирование Ротации
+
+```bash
+# 1. Запуск logrotate в тестовом режиме (Dry-Run / Debug) БЕЗ реального изменения файлов:
+sudo logrotate -d /etc/logrotate.d/myapp
+
+# 2. Принудительная ротация прямо сейчас (Force):
+sudo logrotate -f /etc/logrotate.d/myapp
+
+# 3. Просмотр файла статуса последнего запуска:
+cat /var/lib/logrotate/status | grep myapp
+```

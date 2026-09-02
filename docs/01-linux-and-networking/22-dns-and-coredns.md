@@ -1,135 +1,133 @@
-# DNS и CoreDNS
+# 🌐 22. DNS, Резолвинг в Linux и CoreDNS
 
-> resolv.conf, dig, nsswitch, CoreDNS, ND
+## 🧠 Как Устроен DNS Резолвинг
 
----
-
-## Теория
-
-### Что это и зачем
-
-resolv.conf, dig, nsswitch, CoreDNS, ND — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+DNS (Domain Name System) — распределенная иерархическая база данных, преобразующая человекочитаемые доменные имена (`api.company.com`) в машинные IP-адреса (`192.0.2.1`).
 
 ```mermaid
-graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
+sequenceDiagram
+    autonumber
+    actor Client as Клиент (Браузер / cURL)
+    participant Stub as Локальный резолвер (systemd-resolved)
+    participant Rec as Рекурсивный DNS (8.8.8.8 / CoreDNS)
+    participant Root as Корневые серверы (.)
+    participant TLD as TLD серверы (.com)
+    participant Auth as Авторитетный DNS (company.com)
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    Client->>Stub: Запрос: api.company.com
+    Stub->>Rec: Рекурсивный запрос
+    Note over Rec: Проверка локального кэша
+    Rec->>Root: Где .com?
+    Root-->>Rec: TLD серверы: a.gtld-servers.net
+    Rec->>TLD: Где company.com?
+    TLD-->>Rec: NS серверы: ns1.cloudflare.com
+    Rec->>Auth: Запрос A-записи для api.company.com
+    Auth-->>Rec: 192.0.2.1 (TTL=300)
+    Rec-->>Stub: Ответ с IP
+    Stub-->>Client: 192.0.2.1
 ```
 
 ---
 
-## Проверь себя
+## 📋 Основные Типы DNS Записей
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+| Тип записи | Назначение | Пример значения |
+| :--- | :--- | :--- |
+| **`A`** | Преобразование домена в IPv4 | `api.example.com -> 192.0.2.1` |
+| **`AAAA`** | Преобразование домена в IPv6 | `api.example.com -> 2001:db8::1` |
+| **`CNAME`** | Канонический алиас (псевдоним) на другое имя | `www.example.com -> example.com` |
+| **`MX`** | Почтовый сервер для домена (с приоритетом) | `10 mail.example.com` |
+| **`TXT`** | Текстовые данные (SPF, DKIM, DMARC, SSL верификация)| `"v=spf1 include:_spf.google.com ~all"` |
+| **`SRV`** | Обнаружение сервисов (Service Discovery: порт + вес) | `_http._tcp.example.com -> 0 5 8080 srv1` |
+| **`PTR`** | Обратный DNS (IP -> Имя хоста / Reverse DNS) | `1.2.0.192.in-addr.arpa -> api.example.com` |
+| **`NS`** | Авторитетный сервер имен для зоны | `ns1.cloudflare.com` |
+| **`SOA`** | Начало зоны полномочий (серийный номер, тайминги) | `admin.example.com 2026090101 7200...` |
 
+---
+
+## ⚙️ Резолвинг в Linux: `/etc/resolv.conf` и `systemd-resolved`
+
+В современном Linux цепочка разрешения имен выглядит так:
+1. **`/etc/nsswitch.conf`:** Определяет порядок поиска (`hosts: files dns myhostname`).
+2. **`/etc/hosts`:** Статические локальные записи `IP -> Имя`.
+3. **`/etc/resolv.conf`:** Содержит адрес DNS-сервера (часто `127.0.0.53` — локальный заглушечный резолвер `systemd-resolved`).
+
+```bash
+# Просмотр статуса и DNS-серверов по каждому сетевому интерфейсу:
+resolvectl status
+
+# Сброс локального кэша DNS:
+sudo resolvectl flush-caches
+
+# Запрос конкретного домена через системный резолвер:
+resolvectl query google.com
+```
+
+---
+
+## ☸️ CoreDNS: Архитектура DNS в Kubernetes
+
+**CoreDNS** — модульный и быстрый DNS-сервер, являющийся стандартом Service Discovery в Kubernetes. 
+
+Его поведение настраивается через цепочку плагинов (**Corefile**):
+
+```text
+# Пример production Corefile в Kubernetes:
+.:53 {
+    errors                         # Логирование ошибок
+    health {                       # Healthcheck endpoint (localhost:8080/health)
+       lameduck 5s
+    }
+    ready                          # Readiness probe endpoint (:8181/ready)
+    kubernetes cluster.local in-addr.arpa ip6.arpa {
+       pods insecure
+       fallthrough in-addr.arpa ip6.arpa
+       ttl 30
+    }
+    prometheus :9153              # Экспорт метрик для Prometheus
+    forward . 8.8.8.8 1.1.1.1     # Форвардинг внешних доменов
+    cache 30                       # Кэширование ответов на 30 секунд
+    loop                           # Защита от бесконечных циклов резолвинга
+    reload                         # Автоматическая перезагрузка Corefile при изменении
+    loadbalance                    # Round-robin балансировка A/AAAA записей
+}
+```
+
+---
+
+## 🛠️ CLI Практика: Трассировка DNS (`dig`)
+
+```bash
+# 1. Быстрый запрос IP домена:
+dig +short google.com
+
+# 2. Полная трассировка всех уровней DNS от корня (.) до ответа:
+dig +trace api.github.com
+
+# 3. Запрос к конкретному DNS-серверу (например, Cloudflare 1.1.1.1):
+dig @1.1.1.1 example.com A
+
+# 4. Проверка обратной DNS-записи (Reverse Lookup):
+dig -x 8.8.8.8 +short
+
+# 5. Запрос всех TXT-записей домена (SPF/DKIM):
+dig example.com TXT +noall +answer
+```
+
+---
+
+## 🚨 Траблшутинг: 5-секундные задержки DNS в Kubernetes (`ndots:5`)
+
+### Проблема: Запросы к внешним сервисам из подов Kubernetes периодически зависают ровно на 5 секунд
+* **Причина:**
+  1. В `/etc/resolv.conf` пода по умолчанию выставлен параметр `ndots:5`. Если имя содержит менее 5 точек (например, `api.stripe.com`), `glibc` сначала пытается разрешить его во внутренних суффиксах (`api.stripe.com.default.svc.cluster.local`, `api.stripe.com.svc.cluster.local` и т.д.).
+  2. Параллельные запросы A и AAAA записей создают гонку в `conntrack` ядра Linux, что приводит к дропу UDP-пакета и 5-секундному таймауту повтора.
+* **Решение в Kubernetes Pod Spec:**
+  ```yaml
+  spec:
+    dnsConfig:
+      options:
+        - name: ndots
+          value: "2"
+        - name: single-request-reopen  # Закрывает сокет после первого ответа
+  ```

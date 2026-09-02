@@ -1,135 +1,184 @@
-# PSS и SecurityContext
+# 🛡️ 26. Pod Security Standards (PSS) и SecurityContext
 
-> PSS restricted, runAsNonRoot, readOnly, capabilities
+> Pod Security Standards (PSS) и встроенный контроллер допуска Pod Security Admission (PSA) пришли на смену устаревшим PSP (PodSecurityPolicies). Они определяют три уровня политик безопасности контейнеров, а директива `securityContext` реализует эти требования на уровне ядра Linux.
 
 ---
 
-## Теория
-
-### Что это и зачем
-
-PSS restricted, runAsNonRoot, readOnly, capabilities — ключевая технология в 04-kubernetes. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+## 🏛️ Уровни Pod Security Standards (PSS)
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    Privileged["1. Privileged Profile<br/>• Полный доступ к ядру хоста<br/>• hostNetwork, hostPID, hostIPC<br/>• Для CNI, CSI, системных агентов"]
+    
+    Baseline["2. Baseline Profile (Минимум для прода)<br/>• Запрет привилегированных контейнеров<br/>• Запрет hostPort, hostPath, hostNetwork<br/>• Защита от известных эскалаций прав"]
+    
+    Restricted["3. Restricted Profile (Максимальная защита)<br/>• Обязательно runAsNonRoot<br/>• drop: ['ALL'] Linux capabilities<br/>• readOnlyRootFilesystem<br/>• seccompProfile: RuntimeDefault"]
+
+    Privileged --> Baseline
+    Baseline --> Restricted
+
+    classDef p fill:#dc3545,stroke:#a71d2a,stroke-width:2px,color:#fff;
+    classDef b fill:#ffc107,stroke:#ba8b00,stroke-width:2px,color:#000;
+    classDef r fill:#28a745,stroke:#19692c,stroke-width:2px,color:#fff;
+    class Privileged p;
+    class Baseline b;
+    class Restricted r;
 ```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
 
 ---
 
-## Практика
+## ⚙️ Pod Security Admission (PSA): Режимы и Метки
 
-### Минимальный пример
+PSA настраивается на уровне неймспейса с помощью специальных меток. Поддерживаются три режима работы (могут действовать одновременно):
 
-```bash
-# Проверка версии и базовый запуск
-kubectl cluster-info && kubectl get nodes
-```
+1. **`enforce`:** Жестко блокирует создание подов, нарушающих политику (возвращает `403 Forbidden`).
+2. **`audit`:** Разрешает создание, но записывает нарушение в Audit Log кластера.
+3. **`warn`:** Разрешает создание, но возвращает предупреждение пользователю в терминал `kubectl`.
 
 ```yaml
-# Минимальная конфигурация
+# Пример меток на Namespace:
 apiVersion: v1
-kind: ConfigMap
+kind: Namespace
 metadata:
-  name: demo
-data:
-  key: value
+  name: payment-production
+  labels:
+    # Жесткий запрет отклонений от Restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    # Предупреждение и аудит при малейших несоответствиях
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted
 ```
 
-### Production-like пример
+---
+
+## 🔒 SecurityContext: Уровни Pod и Container
+
+```mermaid
+graph LR
+    subgraph PodLevel["Pod-Level SecurityContext"]
+        P_User["runAsUser: 10001"]
+        P_Group["runAsGroup: 10001"]
+        P_FS["fsGroup: 20000"]
+        P_FSPolicy["fsGroupChangePolicy: OnRootMismatch"]
+        P_Seccomp["seccompProfile: type: RuntimeDefault"]
+    end
+
+    subgraph ContainerLevel["Container-Level SecurityContext"]
+        C_Esc["allowPrivilegeEscalation: false"]
+        C_RO["readOnlyRootFilesystem: true"]
+        C_NonRoot["runAsNonRoot: true"]
+        C_Caps["capabilities: drop: ['ALL']"]
+    end
+```
+
+### Разница параметров:
+- **`fsGroup` & `fsGroupChangePolicy: OnRootMismatch`:** Автоматически назначает группу владельца для всех смонтированных томов. Опция `OnRootMismatch` предотвращает зависание старта пода при рекурсивном `chown` на больших дисках с миллионами файлов.
+- **`allowPrivilegeEscalation: false`:** Устанавливает флаг `no_new_privs` в ядре Linux, запрещая бинарникам с битами SUID/SGID (например, `sudo` или `ping`) повышать права процесса.
+
+---
+
+## 🛠️ Production-Ready Конфигурации
+
+### Полностью защищенный Deployment (100% Restricted PSS Compliant)
 
 ```yaml
-# production.yaml — с лимитами, probe, ресурсами
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo-prod
+  name: secure-microservice
+  namespace: payment-production
+  labels:
+    app.kubernetes.io/name: secure-microservice
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: secure-microservice
   template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: secure-microservice
     spec:
+      # 1. Pod-level Security Context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
       containers:
       - name: app
-        image: registry.example.com/app:1.2.3
+        image: registry.example.com/app:v3.2.1
+        ports:
+        - containerPort: 8080
+          name: http
+
+        # 2. Container-level Security Context
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true # Запрет записи в корень контейнера!
+          privileged: false
+          capabilities:
+            drop:
+              - ALL # Сброс абсолютно всех Linux capabilities
+
+        volumeMounts:
+        # Для приложений, которым требуются временные файлы (/tmp и кэш)
+        - name: tmp-volume
+          mountPath: /tmp
+        - name: cache-volume
+          mountPath: /app/cache
+
         resources:
-          requests: {cpu: "100m", memory: "128Mi"}
+          requests: {cpu: "250m", memory: "256Mi"}
           limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
 
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+      volumes:
+      - name: tmp-volume
+        emptyDir: {}
+      - name: cache-volume
+        emptyDir:
+          medium: Memory # Хранение кэша в RAM для скорости и безопасности
 ```
 
 ---
 
-## Проверь себя
+## ⚡ CLI Шпаргалка: Тестирование и Диагностика PSA
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+```bash
+# 1. Проверка неймспейсов на соответствие политикам PSS (Сухой прогон / Dry-Run)
+kubectl label --dry-run=server --overwrite ns default \
+  pod-security.kubernetes.io/enforce=restricted
 
+# 2. Проверка событий блокировки подов контроллером допуска
+kubectl get events -n payment-production --field-selector reason=FailedCreate
+
+# 3. Просмотр UID и GID процесса внутри запущенного контейнера
+kubectl exec -it <pod-name> -- id
+
+# 4. Проверка статуса readonly файловой системы внутри пода
+kubectl exec -it <pod-name> -- touch /root/test.txt # Должно вернуть Read-only file system
+```
+
+---
+
+## 🚒 Troubleshooting: Реальные Инциденты и Решения
+
+### Сценарий 1: Pod отклонен при создании (`violates PodSecurity "restricted:latest"`)
+
+- **Симптом:** При деплое Deployment ReplicaSet не создает поды. Ошибка: `Pods "app-xxx" is forbidden: violates PodSecurity "restricted:latest": allowPrivilegeEscalation != false, unrestricted capabilities, runAsNonRoot != true`.
+- **Первопричина:** В манифесте пода отсутствуют обязательные атрибуты защищенного профиля.
+- **Решение:**
+  Добавить `allowPrivilegeEscalation: false`, `capabilities: {drop: ["ALL"]}` и `runAsNonRoot: true` в манифест контейнера.
+
+---
+
+### Сценарий 2: Приложение падает с ошибкой `EROFS: read-only file system`
+
+- **Симптом:** После включения `readOnlyRootFilesystem: true` контейнер падает в `CrashLoopBackOff` при попытке создать сокет, лог или временный файл в `/tmp` или `/var/run`.
+- **Решение:**
+  Смонтировать том `emptyDir` в директорию, куда приложению требуется временная запись (например, `/tmp` или `/var/log`).

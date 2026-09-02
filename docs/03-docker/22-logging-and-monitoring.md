@@ -1,135 +1,179 @@
-# Логирование и мониторинг
+# 📊 22. Логирование и Мониторинг: Драйверы Логов, Ротация, Non-Blocking Mode и Метрики Prometheus
 
-> json-file, journald, fluentd, stats, events
+## 📜 1. Архитектура логирования в Docker Engine
 
----
-
-## Теория
-
-### Что это и зачем
-
-json-file, journald, fluentd, stats, events — ключевая технология в 03-docker. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+Docker перехватывает стандартные потоки вывода (`stdout` и `stderr`) основного процесса контейнера (PID 1) через файловые дескрипторы FIFO, обслуживаемые `containerd-shim`, и передает их в настроенный **Logging Driver**.
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
+    App["Процесс контейнера (stdout / stderr)"]
+    Shim["containerd-shim (FIFO Pipes)"]
+    Daemon["dockerd Engine Log Multiplexer"]
+    
+    subgraph LogDrivers["Logging Drivers"]
+        JSON["json-file (Default: /var/lib/docker/containers/*/*.log)"]
+        Local["local (Internal Binary DB with ring buffer)"]
+        JournalD["journald (systemd journal)"]
+        Loki["loki (Grafana Loki Plugin)"]
+        Syslog["syslog / fluentd / awslogs"]
+    end
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-docker info && docker run --rm hello-world
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    App --> Shim
+    Shim --> Daemon
+    Daemon --> JSON
+    Daemon --> Local
+    Daemon --> JournalD
+    Daemon --> Loki
+    Daemon --> Syslog
 ```
 
 ---
 
-## Проверь себя
+## 🎛️ 2. Сравнение драйверов логирования
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+| Драйвер | Место хранения | Поддержка `docker logs` | Риск переполнения диска | Применение |
+| :--- | :--- | :--- | :--- | :--- |
+| **`json-file`** | JSON-файлы на хосте | ✅ Да | ⚠️ Высокий (если нет ротации) | Стандарт по умолчанию |
+| **`local`** | Компактный бинарный лог | ✅ Да | 🛡️ Нулевой (авторотация по дефолту) | Рекомендуется для локальных хостов |
+| **`journald`** | Systemd Journal | ✅ Да | 🛡️ Управляется journald | Интеграция с хостовым systemd |
+| **`loki`** | Grafana Loki (через плагин) | ❌ Нет (только в Grafana) | 🛡️ Логи отправляются по сети | Централизованный стек мониторинга |
+| **`syslog` / `fluentd`** | Внешний Syslog / Fluentd демон | ❌ Нет | 🛡️ По сети | Корпоративные SIEM системы |
 
+---
+
+## ⚠️ 3. Катастрофа блокирующего ввода-вывода: `mode=blocking` vs `mode=non-blocking`
+
+По умолчанию Docker работает в режиме **`mode=blocking`**. 
+
+Если приложение генерирует тысячи строк логов в секунду, а диск медленный или внешний лог-коллектор (Fluentd, Loki) завис/перегружен, **буфер FIFO переполняется, системный вызов `write(stdout)` внутри приложения блокируется, и весь контейнер намертво зависает!**
+
+```mermaid
+graph LR
+    subgraph BlockingMode["mode=blocking (Default - ОПАСНО)"]
+        App1["App: write(stdout)"] -->|Buffer Full| Block["Блокировка процесса контейнера!"]
+    end
+
+    subgraph NonBlockingMode["mode=non-blocking (Production Standard)"]
+        App2["App: write(stdout)"] --> RingBuf["Ring Buffer (4MB tmpfs)"]
+        RingBuf -->|Если буфер полон| Drop["Сброс старых логов"]
+        RingBuf --> Driver["Log Driver"]
+    end
+```
+
+### Решение: Включение `mode=non-blocking` глобально
+В файле `/etc/docker/daemon.json`:
+```json
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "mode": "non-blocking",
+    "max-buffer-size": "4m",
+    "max-size": "50m",
+    "max-file": "5"
+  }
+}
+```
+> [!IMPORTANT]
+> Параметр `max-size: "50m"` и `max-file: "5"` гарантирует, что один контейнер **никогда не займет на диске более 250 МБ** логов, автоматически удаляя старые ротированные файлы.
+
+---
+
+## 📈 4. Экспорт метрик Docker Engine в Prometheus
+
+Docker имеет встроенный эндпоинт метрик в формате Prometheus, отдающий статистику по количеству контейнеров, использованию памяти демона, ошибкам сборки и I/O.
+
+### Включение метрик в `/etc/docker/daemon.json`:
+```json
+{
+  "metrics-addr": "0.0.0.0:9323",
+  "experimental": true
+}
+```
+
+Перезапуск демона:
+```bash
+sudo systemctl restart docker
+# Проверка сбора метрик
+curl -s http://localhost:9323/metrics | head -n 30
+```
+
+### Пример конфигурации `prometheus.yml`:
+```yaml
+scrape_configs:
+  - job_name: 'docker-engine'
+    static_configs:
+      - targets: ['192.168.1.50:9323']
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['192.168.1.50:8080']
+```
+
+---
+
+## 🔬 5. Мониторинг метрик контейнеров через cAdvisor
+
+Для детального мониторинга потребления ресурсов каждым отдельным контейнером (CPU throttling, Cgroups v2 memory breakdown, Network drops) используется **Google cAdvisor**.
+
+### Запуск cAdvisor в Docker:
+```yaml
+services:
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: cadvisor
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - "8080:8080"
+    restart: always
+```
+
+---
+
+## 🧰 6. Практический Cheat Sheet команд логирования
+
+```bash
+# 1. Потоковый просмотр логов с таймстемпами и последними 100 строками
+docker logs -f --tail=100 -t my-container
+
+# 2. Фильтрация логов по времени (например, за последние 30 минут)
+docker logs --since 30m my-container
+
+# 3. Поиск физического файла логов контейнера на хосте
+docker inspect --format='{{.LogPath}}' my-container
+
+# 4. Проверка размера лог-файла конкретного контейнера
+sudo ls -lh $(docker inspect --format='{{.LogPath}}' my-container)
+
+# 5. Экстренная очистка (усечение) лог-файла без перезапуска контейнера
+sudo truncate -s 0 $(docker inspect --format='{{.LogPath}}' my-container)
+```
+
+---
+
+## 💥 7. Реальный Troubleshooting
+
+### Сценарий 1: Диск хоста забит на 100% гигантским файлом `.log`
+**Симптомы:** Сервер перестал отвечать, `df -h` показывает 100% Use на корневом разделе, контейнеры не могут писать на диск.
+
+**Причина:** Docker был установлен с дефолтным драйвером `json-file` без параметров `max-size` и `max-file`. Один из контейнеров вывел 80 ГБ логов в `/var/lib/docker/containers/<id>/<id>-json.log`.
+
+**Диагностика:**
+```bash
+# Найти самые большие файлы логов в системе
+sudo du -ah /var/lib/docker/containers/ | grep -E '\.log$' | sort -hr | head -n 5
+```
+
+**Решение:**
+1. Не удалять файл через `rm` (дескриптор останется открытым, и место не освободится!). Выполнить усечение:
+   ```bash
+   sudo truncate -s 0 /var/lib/docker/containers/<CONTAINER_ID>/<CONTAINER_ID>-json.log
+   ```
+2. Настроить глобальную ротацию в `/etc/docker/daemon.json` (как описано в разделе 3) и перезапустить демон.

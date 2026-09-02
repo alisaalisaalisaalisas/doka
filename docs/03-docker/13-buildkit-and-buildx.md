@@ -1,135 +1,234 @@
-# BuildKit и buildx
+# 🚀 13. BuildKit и Docker Buildx: Архитектура LLB, Remote Cache и Bake
 
-> BuildKit, buildx, bake, SBOM, provenance
+## 🧠 Архитектура BuildKit: LLB (Low-Level Builder)
 
----
+**BuildKit** — это современный высокопроизводительный движок сборки контейнеров, пришедший на смену монолитному Legacy Builder.
 
-## Теория
-
-### Что это и зачем
-
-BuildKit, buildx, bake, SBOM, provenance — ключевая технология в 03-docker. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+В основе BuildKit лежит концепция **LLB (Low-Level Builder)** — машинно-ориентированного формата описания графа сборки в виде направленного ациклического графа (DAG - Directed Acyclic Graph).
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    Dockerfile["Dockerfile"]
+    BuildScript["Build Scripts (e.g. Moby BuildKit Go SDK)"]
+    
+    subgraph Frontend["1. Frontend Translation"]
+        LLBGen["Генерация LLB DAG (Protobuf-based bytecode)"]
+    end
+    
+    subgraph Solver["2. BuildKit Solver & Scheduler"]
+        GraphOpt["Оптимизация графа (Merge duplicate trees, prune unused)"]
+        ParallelExec["Параллельное исполнение независимых веток"]
+    end
+    
+    subgraph Exporters["3. Exporters & Cache"]
+        OCIExport["OCI / Docker Image Exporter"]
+        LocalExport["Local Directory / Tar Exporter"]
+        CacheExport["Remote Cache Exporter (Registry / S3 / GCS)"]
+    end
+
+    Dockerfile --> Frontend
+    BuildScript --> Frontend
+    Frontend --> Solver
+    Solver --> Exporters
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
+### Ключевые преимущества BuildKit над Legacy Builder:
+1. **Автоматический параллелизм:** Независимые этапы `FROM` собираются одновременно на всех доступных ядрах CPU.
+2. **Пропуск неиспользуемых этапов (Pruning):** Если стадия не влияет на финальный артефакт, она не исполняется вовсе.
+3. **Удаленный распределенный кэш (Remote Caching):** Возможность экспортировать кэш слоев в OCI-реестр или S3-бакет и переиспользовать его между разными CI-раннерами без прогрева локального диска.
+4. **Безопасные секреты и SSH:** Монтирование без сохранения следов в истории слоев.
 
 ---
 
-## Практика
+## 🛠️ 1. Управление сборщиками: `docker buildx`
 
-### Минимальный пример
+`buildx` — это CLI-плагин Docker, расширяющий возможности сборки с поддержкой драйверов, кросс-платформенности и распределенных нод.
 
-```bash
-# Проверка версии и базовый запуск
-docker info && docker run --rm hello-world
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
+### Драйверы сборщиков Buildx:
+- **`docker` (default):** Использует встроенный в локальный демон BuildKit. Не поддерживает Multi-Arch экспорт в локальный хранилище образов без push.
+- **`docker-container`:** Запускает выделенный контейнер с демоном `buildkitd`. Поддерживает полный параллелизм, multi-arch и удаленный кэш.
+- **`kubernetes`:** Разворачивает поды с `buildkitd` в Kubernetes кластере для динамического масштабирования сборок.
+- **`remote`:** Подключение к уже запущенному внешнему инстансу BuildKit через mTLS.
 
 ```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
+# 1. Создание нового изолированного инстанса сборщика
+docker buildx create \
+  --name enterprise-builder \
+  --driver docker-container \
+  --driver-opt network=host \
+  --bootstrap \
+  --use
 
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+# 2. Проверка статуса сборщика и поддерживаемых платформ
+docker buildx inspect enterprise-builder
 ```
 
 ---
 
-## Проверь себя
+## ☁️ 2. Удаленное кэширование в CI/CD (Remote Cache Exporters)
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+В современных эфемерных CI/CD раннерах (GitHub Actions, GitLab Runner в k8s) каждый запуск происходит на чистой виртуальной машине. Без удаленного кэша каждый билд собирается с нуля.
 
+BuildKit поддерживает экспорт кэша слоев в удаленные хранилища через `--cache-to` и `--cache-from`.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor CI as CI/CD Runner (Ephemeral Node)
+    participant Registry as OCI Registry / S3 Cache
+    participant BK as BuildKit Solver
+
+    CI->>Registry: Проверка удаленного кэша (--cache-from type=registry,ref=...:cache)
+    Registry-->>BK: Загрузка метаданных кэша и совпавших слоев
+    Note over BK: Сборка только изменившихся шагов!
+    BK->>CI: Генерация готового образа
+    CI->>Registry: Публикация нового образа и обновленного кэша (--cache-to mode=max)
+```
+
+### Типы кэш-экспортеров:
+
+#### А. Реестр OCI (`type=registry`) — Рекомендуемый вариант
+```bash
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --cache-from type=registry,ref=registry.example.com/app:buildcache \
+  --cache-to type=registry,ref=registry.example.com/app:buildcache,mode=max,image-manifest=true \
+  --tag registry.example.com/app:v1.2.3 \
+  --push .
+```
+> [!IMPORTANT]
+> **Параметр `mode=max`:**
+> - `mode=min` (дефолт): Сохраняет в кэш слои **только финального этапа**.
+> - `mode=max`: Экспортирует в кэш промежуточные слои **всех этапов (включая builder, test, lint)**. Обязателен для эффективных Multi-stage сборок!
+
+#### Б. Локальный кэш директории (`type=local`) — Для GitHub Actions Cache
+```bash
+docker buildx build \
+  --cache-from type=local,src=/tmp/.buildx-cache \
+  --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
+  --tag myapp:latest \
+  --load .
+```
+
+#### В. S3 / GCS бакеты (`type=s3`, `type=gha`)
+```bash
+# Использование встроенного кэша GitHub Actions
+docker buildx build \
+  --cache-from type=gha \
+  --cache-to type=gha,mode=max \
+  --push -t ghcr.io/org/app:latest .
+```
+
+---
+
+## 🍳 3. Декларативная оркестрация сборок: `docker buildx bake`
+
+`docker buildx bake` — это аналог Docker Compose, но предназначенный исключительно для сборки сложных матриц образов, микросервисных репозиториев и мультитенантных сред.
+
+Конфигурация объявляется в файле `docker-bake.hcl` (или `docker-compose.yml`, `bake.json`).
+
+### Production пример `docker-bake.hcl`:
+```hcl
+variable "TAG" {
+  default = "latest"
+}
+
+variable "REGISTRY" {
+  default = "registry.company.internal"
+}
+
+group "default" {
+  targets = ["api", "worker", "frontend"]
+}
+
+# Базовый абстрактный таргет для переиспользования настроек
+target "_common" {
+  platforms = ["linux/amd64", "linux/arm64"]
+  cache-from = ["type=registry,ref=${REGISTRY}/cache/common:buildcache"]
+  cache-to = ["type=registry,ref=${REGISTRY}/cache/common:buildcache,mode=max"]
+  args = {
+    BUILD_DATE = "${timestamp()}"
+  }
+}
+
+target "api" {
+  inherits = ["_common"]
+  context = "."
+  dockerfile = "deploy/Dockerfile.api"
+  tags = [
+    "${REGISTRY}/services/api:${TAG}",
+    "${REGISTRY}/services/api:latest"
+  ]
+}
+
+target "worker" {
+  inherits = ["_common"]
+  context = "."
+  dockerfile = "deploy/Dockerfile.worker"
+  tags = [
+    "${REGISTRY}/services/worker:${TAG}"
+  ]
+}
+
+target "frontend" {
+  inherits = ["_common"]
+  context = "./frontend"
+  dockerfile = "Dockerfile"
+  tags = [
+    "${REGISTRY}/services/frontend:${TAG}"
+  ]
+}
+```
+
+### Запуск параллельной сборки через Bake:
+```bash
+# Параллельная сборка всех таргетов группы default с одновременным push
+TAG=v2.4.0 docker buildx bake --push
+```
+
+---
+
+## 💥 4. Реальный Troubleshooting
+
+### Сценарий 1: Ошибка `ERROR: failed to solve: failed to push cache` при использовании AWS ECR
+**Симптомы:** Сборка падает на этапе экспорта кэша в ECR: `failed to push cache: unexpected status 400 Bad Request`.
+
+**Причина:** Реестр AWS ECR требует предварительного создания репозитория для кэша (`registry/cache/app`), а также поддержки OCI Image Index.
+
+**Решение:**
+1. Создать репозиторий в ECR:
+   ```bash
+   aws ecr create-repository --repository-name app-cache --image-tag-mutability MUTABLE
+   ```
+2. Добавить флаг `image-manifest=true` и `oci-mediatypes=true`:
+   ```bash
+   --cache-to type=registry,ref=$ECR_URL/app-cache:cache,mode=max,image-manifest=true,oci-mediatypes=true
+   ```
+
+---
+
+### Сценарий 2: Разрастание кэша BuildKit и переполнение диска ноды сборщика
+**Симптомы:** Диск на сервере сборки забивается на 100%, `buildkitd` падает с ошибкой `disk space exhausted`.
+
+**Причина:** По умолчанию BuildKit сохраняет локальные снапшоты и историю слоев без жестких лимитов.
+
+**Диагностика и решение:**
+1. Просмотр занятого дискового пространства BuildKit:
+   ```bash
+   docker buildx du
+   ```
+2. Очистка кэша сборщика:
+   ```bash
+   docker buildx prune -a -f --keep-storage 10GB
+   ```
+3. Ограничение размера кэша в конфигурации BuildKit `/etc/buildkit/buildkitd.toml`:
+   ```toml
+   [worker.oci]
+     enabled = true
+     gckeepstorage = "20GB"
+
+     [worker.oci.gcpolicy]
+       keepBytes = "20GB"
+       keepDuration = "168h" # 7 дней
+       filters = ["type==source.local", "type==exec.cachemount"]
+   ```

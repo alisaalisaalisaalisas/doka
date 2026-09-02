@@ -1,135 +1,157 @@
-# Troubleshooting Git
+# 🚑 28. Git Recovery Handbook: Reflog, Восстановление истории и Очистка секретов
 
-> lost commits, reflog, fsck, recovery
+В Git практически невозможно безвозвратно уничтожить данные по ошибке: любая операция изменения ссылок протоколируется в журнале **Reflog**, а объекты остаются в базе данных до срабатывания сборщика мусора.
 
 ---
 
-## Теория
+## 🧭 1. Машина времени: Анатомия `git reflog`
 
-### Что это и зачем
-
-lost commits, reflog, fsck, recovery — ключевая технология в 02-git. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+Файлы `.git/logs/HEAD` и `.git/logs/refs/heads/<branch>` хранят упорядоченный список всех изменений указателей:
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    subgraph ReflogLog[".git/logs/HEAD"]
+        E0["HEAD@{0}: reset: moving to HEAD~3 (Ошибка инженера)"]
+        E1["HEAD@{1}: commit: feat: awesome feature"]
+        E2["HEAD@{2}: rebase -i (finish): returning to refs/heads/main"]
+        E3["HEAD@{3}: checkout: moving from feature to main"]
+    end
+
+    subgraph Rescue["Восстановление"]
+        Action["git reset --hard HEAD@{1}"]
+    end
+
+    Action -.->|Мгновенно восстанавливает состояние| E1
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+### Формат записи в Reflog:
+```text
+<old-sha> <new-sha> <author-name> <email> <timestamp> <command-action>: <description>
 ```
 
 ---
 
-## Проверь себя
+## 🛠️ 2. Плейбуки восстановления данных (Disaster Recovery Playbooks)
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+### Плейбук 1: Восстановление случайно удаленной локальной ветки
+```bash
+# 1. Находим SHA последнего коммита в удаленной ветке
+git reflog | grep "checkout: moving from feature-billing"
+# Вывод: a1b2c3d HEAD@{4}: checkout: moving from feature-billing to main
 
+# 2. Пересоздаем ветку на базе найденного SHA
+git branch feature-billing a1b2c3d
+```
+
+### Плейбук 2: Откат неудачного Rebase или Merge
+```bash
+# Git автоматически сохраняет точку до начала операции в ссылке ORIG_HEAD
+git reset --hard ORIG_HEAD
+```
+
+### Плейбук 3: Восстановление потерянного Stash (`git stash drop`)
+```bash
+# 1. Находим висячий коммит дропнутого стэша
+git fsck --unreachable | awk '/commit/ {print $3}' | xargs git log --merges --no-walk --grep="WIP on"
+
+# 2. Применяем найденный хэш стэша
+git stash apply e5f6g7h
+```
+
+---
+
+## 🚨 3. Аварийная очистка секретов из всей истории (`git-filter-repo`)
+
+> [!CAUTION]
+> Создание коммита `fix: remove api key` **НЕ УДАЛЯЕТ** секрет из истории. Злоумышленник скачает старый blob за секунду. Токен должен быть немедленно отозван (revoked) у провайдера, а история репозитория переписана.
+
+Устаревшая утилита `git filter-branch` медленна и опасна. Стандарт индустрии — **`git-filter-repo`**:
+
+```mermaid
+graph LR
+    subgraph DirtyHistory["История с утечкой секрета"]
+        C1["C1"] --> C2["C2 (AWS_SECRET_KEY=AKIA...)"] --> C3["C3"]
+    end
+
+    subgraph CleanHistory["Очищенная история (git-filter-repo)"]
+        C1_c["C1'"] --> C2_c["C2' (AWS_SECRET_KEY=***REMOVED***)"] --> C3_c["C3'"]
+    end
+
+    DirtyHistory -->|"git-filter-repo --replace-text"| CleanHistory
+```
+
+### Скрипт полной зачистки секрета:
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# 1. Создаем файл выражений для замены
+cat << 'EOF' > expressions.txt
+regex:AKIA[0-9A-Z]{16}==>***AWS_KEY_REMOVED***
+password123==>***PASSWORD_REMOVED***
+EOF
+
+# 2. Устанавливаем утилиту
+pip install --user git-filter-repo
+
+# 3. Переписываем всю историю для всех веток и тегов
+git-filter-repo --replace-text expressions.txt --force
+
+# 4. Очищаем локальные мусорные ссылки и reflog
+rm -rf .git/refs/original/
+git reflog expire --expire=now --all
+git gc --prune=now --aggressive
+
+# 5. Принудительный push в upstream
+echo "⚠️ ВНИМАНИЕ: Требуется git push --force --all && git push --force --tags"
+```
+
+---
+
+## 🔒 4. Снятие блокировок Lock-файлов (`index.lock`)
+
+Если процесс Git упал в середине операции, в каталоге остается файл блокировки:
+```text
+fatal: Unable to create '/path/to/.git/index.lock': File exists.
+Another git process seems to be running in this repository.
+```
+
+### Безопасное снятие блокировки:
+```bash
+# 1. Проверяем, действительно ли запущен фоновый git-процесс
+pgrep -fl git || true
+
+# 2. Если процессов нет, удаляем зависший lock-файл
+rm -f .git/index.lock .git/refs/heads/*.lock
+```
+
+---
+
+## 🛠️ 5. Инженерный CLI Cheat Sheet
+
+| Команда | Описание |
+| :--- | :--- |
+| `git reflog show HEAD -n 20` | Вывести последние 20 действий с указателем `HEAD` |
+| `git reflog show refs/heads/main` | Показать историю перемещения конкретной ветки `main` |
+| `git reset --hard HEAD@{2}` | Откатить состояние репозитория на 2 шага reflog назад |
+| `git reset --hard "HEAD@{yesterday}"` | Откатить состояние на вчерашний день |
+| `git filter-repo --invert-paths --path "secrets.env"` | Полностью удалить файл `secrets.env` из всей истории проекта |
+| `git fsck --lost-found` | Выгрузить все потерянные коммиты и блобы в `.git/lost-found/` |
+
+---
+
+## 🚨 6. Production Troubleshooting & Break-Fix
+
+### Сценарий: Повреждение журнала `fatal: reflog for 'HEAD' is corrupt`
+- **Симптом:** Файл reflog поврежден из-за аппаратного сбоя диска.
+- **Исправление:**
+  ```bash
+  # 1. Делаем резервную копию
+  cp .git/logs/HEAD .git/logs/HEAD.bak
+
+  # 2. Очищаем битый reflog
+  rm -f .git/logs/HEAD
+
+  # 3. Git автоматически начнет вести журнал заново с текущего коммита
+  git status
+  ```

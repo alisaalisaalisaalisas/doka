@@ -1,135 +1,202 @@
-# Flux HelmRelease
+# ⛵ 18. Декларативное управление Helm в Flux: HelmRelease, OCI и Remediation
 
-> HelmRepository, HelmRelease, values, dependencies
+## 🏗️ Архитектура декларативного Helm в GitOps
 
----
+Традиционный запуск `helm upgrade --install` из CI пайплайна не обладает механизмом непрерывного устранения дрифта и требует хранения секретов кластера в CI. 
 
-## Теория
-
-### Что это и зачем
-
-HelmRepository, HelmRelease, values, dependencies — ключевая технология в 05-gitops-and-cicd. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+**Flux `helm-controller`** превращает Helm в полноценный декларативный ресурс:
+1. `HelmRepository` / `OCIRepository` — декларативный источник чартов.
+2. `HelmChart` — артефакт скомпилированного чарта конкретной версии.
+3. `HelmRelease` — состояние инсталляции, объединяющее чарт, кастомные `values`, секреты и политики автоматического восстановления (**Remediation**).
 
 ```mermaid
-graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+flowchart TD
+    subgraph Sources["Источники данных"]
+        HelmRepo["HelmRepository (HTTP / OCI Registry)"]
+        ConfigMaps["ConfigMap / Secret (valuesFrom)"]
+        GitRepo["Git Repository (HelmRelease CRD)"]
+    end
+
+    subgraph Controllers["Flux GOTK Engine"]
+        SourceCtrl["source-controller (Pulls Chart -> tar.gz)"]
+        HelmCtrl["helm-controller (Evaluates & Applies)"]
+    end
+
+    subgraph Actions["Жизненный цикл релиза"]
+        MergeValues["1. 3-Way Values Merge (Chart Defaults + Inline + Secrets)"]
+        DryRun["2. Server-side Dry Run & Drift Check"]
+        ApplyRelease["3. Helm Install / Upgrade"]
+        HealthCheck{"4. Readiness & Test Check"}
+        Success["Status: Ready / Synced"]
+        Remediation["5. Remediation Strategy (Auto Rollback / Retry)"]
+    end
+
+    HelmRepo --> SourceCtrl
+    GitRepo --> SourceCtrl
+    SourceCtrl --> HelmCtrl
+    ConfigMaps --> HelmCtrl
+    HelmCtrl --> MergeValues --> DryRun --> ApplyRelease --> HealthCheck
+    HealthCheck -->|Healthy| Success
+    HealthCheck -->|Unhealthy / Timeout| Remediation
 ```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
 
 ---
 
-## Практика
+## 📄 Production-манифесты HelmRelease
 
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
-```
+### 1. Подключение OCI Registry и HTTP Репозитория
 
 ```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
+# 1. Реестр OCI (например, Harbor / GitHub Container Registry)
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
 metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
+  name: bitnami-oci
+  namespace: flux-system
 spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+  type: oci
+  interval: 6h
+  url: oci://registry-1.docker.io/bitnamicharts
+  secretRef:
+    name: registry-credentials
+---
+# 2. Традиционный HTTP Helm Repository
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: ingress-nginx
+  namespace: flux-system
+spec:
+  interval: 2h
+  url: https://kubernetes.github.io/ingress-nginx
 ```
 
 ---
 
-## Проверь себя
+### 2. Production `HelmRelease` с Values Overrides и Remediation
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+```yaml
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ingress-nginx
+  namespace: ingress-nginx
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: ingress-nginx
+      version: "4.11.x"               # Поддержка SemVer плавающих версий
+      sourceRef:
+        kind: HelmRepository
+        name: ingress-nginx
+        namespace: flux-system
+      interval: 1h
 
+  # Стратегия исцеления и автоматического отката
+  install:
+    remediation:
+      retries: 3
+    timeout: 10m
+  upgrade:
+    remediation:
+      retries: 3
+      strategy: rollback             # Авто-откат на предыдущую стабильную версию
+    cleanupOnFail: true
+  rollback:
+    timeout: 5m
+    recreate: true
+
+  # Проверка работоспособности после релиза
+  test:
+    enable: true
+    ignoreFailures: false
+
+  # Значения по умолчанию + Переопределения из ConfigMap/Secret
+  values:
+    controller:
+      replicaCount: 3
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+
+  valuesFrom:
+    - kind: ConfigMap
+      name: global-cluster-domain-config
+      valuesKey: domain-settings.yaml
+    - kind: Secret
+      name: ingress-tls-custom-tokens
+      valuesKey: tokens.yaml
+      optional: false
+```
+
+---
+
+## 🛠️ CLI шпаргалка: Администрирование Helm-релизов в Flux
+
+```bash
+# 1. Просмотр статуса всех Helm-релизов
+flux get helmreleases -A
+
+# 2. Принудительная пересборка и синхронизация релиза
+flux reconcile helmrelease ingress-nginx -n ingress-nginx --with-source
+
+# 3. Инспекция сгенерированных манифестов релиза (Dry-run инспекция)
+flux-operator-tools helm-debug -n ingress-nginx ingress-nginx
+
+# 4. Временная приостановка реконсиляции HelmRelease
+flux suspend helmrelease ingress-nginx -n ingress-nginx
+
+# 5. Просмотр детальных событий жизненного цикла релиза
+kubectl describe helmrelease ingress-nginx -n ingress-nginx
+```
+
+---
+
+## 🚨 Break-Fix: Разбор аварий Helm-релизов
+
+### Инцидент 1: Релиз завис в состоянии `pending-upgrade` или `another operation is in progress`
+
+**Симптом:**
+`HelmRelease` выдает ошибку: `Helm upgrade failed: another operation (install/upgrade/rollback) is in progress`.
+
+**Первопричина:**
+Предыдущая операция была прервана (например, перезагрузка ноды с `helm-controller`), и секрет состояния релиза в Helm остался заблокированным.
+
+**Решение:**
+1. Найти секреты состояния релиза в неймспейсе:
+```bash
+kubectl get secrets -n ingress-nginx -l owner=helm,name=ingress-nginx
+```
+2. Удалить зависший секрет со статусом `pending-upgrade`:
+```bash
+# Посмотреть статус последней ревизии
+helm history ingress-nginx -n ingress-nginx
+# Удалить поврежденный секрет последней ревизии
+kubectl delete secret -n ingress-nginx sh.helm.release.v1.ingress-nginx.v12
+# Запустить повторную синхронизацию
+flux reconcile helmrelease ingress-nginx -n ingress-nginx
+```
+
+---
+
+### Инцидент 2: Helm values merge конфликт типов данных (Scalar vs Map)
+
+**Симптом:**
+```text
+Helm upgrade failed: cannot unmarshal string into Go struct field ... of type map[string]interface{}
+```
+
+**Решение:**
+Если в `values` чарта поле было определено как словарь, а в `valuesFrom` переопределено как строка, Helm парсер выдает ошибку. Проверить структуру данных и использовать `targetPath`:
+```yaml
+valuesFrom:
+  - kind: ConfigMap
+    name: app-config
+    targetPath: customConfig.rawYamlBlock
+```

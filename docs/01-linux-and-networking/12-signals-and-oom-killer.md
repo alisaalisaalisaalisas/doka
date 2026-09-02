@@ -1,135 +1,123 @@
-# Сигналы и OOM Killer
+# 🛑 12. Сигналы Linux и OOM Killer
 
-> signals, kill, OOM, dmesg, oom_score_adj
+## 📡 Сигналы POSIX: Межпроцессное Взаимодействие (IPC)
+
+**Сигнал (Signal)** — это асинхронное уведомление, отправляемое ядром Linux процессу, сообщающее о возникновении определенного системного события или требовании завершить работу.
+
+При получении сигнала процесс прерывает текущее выполнение и:
+1. Выполняет **пользовательскую функцию-обработчик (Signal Handler)**,
+2. Выполняет **действие по умолчанию (Default Action)** (завершение, остановка, core dump),
+3. Либо **игнорирует (Ignore)** сигнал (если это разрешено).
 
 ---
 
-## Теория
-
-### Что это и зачем
-
-signals, kill, OOM, dmesg, oom_score_adj — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+## 📋 Таблица главных системных сигналов
 
 ```mermaid
-graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+graph LR
+    Kernel["Ядро / Пользователь"] -->|kill -15 (SIGTERM)| Proc1["Процесс (Ловит сигнал -> Graceful Shutdown)"]
+    Kernel -->|kill -9 (SIGKILL)| Proc2["Ядро мгновенно уничтожает task_struct"]
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
+| Сигнал | Номер | Действие по умолчанию | Можно ли перехватить / заблокировать? | Смысл и типичное применение |
+| :--- | :---: | :--- | :---: | :--- |
+| **`SIGHUP`** | `1` | Завершение | **Да** | **Reload конфигурации** (например, `nginx -s reload`, `systemctl reload`). |
+| **`SIGINT`** | `2` | Завершение | **Да** | Прерывание из терминала по **`Ctrl + C`**. |
+| **`SIGQUIT`**| `3` | Завершение + Core Dump | **Да** | Выход по `Ctrl + \` с сохранением дампа памяти для отладки. |
+| **`SIGKILL`**| **`9`** | **Мгновенная смерть** | ❌ **НЕТ** | Принудительное уничтожение процесса ядром. Никакие `catch`/`defer` не срабатывают! |
+| **`SIGUSR1`**| `10`| Завершение | **Да** | Пользовательский сигнал 1 (ротация логов Nginx, переоткрытие дескрипторов). |
+| **`SIGUSR2`**| `12`| Завершение | **Да** | Пользовательский сигнал 2 (бесшовный апгрейд исполняемого файла Nginx). |
+| **`SIGTERM`**| **`15`**| Завершение | **Да** | **Штатное завершение (Graceful Shutdown)**. Посылается по умолчанию при `docker stop` или `kill <PID>`. |
+| **`SIGCHLD`**| `17`| Игнорирование | **Да** | Уведомление родителю: *«Твой дочерний процесс завершился, забери код через `wait()`»*. |
+| **`SIGSTOP`**| `19`| Приостановка | ❌ **НЕТ** | Принудительная заморозка процесса (не получает CPU time). |
+| **`SIGTSTP`**| `20`| Приостановка | **Да** | Остановка из терминала по **`Ctrl + Z`** (перевод в фон `bg`). |
+| **`SIGCONT`**| `18`| Возобновление | **Да** | Разморозка остановленного процесса (`fg` / `bg`). |
 
 ---
 
-## Практика
+## ☠️ Механизм Out-Of-Memory (OOM) Killer
 
-### Минимальный пример
+Когда на сервере исчерпывается доступная оперативная память (RAM + Swap) и ядро не может выделить даже базовые страницы под буферы, срабатывает **OOM Killer**.
 
+### Как OOM Killer выбирает жертву?
+Ядро рассчитывает показатель **`badness score`** для каждого процесса на основе:
+1. Процента потребляемой физической памяти (чем больше RAM занято, тем выше шанс быть убитым).
+2. Времени жизни процесса (старые и системные процессы штрафуются меньше).
+3. Привилегий (процессы `root` получают легкий бонус защиты).
+4. Ручной корректировки **`oom_score_adj`** (от `-1000` до `+1000`).
+
+$$\text{Итоговый badness} \approx \left(\frac{\text{RSS Memory}}{\text{Total RAM}} \times 1000\right) + \text{oom\_score\_adj}$$
+
+* При `oom_score_adj = -1000` процесс **ПОЛНОСТЬЮ защищен от OOM Killer** (OOM никогда его не убьет).
+* При `oom_score_adj = +1000` процесс будет **убит самым первым**.
+
+---
+
+## 🛠️ CLI Практика: Управление Сигналами и OOM
+
+### 1. Отправка сигналов процессам
 ```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
+# Мягкий запрос на завершение (SIGTERM / 15)
+kill 1234
+kill -15 1234
+
+# Принудительное уничтожение (SIGKILL / 9)
+kill -9 1234
+
+# Перезагрузка конфигурации процесса (SIGHUP / 1)
+kill -1 1234
+kill -HUP $(pgrep nginx | head -n 1)
+
+# Массовое завершение по имени процесса
+killall -15 node
+pkill -f "python my_worker.py"
 ```
 
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
+### 2. Управление OOM Score процессов
 ```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
+# Посмотреть текущий OOM score процесса (0 - 1000)
+cat /proc/<PID>/oom_score
+
+# Защитить критически важную базу данных (PostgreSQL) от OOM Killer
+echo -900 | sudo tee /proc/$(pgrep -f "postgres: main")/oom_score_adj
+
+# Настроить защиту от OOM в Systemd Unit файле:
+# /etc/systemd/system/critical-app.service
+# [Service]
+# OOMScoreAdjust=-900
 ```
 
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
+### 3. Системные параметры ядра (Sysctl)
 ```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
+# Настройка переполнения памяти (Overcommit):
+# 0 = эвристический overcommit (default)
+# 1 = всегда разрешать overcommit (нужно для Redis bgsave)
+# 2 = строгий лимит (CommitLimit = Swap + RAM * overcommit_ratio)
+sudo sysctl vm.overcommit_memory=1
 
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+# Перезагружать ли сервер в панику при срабатывании OOM:
+sudo sysctl vm.panic_on_oom=0
 ```
 
 ---
 
-## Проверь себя
+## 🚨 Траблшутинг OOM Killer
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+### Как доказать, что процесс был прибит именно по OOM?
 
+1. **Проверяем Exit Code процесса:**
+   Если код выхода равен **`137`** ($128 + 9$), процесс был убит сигналом `SIGKILL` (в 90% случаев это OOM Killer или таймаут остановки контейнера).
+
+2. **Ищем следы в кольцевом буфере ядра (`dmesg`):**
+   ```bash
+   dmesg -T | grep -i -E "oom|out of memory|killed process"
+   ```
+   *Пример вывода ядра:*
+   ```text
+   [Wed Sep  2 12:00:00 2026] Out of memory: Killed process 4120 (java) total-vm:8540000kB, anon-rss:3950000kB, file-rss:0kB, shmem-rss:0kB, oom_score_adj:0
+   ```
+
+3. **Просмотр в системном журнале systemd:**
+   ```bash
+   journalctl -k -b 0 | grep -i "killed process"
+   ```

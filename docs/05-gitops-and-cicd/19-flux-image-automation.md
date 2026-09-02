@@ -1,135 +1,202 @@
-# Автоматизация образов Flux
+# 🤖 19. Автоматизация обновления образов в Flux: ImageRepository, ImagePolicy и Git Commit Loop
 
-> ImageRepository, ImagePolicy, ImageUpdateAutomation
+## 🔄 Замкнутый цикл непрерывной доставки (Continuous Delivery Loop)
 
----
+В классическом подходе разработчик вручную обновляет тег образа в Git манифестах или вызывает `sed` в CI скрипте. 
 
-## Теория
-
-### Что это и зачем
-
-ImageRepository, ImagePolicy, ImageUpdateAutomation — ключевая технология в 05-gitops-and-cicd. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+**Flux Image Automation Controllers** автоматизируют этот процесс без необходимости давать CI-раннерам права на запись в Git-репозиторий инфраструктуры:
+1. CI пайплайн только собирает Docker-образ и пушит его в Registry.
+2. `image-reflector-controller` сканирует Registry и находит новый тег по правилам **SemVer / Regex**.
+3. `image-automation-controller` клонирует Git-репозиторий, находит маркеры `# {"$imagepolicy": ...}`, обновляет тег и делает коммит от имени бота.
+4. `kustomize-controller` подхватывает новый коммит и выкатывает обновленный сервис в Kubernetes.
 
 ```mermaid
-graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+flowchart TD
+    subgraph CI["CI Pipeline (GitLab / GitHub)"]
+        Build["Build & Push Image: backend:v1.4.2"]
+    end
+
+    subgraph Registry["Container Registry (Harbor / ECR / GHCR)"]
+        ImageStore[("Image Repository: company/backend")]
+    end
+
+    subgraph FluxControllers["Flux GOTK Controllers"]
+        Reflector["image-reflector-controller (ImageRepository & ImagePolicy)"]
+        Automator["image-automation-controller (ImageUpdateAutomation)"]
+        SourceKust["source-controller + kustomize-controller"]
+    end
+
+    subgraph GitOpsRepo["GitOps Config Repository"]
+        GitRepo[("Git Repo (Deployment YAML with Markers)")]
+    end
+
+    subgraph K8s["Kubernetes Production"]
+        Pods["Running Pods (v1.4.2)"]
+    end
+
+    Build -->|1. Push Image| ImageStore
+    Reflector -->|2. Scan Tags (Cron/Webhook)| ImageStore
+    Reflector -->|3. Latest SemVer match: v1.4.2| Automator
+    Automator -->|4. Git Commit & Push [Auto-Update]| GitRepo
+    GitRepo -->|5. Sync Commit| SourceKust
+    SourceKust -->|6. Rolling Update Deployment| Pods
 ```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
 
 ---
 
-## Практика
+## 📑 Production-манифесты автоматизации
 
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
-```
+### 1. Сканирование реестра: `ImageRepository`
 
 ```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
 metadata:
-  name: demo
-data:
-  key: value
+  name: payment-backend
+  namespace: flux-system
+spec:
+  image: registry.company.com/payments/backend
+  interval: 1m
+  secretRef:
+    name: registry-credentials
+  certSecretRef:
+    name: corporate-ca-certs        # Для приватных реестров с собственным CA
 ```
 
-### Production-like пример
+---
+
+### 2. Фильтрация и выбор версии: `ImagePolicy`
+
+Поддерживает **SemVer** (диапазоны, префиксы, pre-releases), сортировку по числовым значениям или алфавитные фильтры Regex.
 
 ```yaml
-# production.yaml — с лимитами, probe, ресурсами
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: payment-backend-policy
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: payment-backend
+  policy:
+    semver:
+      range: '^2.4.x'                 # Автоматический апдейт всех патч-версий ветки 2.4 (2.4.0 -> 2.4.1 -> 2.4.9)
+```
+
+---
+
+### 3. Автоматический коммит в Git: `ImageUpdateAutomation`
+
+```yaml
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageUpdateAutomation
+metadata:
+  name: fleet-image-automation
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: fleet-infra
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        name: "Flux Image Bot"
+        email: "flux-bot@company.internal"
+      messageTemplate: |
+        chore(release): automated image update by Flux
+        
+        [ci skip]
+        Updates:
+        {{ range .Updated.Images }}
+        - {{ . }}
+        {{ end }}
+      signingKey:
+        secretRef:
+          name: gpg-signing-key       # Подпись коммита ключом GPG
+    push:
+      branch: main
+  update:
+    path: ./clusters/production/apps
+    strategy: Setters
+```
+
+---
+
+### 4. Разметка манифестов: Использование маркерных комментариев (Setters)
+
+В целевом файле `deployment.yaml` добавляется специальный маркер в виде комментария:
+
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo-prod
+  name: payment-backend
+  namespace: default
 spec:
   replicas: 3
   template:
     spec:
       containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+        - name: backend
+          # Контроллер автоматически заменяет строку тега по правилу ImagePolicy
+          image: registry.company.com/payments/backend:v2.4.0 # {"$imagepolicy": "flux-system:payment-backend-policy"}
+          ports:
+            - containerPort: 8080
 ```
 
 ---
 
-## Проверь себя
+## 🛠️ CLI шпаргалка: Отладка обновления образов
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+```bash
+# 1. Просмотр отсканированных тегов и выбранной политики
+flux get image repository payment-backend
+flux get image policy payment-backend-policy
 
+# 2. Ручной принудительный запуск сканирования и коммита
+flux reconcile image repository payment-backend
+flux reconcile image update fleet-image-automation
+
+# 3. Тестирование SemVer регулярного выражения без применения
+flux get image policy payment-backend-policy -o yaml | grep "latestImage"
+
+# 4. Просмотр логов автоматизации коммитов
+flux logs --kind=ImageUpdateAutomation -f
+```
+
+---
+
+## 🚨 Break-Fix: Разбор частых аварийных сценариев
+
+### Инцидент 1: Конфликт Git Push (`non-fast-forward / reject updates`)
+
+**Симптом:**
+`ImageUpdateAutomation` выдает ошибку: `failed to push: updates were rejected because the remote contains work that you do not have locally`.
+
+**Первопричина:**
+Пока Flux готовил коммит, разработчик отправил свой коммит в ветку `main`.
+
+**Решение:**
+Flux v2 автоматически делает pull с rebase в следующей итерации (через `interval: 1m`). Если ошибка сохраняется, убедиться, что для ветки `main` в Git разрешен force-push с арендой (`--force-with-lease`), либо уменьшить интервал синхронизации.
+
+---
+
+### Инцидент 2: ImagePolicy выбрал нестабильный RC / Alpha тег
+
+**Симптом:**
+В прод неожиданно выкатился тег `v2.4.1-rc.0` или `v2.4.1-beta.2`.
+
+**Решение:**
+В SemVer диапазоне запретить pre-releases через флаг `filterTags`:
+```yaml
+spec:
+  policy:
+    semver:
+      range: '>=2.4.0 <2.5.0'
+  filterTags:
+    pattern: '^v[0-9]+\.[0-9]+\.[0-9]+$' # Исключить любые суффиксы -rc, -beta
+```

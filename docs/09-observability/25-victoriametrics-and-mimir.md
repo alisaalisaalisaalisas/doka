@@ -1,135 +1,199 @@
-# VictoriaMetrics и Mimir
+# 🚀 25. High-Scale TSDB: VictoriaMetrics и Grafana Mimir
 
-> VM, Mimir, remote_write, HA, scaling
+Когда объем активных временных рядов в инфраструктуре превышает 10-50 миллионов серий, стандартный Prometheus упирается в лимиты масштабирования одного сервера. На этом этапе применяются распределенные TSDB корпоративного уровня: **VictoriaMetrics Cluster** и **Grafana Mimir**.
 
 ---
 
-## Теория
+## 🏛️ VictoriaMetrics Cluster: Архитектура и движок хранения
 
-### Что это и зачем
-
-VM, Mimir, remote_write, HA, scaling — ключевая технология в 09-observability. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+VictoriaMetrics спроектирована с акцентом на экстремальную производительность, минимальное потребление RAM/диска и простоту эксплуатации.
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    subgraph Sources["Источники метрик"]
+        App["Web Apps (Prometheus Remote Write)"]
+        VMAgent["vmagent (Скрайпинг K8s + On-disk Queue)"]
+    end
+
+    subgraph VMCluster["VictoriaMetrics Cluster"]
+        VMInsert["vminsert (Stateless роутер записи, Consistent Hashing)"]
+        VMSelect["vmselect (Stateless кверир MetricsQL / PromQL)"]
+        
+        subgraph StorageTier["Storage Tier"]
+            VMS1["vmstorage 1 (MergeTree Engine, Local SSD)"]
+            VMS2["vmstorage 2 (MergeTree Engine, Local SSD)"]
+            VMS3["vmstorage 3 (MergeTree Engine, Local SSD)"]
+        end
+    end
+
+    subgraph Alerts["Алертинг и Дашборды"]
+        VMAlert["vmalert (Вычисление правил)"]
+        Grafana["Grafana"]
+    end
+
+    App --> VMInsert
+    VMAgent --> VMInsert
+
+    VMInsert --> VMS1
+    VMInsert --> VMS2
+    VMInsert --> VMS3
+
+    Grafana --> VMSelect
+    VMAlert --> VMSelect
+    VMSelect --> VMS1
+    VMSelect --> VMS2
+    VMSelect --> VMS3
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
+### Ключевые компоненты VictoriaMetrics
+1. **`vmstorage`:** Хранит необработанные данные и индексы в собственном формате **MergeTree** (подобно ClickHouse). Сжимает сэмплы до **1.5 — 2.5 байт на точку** (в 3-5 раз эффективнее Prometheus).
+2. **`vminsert`:** Принимает данные по протоколам Prometheus Remote Write, InfluxDB, Graphite, OpenTelemetry и хеширует ряды на узлы `vmstorage`.
+3. **`vmselect`:** Выполняет запросы PromQL / MetricsQL, параллельно собирая частичные выборки с `vmstorage`.
+4. **`vmagent`:** Сверхлегкий агент сбора метрик, способный буферизировать гигабайты данных на локальном диске при сетевой недоступности бэкенда.
 
 ---
 
-## Практика
+## 🏛️ Grafana Mimir: Архитектура масштабирования до миллиарда серий
 
-### Минимальный пример
+Grafana Mimir (развитие проекта Cortex) — это модульная микросервисная TSDB, использующая дешевые объектные хранилища (S3, GCS, Azure Blob) в качестве основного долговременного бэкенда.
 
-```bash
-# Проверка версии и базовый запуск
-curl -s http://prometheus:9090/api/v1/query?query=up | jq .
+```mermaid
+graph TD
+    subgraph MimirWrite["Mimir Write Path"]
+        Distr["Distributor (Hash Ring, Multi-Tenant Auth)"]
+        Ing1["Ingester 1 (In-Memory Chunks + WAL)"]
+        Ing2["Ingester 2 (In-Memory Chunks + WAL)"]
+        Distr -->|Replication Factor = 3| Ing1
+        Distr --> Ing2
+    end
+
+    subgraph ObjectStore["Object Storage"]
+        S3[("S3 / MinIO (TSDB Blocks)")]
+        Comp["Compactor (Слияние блоков и дедупликация)"]
+    end
+
+    subgraph MimirRead["Mimir Read Path"]
+        QFE["Query Frontend (Splitting & Caching)"]
+        Querier["Querier"]
+        StoreGW["Store-Gateway (Индексный кэш поверх S3)"]
+
+        QFE --> Querier
+        Querier --> Ing1
+        Querier --> StoreGW
+        StoreGW --> S3
+    end
+
+    Ing1 -->|Flush 2h blocks| S3
+    Ing2 -->|Flush 2h blocks| S3
+    Comp <--> S3
 ```
 
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
+---
+
+## ⚖️ Битва титанов: Сравнение VictoriaMetrics и Grafana Mimir
+
+| Параметр | VictoriaMetrics Cluster | Grafana Mimir |
+| :--- | :--- | :--- |
+| **Сложность архитектуры** | 🟢 Низкая (3 бинарника: insert, select, storage) | 🔴 Высокая (10+ микросервисов, Consul/Memberlist) |
+| **Хранилище данных** | 🟡 Блочные диски (NVMe/SSD на vmstorage) | 🟢 Объектное хранилище (S3/GCS/MinIO) |
+| **Потребление RAM / CPU** | 🟢 Экстремально низкое (до 7-10 раз ниже Prometheus) | 🟡 Среднее (требует достаточного Ingester RAM) |
+| **Язык запросов** | 🟢 PromQL + расширенный **MetricsQL** | 🟢 100% чистый PromQL |
+| **Мультиарендность (Multi-tenancy)** | 🟢 По URL пути (`/insert/<account_id>/prometheus`) | 🟢 По HTTP заголовку (`X-Scope-OrgID`) |
+| **Резервное копирование** | 🟢 Утилита `vmbackup` без остановки базы | 🟢 Встроено за счет версионирования в S3 |
+
+---
+
+## 🚀 Расширенные возможности MetricsQL (VictoriaMetrics)
+
+MetricsQL расширяет стандартный PromQL удобными функциями для SRE-инженеров:
+
+```promql
+# 1. Заполнение пропусков предыдущим значением (Keep Last Value)
+keep_last_value(rate(http_requests_total[5m]))
+
+# 2. Скользящее среднее rate за окном (Subquery без тяжелого синтаксиса)
+rate_over_time(http_requests_total[1h])
+
+# 3. Доля ошибок за один элегантный вызов
+share_le_over_time(http_request_duration_seconds[1h], 0.5) # Доля запросов быстрее 500ms
 ```
 
-### Production-like пример
+---
+
+## 📦 Production Конфигурация: Развертывание VictoriaMetrics Cluster в Kubernetes
 
 ```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
+# vmcluster-production.yaml (VictoriaMetrics Operator CRD)
+apiVersion: operator.victoriametrics.net/v1beta1
+kind: VMCluster
 metadata:
-  name: demo-prod
+  name: vmcluster-prod
+  namespace: monitoring
 spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
+  retentionPeriod: "12" # Срок хранения 12 месяцев
+  
+  vmstorage:
+    replicaCount: 3
+    resources:
+      limits:
+        cpu: "8000m"
+        memory: "16Gi"
+      requests:
+        cpu: "2000m"
+        memory: "8Gi"
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: "local-nvme"
+          resources:
+            requests:
+              storage: 1000Gi
 
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
+  vminsert:
+    replicaCount: 2
+    extraArgs:
+      maxConcurrentInserts: "10000"
+    resources:
+      requests:
+        cpu: "1000m"
+        memory: "2Gi"
 
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+  vmselect:
+    replicaCount: 2
+    cacheMountPath: "/cache"
+    extraArgs:
+      search.maxQueryDuration: "30s"
+      search.maxQueueDuration: "10s"
+    resources:
+      requests:
+        cpu: "2000m"
+        memory: "4Gi"
 ```
 
 ---
 
-## Проверь себя
+## 🔧 Диагностика и разрешение проблем (Troubleshooting)
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+### Сценарий 1: Ошибка "Slow Ingestion Rate" / Рост очередей в `vmagent`
+- **Симптом:** Метрики приходят с задержкой, локальный дисковый буфер `vmagent` на нодах начинает расти.
+- **Причина:** Узлы `vmstorage` не справляются с записью из-за перегрузки IOPS дисковой подсистемы.
+- **Решение:**
+  - Увеличьте число реплик `vmstorage` в кластере.
+  - Настройте флаг `-insert.maxQueueDuration` в `vminsert` и проверьте дисковые задержки через `iostat -xz 1`.
 
+### Сценарий 2: Mimir Ingester Out of Memory (OOMKilled)
+- **Симптом:** Ингестеры Mimir падают при перезапуске, не успевая завершить Replay WAL.
+- **Причина:** Слишком большой объем серий удерживается в оперативной памяти перед сбросом в S3.
+- **Решение:**
+  - Уменьшите `max_chunk_age` до 1h.
+  - Увеличьте лимиты RAM пода Ingester и добавьте горизонтальное масштабирование реплик.
+
+---
+
+## 🧠 Проверь себя
+
+1. За счет каких архитектурных решений движок MergeTree в VictoriaMetrics потребляет в разы меньше RAM, чем классический TSDB Prometheus?
+2. В чем разница в организации долговременного хранения между VictoriaMetrics Cluster (блочные диски) и Grafana Mimir (S3 бакеты)?
+3. Какую роль играет `vmagent` при сетевых сбоях между удаленными Kubernetes кластерами и центральным хранилищем?
+4. Как функция MetricsQL `keep_last_value()` помогает бороться с разрывами графиков при редких скрайпах?
+5. Что происходит при падении одного узла `vmstorage` в кластере VictoriaMetrics без включенной репликации?

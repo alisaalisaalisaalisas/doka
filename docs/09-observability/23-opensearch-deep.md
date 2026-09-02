@@ -1,135 +1,266 @@
-# OpenSearch глубоко
+# 🔍 23. OpenSearch и OpenSearch Dashboards
 
-> OpenSearch vs ES, Dashboards, security, indexes
+**OpenSearch** — это полностью открытая (лицензия Apache 2.0) распределенная поисковая и аналитическая система, созданная на базе форка Elasticsearch 7.10.2 и Kibana. OpenSearch включает встроенные Enterprise-функции безопасности, векторный поиск (k-NN) и управление индексами (ISM) абсолютно бесплатно.
 
 ---
 
-## Теория
-
-### Что это и зачем
-
-OpenSearch vs ES, Dashboards, security, indexes — ключевая технология в 09-observability. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+## 🏛️ Ключевые архитектурные отличия от Elasticsearch
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    subgraph CoreEngine["OpenSearch Core Engine (Apache 2.0)"]
+        Lucene["Apache Lucene 9.x+"]
+        KNNPlugin["k-NN Plugin (Векторный поиск: HNSW, Faiss, NMSLIB)"]
+        SecurityPlugin["Security Plugin (Free RBAC, TLS, LDAP, SAML, OIDC)"]
+        ISM["Index State Management (ISM Policies)"]
+        RemoteStore["Remote Store (Прямая репликация сегментов в S3)"]
+    end
+
+    subgraph Dashboards["OpenSearch Dashboards UI"]
+        Visual["Визуализация и Discover"]
+        AlertingUI["Alerting & Anomaly Detection"]
+        SecurityAdmin["Управление ролями и DLS/FLS"]
+    end
+
+    Dashboards <--> CoreEngine
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
+### Сравнительный анализ OpenSearch и Elasticsearch 8.x
 
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
+| Характеристика | OpenSearch 2.x+ | Elasticsearch 8.x |
+| :--- | :--- | :--- |
+| **Лицензия** | 🟢 Apache 2.0 (Полный Open Source) | 🔴 Elastic License 2.0 / SSPL (Проприетарная) |
+| **Безопасность (TLS, RBAC, SAML)** | 🟢 Включено бесплатно из коробки | 🟡 Частично в бесплатной, SAML/OIDC в Platinum |
+| **Векторный поиск (k-NN)** | 🟢 Встроенный (движки Faiss, NMSLIB, Lucene) | 🟢 Встроенный Lucene Vector Search |
+| **Document/Field Level Security** | 🟢 Бесплатно (в Security Plugin) | 🔴 Требует платной подписки Enterprise |
+| **Хранение сегментов в S3 (Remote Store)** | 🟢 Доступно в Open Source | 🔴 Searchable Snapshots только в платной версии |
 
 ---
 
-## Практика
+## 🧠 Векторный поиск (k-NN Plugin): Архитектура и алгоритмы
 
-### Минимальный пример
+OpenSearch позволяет строить системы семантического поиска и Retrieval-Augmented Generation (RAG) для LLM с помощью встроенного плагина k-NN.
 
-```bash
-# Проверка версии и базовый запуск
-curl -s http://prometheus:9090/api/v1/query?query=up | jq .
+```mermaid
+graph LR
+    subgraph Embedding["1. Text / Image Embeddings"]
+        Text["Запрос: 'купить зимнюю куртку'"]
+        Model["Модель (OpenAI / Cohere / HuggingFace)"]
+        Vector["Вектор (1536 float: [0.12, -0.45, ...])"]
+    end
+
+    subgraph KNN["2. OpenSearch k-NN Search Engine"]
+        HNSW["HNSW Graph (Иерархический граф малого мира)"]
+        Faiss["Faiss / NMSLIB Engine"]
+    end
+
+    subgraph Results["3. Результат"]
+        Match["Топ-5 релевантных товаров по косинусному расстоянию"]
+    end
+
+    Text --> Model --> Vector
+    Vector --> KNN
+    KNN --> Results
 ```
 
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
+### Пример создания векторного индекса и запроса сходства
 
-### Production-like пример
+```json
+# 1. Создание индекса с векторным полем (Cosine Similarity)
+PUT /product_vectors
+{
+  "settings": {
+    "index.knn": true,
+    "index.knn.space_type": "cosinesimil"
+  },
+  "mappings": {
+    "properties": {
+      "product_name": { "type": "text" },
+      "category": { "type": "keyword" },
+      "vector_embedding": {
+        "type": "knn_vector",
+        "dimension": 1536,
+        "method": {
+          "name": "hnsw",
+          "engine": "faiss",
+          "space_type": "cosinesimil",
+          "parameters": {
+            "ef_construction": 128,
+            "m": 16
+          }
+        }
+      }
+    }
+  }
+}
 
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+# 2. Выполнение векторного поиска ближайших соседей
+POST /product_vectors/_search
+{
+  "size": 5,
+  "query": {
+    "knn": {
+      "vector_embedding": {
+        "vector": [0.023, -0.142, 0.891, "...(1536 элементов)..."],
+        "k": 5
+      }
+    }
+  }
+}
 ```
 
 ---
 
-## Проверь себя
+## 🛡️ Безопасность: Ролевая модель и DLS / FLS
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Встроенный Security Plugin позволяет ограничивать доступ к данным на уровне отдельных полей (**Field-Level Security — FLS**) и строк (**Document-Level Security — DLS**).
 
+```yaml
+# /usr/share/opensearch/config/opensearch-security/roles.yml
+finance_auditor_role:
+  reserved: false
+  cluster_permissions:
+    - "cluster_composite_ops_ro"
+  index_permissions:
+    - index_patterns:
+        - "transactions-*"
+      allowed_actions:
+        - "read"
+        - "search"
+      # Document Level Security: Пользователь видит только платежи своего региона
+      dls: '{"term": {"region": "${user.attributes.region}"}}'
+      # Field Level Security: Скрытие номеров карт и CVV
+      fls:
+        - "~card_cvv"
+        - "~raw_card_number"
+```
+
+---
+
+## ⏳ Управление индексами: Index State Management (ISM)
+
+```json
+# Применение ISM-политики
+PUT _plugins/_ism/policies/logs_lifecycle
+{
+  "policy": {
+    "description": "Автоматическая ротация и удаление логов",
+    "default_state": "hot",
+    "states": [
+      {
+        "name": "hot",
+        "actions": [
+          {
+            "rollover": {
+              "min_index_age": "3d",
+              "min_primary_shard_size": "40gb"
+            }
+          }
+        ],
+        "transitions": [{ "state_name": "warm" }]
+      },
+      {
+        "name": "warm",
+        "actions": [
+          { "read_only": {} },
+          { "force_merge": { "max_num_segments": 1 } },
+          { "replica_count": { "number_of_replicas": 1 } }
+        ],
+        "transitions": [
+          {
+            "state_name": "delete",
+            "conditions": { "min_index_age": "30d" }
+          }
+        ]
+      },
+      {
+        "name": "delete",
+        "actions": [{ "delete": {} }],
+        "transitions": []
+      }
+    ],
+    "ism_template": {
+      "index_patterns": ["app-logs-*"],
+      "priority": 100
+    }
+  }
+}
+```
+
+---
+
+## ⚙️ Production Конфигурация: `opensearch.yml`
+
+```yaml
+cluster.name: opensearch-production
+node.name: os-node-01
+node.roles: [data, master, ingest]
+
+network.host: 0.0.0.0
+http.port: 9200
+transport.port: 9300
+
+# Кластеризация и Discovery
+discovery.seed_hosts: ["10.0.1.10", "10.0.1.11", "10.0.1.12"]
+cluster.initial_cluster_manager_nodes: ["os-node-01", "os-node-02", "os-node-03"]
+
+# Настройки плагина безопасности
+plugins.security.ssl.transport.pemcert_filepath: /usr/share/opensearch/config/certs/node.pem
+plugins.security.ssl.transport.pemkey_filepath: /usr/share/opensearch/config/certs/node.key
+plugins.security.ssl.transport.pemtrustedcas_filepath: /usr/share/opensearch/config/certs/root-ca.pem
+plugins.security.ssl.transport.enforce_hostname_verification: false
+
+plugins.security.ssl.http.enabled: true
+plugins.security.ssl.http.pemcert_filepath: /usr/share/opensearch/config/certs/http.pem
+plugins.security.ssl.http.pemkey_filepath: /usr/share/opensearch/config/certs/http.key
+plugins.security.ssl.http.pemtrustedcas_filepath: /usr/share/opensearch/config/certs/root-ca.pem
+
+plugins.security.authcz.admin_dn:
+  - "CN=admin,OU=Ops,O=Corp,L=Stockholm,C=SE"
+
+# Оптимизация поиска и кэширования
+indices.queries.cache.size: "10%"
+indices.fielddata.cache.size: "20%"
+```
+
+---
+
+## 🔧 Диагностика и разрешение проблем (Troubleshooting)
+
+### Сценарий 1: Ошибка инициализации плагина безопасности (Security Not Initialized)
+- **Симптом:** OpenSearch отдает `OpenSearch Security not initialized`.
+- **Причина:** Не выполнен запуск утилиты `securityadmin.sh` для первоначальной загрузки конфигураций безопасности в системный индекс `.opendistro_security`.
+- **Решение:**
+  ```bash
+  /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh \
+    -cd /usr/share/opensearch/config/opensearch-security/ \
+    -icl -nhnv \
+    -cacert /usr/share/opensearch/config/certs/root-ca.pem \
+    -cert /usr/share/opensearch/config/certs/admin.pem \
+    -key /usr/share/opensearch/config/certs/admin.key \
+    -h localhost -p 9200
+  ```
+
+### Сценарий 2: k-NN поиск вызывает резкий скачок потребления памяти (Off-Heap RAM)
+- **Симптом:** Процесс ноды завершается по Linux OOM Killer, хотя JVM Heap утилизирован всего на 40%.
+- **Причина:** Графы HNSW плагина k-NN (библиотеки Faiss/NMSLIB) строятся в нативной памяти (Off-Heap Memory) за пределами JVM Heap.
+- **Решение:**
+  Ограничьте процент оперативной памяти для кэша векторных графов:
+  ```json
+  PUT _cluster/settings
+  {
+    "persistent": {
+      "knn.memory.circuit_breaker.limit": "40%"
+    }
+  }
+  ```
+
+---
+
+## 🧠 Проверь себя
+
+1. Каковы ключевые отличия лицензирования OpenSearch от современных версий Elasticsearch?
+2. Какие движки векторного поиска поддерживает плагин k-NN в OpenSearch?
+3. В чем разница между Document-Level Security (DLS) и Field-Level Security (FLS)?
+4. Как Index State Management (ISM) обеспечивает автоматическую смену состояний индексов?
+5. Почему при использовании k-NN поиска необходимо внимательно контролировать потребление оперативной памяти за пределами JVM Heap?

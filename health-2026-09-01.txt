@@ -1,0 +1,16 @@
+ 15:23:30 up 1 day,  1:13,  1 user,  load average: 0.68, 0.77, 0.84
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       1.1Gi        13Gi        16Mi       893Mi        14Gi
+Swap:          4.0Gi          0B       4.0Gi
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sdd       1007G   15G  942G   2% /
+Total: 292
+TCP:   17 (estab 5, closed 3, orphaned 0, timewait 1)
+
+Transport Total     IP        IPv6
+RAW	  0         0         0        
+UDP	  5         4         1        
+TCP	  14        13        1        
+INET	  19        17        2        
+FRAG	  0         0         0        
+

@@ -1,135 +1,90 @@
-# eBPF и трассировка
+# ⚡ 27. eBPF, Трассировка и Наблюдаемость (Observability)
 
-> eBPF, bpftrace, perf, strace, ltrace
+## 🧠 Что такое eBPF (Extended Berkeley Packet Filter)
 
----
+**eBPF** — революционная технология ядра Linux, позволяющая безопасно запускать пользовательский скомпилированный байт-код прямо внутри ядра Linux **без изменения исходного кода ядра и без загрузки нестабильных модулей (`.ko`)**.
 
-## Теория
-
-### Что это и зачем
-
-eBPF, bpftrace, perf, strace, ltrace — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+eBPF превратил ядро Linux в программируемую платформу и стал новым стандартом для:
+* **Сетевой безопасности и маршрутизации (Cilium, Calico, Cloudflare DDoS mitigation)**,
+* **Глубокой наблюдаемости и профилирования (BCC, bpftrace, Pixie, Pyroscope)**,
+* **Безопасности рантайма (Falco, Tetragon)**.
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    Code["Программа на C / Rust"] -->|Clang / LLVM| Bytecode["eBPF Байт-код"]
+    
+    subgraph KernelSpace["Kernel Space (Безопасное исполнение)"]
+        Bytecode --> Verifier["1. eBPF Verifier (Проверка: нет бесконечных циклов, память валидна)"]
+        Verifier --> JIT["2. JIT Compiler (Компиляция в машинный код x86/ARM)"]
+        JIT --> Hooks["3. Точки внедрения (Kprobes, Tracepoints, XDP, Socket Filter)"]
+        Hooks --> Maps["4. BPF Maps (Разделяемая память Key-Value между ядром и userspace)"]
+    end
+    
+    Maps --> UserSpaceApp["User Space приложение (Prometheus, CLI, Дашборд)"]
 ```
 
 ---
 
-## Проверь себя
+## 🎯 Точки внедрения eBPF программ (Hook Points)
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+| Точка внедрения | Где работает | Применение |
+| :--- | :--- | :--- |
+| **`XDP (eXpress Data Path)`** | На самом раннем уровне сетевого драйвера сетевой карты (до создания `sk_buff`). | Дроп миллионов пакетов в секунду (DDoS защита), сверхбыстрый L4 балансировщик. |
+| **`Socket Layer / tc`** | Сетевой стек Linux (Traffic Control, sockops). | Мгновенный роутинг в Service Mesh (Cilium bypass TCP stack). |
+| **`Kprobes / Kretprobes`** | Динамический перехват входа и выхода из **любой функции ядра Linux**. | Отладка и трассировка поведения ядра. |
+| **`Tracepoints`** | Статические стабильные точки трассировки ядра (гарантируют обратную совместимость между версиями Linux). | Анализ планировщика, дискового I/O, сетевых событий. |
+| **`Uprobes / Uretprobes`** | Динамический перехват функций в **User Space приложениях** (например, функции `malloc` в glibc или OpenSSL `SSL_write`). | Прослушивание HTTPS-трафика без сертификатов, профилирование Go/Python. |
 
+---
+
+## 🛠️ CLI Практика: Инструменты BCC и bpftrace
+
+### 1. Готовые утилиты трассировки BCC (BPF Compiler Collection)
+```bash
+# Установка (Ubuntu/Debian):
+sudo apt install bpfcc-tools linux-headers-$(uname -r)
+
+# 1. Отслеживание запуска абсолютно всех новых процессов в системе в реальном времени:
+sudo execsnoop-bpfcc
+
+# 2. Отслеживание всех открываемых файлов с временем задержки:
+sudo opensnoop-bpfcc
+
+# 3. Топ процессов по дисковому I/O (в реальном времени, как iotop, но без накладных расходов):
+sudo biotop-bpfcc
+
+# 4. Гистограмма задержек дискового ввода-вывода (показывает дисковые лаги):
+sudo biolatency-bpfcc -m 10
+
+# 5. Мониторинг входящего/исходящего TCP трафика по процессам:
+sudo tcptop-bpfcc
+```
+
+---
+
+## 🔬 Магия однострочников `bpftrace`
+
+`bpftrace` — это высокоуровневый скриптовый язык для eBPF (аналог DTrace в Solaris):
+
+```bash
+# 1. Подсчет количества системных вызовов по типам за 5 секунд:
+sudo bpftrace -e 'tracepoint:raw_syscalls:sys_enter { @[comm] = count(); }'
+
+# 2. Отслеживание медленных дисковых запросов (> 10 миллисекунд):
+sudo bpftrace -e 'kprobe:vfs_read { @start[tid] = nsecs; } 
+kretprobe:vfs_read /@start[tid]/ { 
+    $lat = (nsecs - @start[tid]) / 1000000; 
+    if ($lat > 10) { printf("Slow read: %s (PID %d) took %d ms\n", comm, pid, $lat); }
+    delete(@start[tid]); 
+}'
+
+# 3. Перехват незашифрованного HTTP/HTTPS трафика через OpenSSL в реальном времени:
+sudo bpftrace -e 'uprobe:/lib/x86_64-linux-gnu/libssl.so.3:SSL_write { printf("PID %d writes: %s\n", pid, str(arg1, arg2)); }'
+```
+
+---
+
+## 💡 eBPF в Современном Cloud Native
+
+* **Cilium:** Полная замена `kube-proxy` и `iptables` в Kubernetes. Обеспечивает прямую коммутацию между сокетами подов в памяти через eBPF sockops, снижая сетевые задержки на 40%.
+* **Tetragon / Falco:** Обнаружение вторжений и вредоносных действий (попытка побега из контейнера, запуск несанкционированного shell) в реальном времени на уровне ядра.

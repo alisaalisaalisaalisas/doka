@@ -1,135 +1,108 @@
-# OverlayFS и tmpfs
+# 🥞 19. OverlayFS и tmpfs: Память и Слои Контейнеров
 
-> overlayfs, tmpfs, Docker layers, /tmp
+## 🚀 Что такое tmpfs и ramfs
+
+**`tmpfs`** — временная файловая система, расположенная непосредственно в **оперативной памяти (RAM)**.
+* **Скорость:** Скорость чтения и записи ограничена только пропускной способностью шины памяти (десятки ГБ/с с околонулевой задержкой).
+* **Энергозависимость:** При перезагрузке сервера все данные в `tmpfs` безвозвратно исчезают.
+* **Использование Swap:** В отличие от старого `ramfs`, `tmpfs` умеет сбрасывать неиспользуемые страницы в **Swap**, если физическая RAM заканчивается, и имеет жестко заданный лимит размера (`size=...`).
+
+### Стандартные точки монтирования `tmpfs` в Linux:
+* `/run` — рантайм-файлы демонов (PID-файлы, сокеты, `.lock`).
+* `/dev/shm` — разделяемая память POSIX Shared Memory (используется браузерами, базами данных, IPC).
+* `/tmp` — временные файлы (в systemd часто монтируется как `tmpfs`).
+
+```bash
+# Создание RAM-диска на 2 ГБ с ограничениями безопасности (noexec, nosuid, nodev):
+sudo mount -t tmpfs -o size=2G,noexec,nosuid,nodev tmpfs /mnt/ramdisk
+```
 
 ---
 
-## Теория
+## 🥪 Архитектура OverlayFS (Слоистые файловые системы)
 
-### Что это и зачем
+**OverlayFS** — это легковесная каскадная (Union) файловая система, позволяющая объединить несколько каталогов в одну единую точку монтирования.
 
-overlayfs, tmpfs, Docker layers, /tmp — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+Именно **OverlayFS (драйвер `overlay2`) лежит в основе всех Docker и OCI-контейнеров** (контейнерные слои образов).
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    Merged["4. MERGED VIEW (/merged)<br>Единая видимая директория для контейнера"]
+    
+    Upper["3. UPPERDIR (/upper)<br>Записываемый слой (Read-Write Container Layer)"]
+    Work["WORK DIR (/work)<br>Служебная директория атомарных операций"]
+    
+    Lower2["2. LOWERDIR 2 (/layer2)<br>Слой образа: Node.js runtime (Read-Only)"]
+    Lower1["1. LOWERDIR 1 (/layer1)<br>Базовый слой образа: Ubuntu 24.04 (Read-Only)"]
+    
+    Upper --> Merged
+    Lower2 --> Merged
+    Lower1 --> Merged
 ```
 
 ---
 
-## Проверь себя
+## ⚙️ Как OverlayFS обрабатывает операции с файлами
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+1. **Чтение файла (Read):**
+   * Если файл есть в `upperdir` (был изменен) — читается из `upperdir`.
+   * Если нет — ядро ищет его сверху вниз по цепочке `lowerdir` и читает оригинальную версию.
+2. **Изменение файла (Write / Copy-on-Write):**
+   * Файл из `lowerdir` физически **копируется в `upperdir` целиком (Copy-up)** в момент первого вызова `write()`.
+   * Все последующие изменения происходят уже только в `upperdir`. Базовый образ `lowerdir` остается неизменным!
+3. **Удаление файла (Delete / Whiteout):**
+   * Файл из `lowerdir` удалить физически нельзя (он Read-Only).
+   * В `upperdir` создается специальный файл-заглушка — **Whiteout (символьное устройство с мажором и минором `0, 0`)**. Для пользователя файл в `/merged` перестает отображаться.
 
+---
+
+## 🛠️ Практика: Ручное создание слоев OverlayFS
+
+```bash
+# 1. Создаем структуру директорий
+mkdir -p /tmp/overlay_demo/{lower,upper,work,merged}
+
+# 2. Создаем файл в базовом слое (Read-Only)
+echo "Hello from Base Image" > /tmp/overlay_demo/lower/base.txt
+
+# 3. Монтируем OverlayFS
+sudo mount -t overlay overlay -o \
+lowerdir=/tmp/overlay_demo/lower,\
+upperdir=/tmp/overlay_demo/upper,\
+workdir=/tmp/overlay_demo/work \
+/tmp/overlay_demo/merged
+
+# 4. Проверяем содержимое объединенной папки:
+ls -la /tmp/overlay_demo/merged/
+cat /tmp/overlay_demo/merged/base.txt
+
+# 5. Модифицируем файл в /merged:
+echo "Modified by Container" >> /tmp/overlay_demo/merged/base.txt
+
+# 6. Смотрим, что произошло под капотом:
+# Исходный файл остался нетронутым:
+cat /tmp/overlay_demo/lower/base.txt
+# Измененный файл появился в upper:
+cat /tmp/overlay_demo/upper/base.txt
+
+# 7. Отмонтирование:
+sudo umount /tmp/overlay_demo/merged
+```
+
+---
+
+## 🚨 Траблшутинг Docker и OverlayFS
+
+### 1. Ошибка: `No space left on device` при сборке Docker-образов
+* **Причина:** Исчерпание инод на базовой файловой системе хоста из-за сотен тысяч мелких файлов в слоях `upperdir` (`/var/lib/docker/overlay2`).
+* **Диагностика и очистка:**
+  ```bash
+  # Проверяем иноды:
+  df -ih /var/lib/docker
+  # Очищаем неиспользуемые контейнеры, слои и билдер-кэш:
+  docker system prune -a --volumes
+  ```
+
+### 2. Ошибка: `EXDEV (Invalid cross-device link)` при переименовании файлов
+* **Причина:** Системный вызов `rename()` внутри контейнера не может атомарно переместить файл между слоями `lower` и `upper`.
+* **Решение:** Копировать файл (`cp + rm`), а не перемещать (`mv`).

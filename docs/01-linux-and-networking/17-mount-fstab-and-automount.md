@@ -1,135 +1,108 @@
-# Mount, fstab и automount
+# 🔌 17. Монтирование, /etc/fstab и Автомонтирование
 
-> mount, fstab, systemd-mount, autofs
+## 🧠 Механизм Монтирования VFS (Virtual File System)
 
----
+В Linux нет понятия дисков `C:`, `D:`, `E:`. Все физические накопители, сетевые шары (NFS/CIFS) и псевдофайловые системы (`/proc`, `/sys`, `tmpfs`) объединяются в **единое дерево каталогов**, начинающееся с корня **`/`**.
 
-## Теория
-
-### Что это и зачем
-
-mount, fstab, systemd-mount, autofs — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+**Монтирование (Mounting)** — это операция привязки файловой системы накопителя к существующему каталогу (точке монтирования). После монтирования оригинальное содержимое директории скрывается, и вместо него отображаются файлы смонтированного диска.
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
-
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    Root["/ (Корень - NVMe SSD)"]
+    Root --> Var["/var"]
+    Root --> Mnt["/mnt"]
+    Root --> Home["/home"]
+    
+    Sub1["Раздел /dev/sdb1 (SATA SSD)"] -->|mount| Home
+    Sub2["NFS Share (10.0.0.50:/backup)"] -->|mount| Mnt
 ```
 
 ---
 
-## Проверь себя
+## 📑 Разбор файла `/etc/fstab` (File System Table)
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Конфигурационный файл `/etc/fstab` определяет, какие разделы и с какими параметрами ядро монтирует при загрузке системы:
 
+```text
+# <file system>                  <mount point>  <type>  <options>                   <dump> <pass>
+UUID=a1b2c3d4-1234-5678-90ab     /              ext4    defaults,noatime            0      1
+UUID=f9e8d7c6-4321-8765-ba09     /data          xfs     defaults,noatime,nofail     0      2
+/swapfile                        none           swap    sw                          0      0
+10.0.0.50:/exports/share         /mnt/nfs       nfs     _netdev,auto,x-systemd.automount 0 0
+```
+
+### Разбор 6 колонок таблицы:
+1. **`<file system>`:** Идентификатор накопителя. **Всегда используйте `UUID=`** (из вывода `blkid`), так как имена вроде `/dev/sda` могут измениться при добавлении дисков.
+2. **`<mount point>`:** Точка монтирования (существующая папка).
+3. **`<type>`:** Тип файловой системы (`ext4`, `xfs`, `btrfs`, `swap`, `nfs`, `cifs`, `tmpfs`).
+4. **`<options>`:** Опции монтирования (через запятую):
+   * `defaults` — `rw, suid, dev, exec, auto, nouser, async`.
+   * `noatime` — **критически важно для SSD:** не обновлять время последнего чтения файла (*access time*), ускоряет работу в разы.
+   * `nofail` — **главная страховка:** если диск не подключен, система **НЕ упадет в Emergency Mode**, а продолжит загрузку.
+   * `_netdev` — монтировать диск только после поднятия сети (для NFS/iSCSI).
+   * `ro` / `rw` — только чтение / чтение и запись.
+5. **`<dump>`:** Устаревшее резервное копирование утилитой `dump`. Всегда `0`.
+6. **`<pass>`:** Порядок проверки `fsck` при загрузке:
+   * `1` — корневой раздел `/` (проверяется первым).
+   * `2` — остальные локальные разделы.
+   * `0` — не проверять (для swap, nfs, btrfs, xfs).
+
+---
+
+## ⚡ Автомонтирование через Systemd (x-systemd.automount)
+
+Традиционные сетевые папки NFS часто вешают сервер при старте, если сеть еще недоступна. 
+
+Решение — **On-Demand Automount (монтирование по требованию)**:
+* Диск не монтируется при старте системы.
+* Как только программа или пользователь впервые заходит в каталог `/mnt/nfs`, systemd **мгновенно монтирует диск на лету**.
+* При отсутствии обращений диск автоматически отмонтируется через таймаут.
+
+```ini
+# Строка в /etc/fstab:
+10.0.0.50:/data /mnt/nfs nfs _netdev,noauto,x-systemd.automount,x-systemd.idle-timeout=10min 0 0
+```
+
+---
+
+## 🛠️ CLI Практика: Управление Монтированием
+
+```bash
+# Просмотр всех блочных устройств и их UUID:
+lsblk -f
+sudo blkid
+
+# Монтирование диска с опциями:
+sudo mount -o noatime,rw /dev/sdb1 /mnt/data
+
+# Bind Mount: привязка существующей папки к другому пути (без создания ФС):
+sudo mount --bind /var/log /mnt/logs_mirror
+
+# Проверка корректности /etc/fstab БЕЗ перезагрузки (ОБЯЗАТЕЛЬНО перед ребутом!):
+sudo mount -a
+
+# Поиск процессов, блокирующих отмонтирование диска (Device or resource busy):
+fuser -vm /mnt/data
+lsof +f -- /mnt/data
+
+# Принудительное / ленивое отмонтирование (Lazy Unmount):
+# -l отвязывает ФС немедленно, а ресурсы очищает, когда процессы закроют дескрипторы
+sudo umount -l /mnt/data
+```
+
+---
+
+## 🚨 Траблшутинг: Ошибки fstab и Emergency Mode
+
+### 1. Сервер не загружается после редактирования `/etc/fstab`
+* **Симптом:** Сервер зависает с надписью `You are in emergency mode`.
+* **Причина:** Опечатка в `UUID` или отсутствие опции `nofail` для отключенного диска.
+* **Решение:**
+  ```bash
+  # 1. Перемонтируем корень в режим записи:
+  mount -o remount,rw /
+  # 2. Исправляем ошибку в /etc/fstab:
+  nano /etc/fstab
+  # 3. Перезагружаемся:
+  reboot
+  ```

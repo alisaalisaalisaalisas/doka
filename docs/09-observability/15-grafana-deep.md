@@ -1,135 +1,195 @@
-# Grafana глубоко
+# 📊 15. Grafana: Архитектура, Источники данных и Продвинутые Дашборды
 
-> datasource, dashboards, variables, provisioning
+Grafana — это лидирующая платформа с открытым исходным кодом для визуализации, аналитики и мониторинга метрик, логов и распределенных трасс в гетерогенных инфраструктурах.
 
 ---
 
-## Теория
+## 🏛️ Внутренняя архитектура Grafana
 
-### Что это и зачем
-
-datasource, dashboards, variables, provisioning — ключевая технология в 09-observability. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+Grafana состоит из модульного бэкенда на Go и реактивного фронтенда на React/TypeScript. Все метаданные (пользователи, дашборды, алерты, датасорсы) хранятся в реляционной СУБД (PostgreSQL / MySQL в Production, SQLite в Dev).
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
+    subgraph Client["Web Browser / Client UI"]
+        Dashboard["React Frontend / Panels Rendering"]
+    end
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
+    subgraph GrafanaCore["Grafana Server (Golang Backend)"]
+        HTTPRouter["HTTP API & Reverse Proxy"]
+        AuthEngine["Auth & RBAC (OAuth2, SAML, LDAP)"]
+        PluginEngine["Plugin Manager & Data Source Engine"]
+        TransformEngine["Backend Transformations & Alerting Engine"]
+        Cache["Query Cache / Redis"]
+    end
 
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
+    subgraph MetadataStore["Grafana Internal DB"]
+        PG[("PostgreSQL Cluster (HA)")]
+    end
 
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
+    subgraph DataSources["External Observability Backends"]
+        Prom["Prometheus / VictoriaMetrics (Metrics)"]
+        Loki["Grafana Loki (Logs)"]
+        Tempo["Grafana Tempo (Traces)"]
+        SQL["ClickHouse / PostgreSQL (Analytics)"]
+    end
 
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-curl -s http://prometheus:9090/api/v1/query?query=up | jq .
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    Dashboard <-->|HTTPS REST & WebSockets (Live)| HTTPRouter
+    HTTPRouter --> AuthEngine
+    HTTPRouter --> PluginEngine
+    AuthEngine <--> PG
+    PluginEngine <--> TransformEngine
+    PluginEngine <--> Cache
+    PluginEngine -->|Secure Proxy Queries| DataSources
 ```
 
 ---
 
-## Проверь себя
+## 🧩 Переменные и каскадная шаблонизация (Variables & Templating)
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Переменные позволяют строить универсальные интерактивные дашборды, автоматически адаптирующиеся под кластеры, сервисы и поды.
 
+```mermaid
+graph LR
+    V_Env["$environment: Custom ('prod', 'stage')"]
+    V_Cluster["$cluster: Query (label_values(up{env='$environment'}, cluster))"]
+    V_NS["$namespace: Query (label_values(up{cluster='$cluster'}, namespace))"]
+    V_Pod["$pod: Query (label_values(container_cpu_usage_seconds_total{namespace='$namespace'}, pod))"]
+
+    V_Env --> V_Cluster
+    V_Cluster --> V_NS
+    V_NS --> V_Pod
+```
+
+### Типы переменных в Grafana
+
+| Тип | Описание | Пример конфигурации |
+| :--- | :--- | :--- |
+| **`Query`** | Динамический запрос к источнику данных. | `label_values(http_requests_total, service)` |
+| **`Custom`** | Жестко заданный список значений. | `prod, staging, dev, testing` |
+| **`Interval`** | Шаг агрегации по времени, адаптивный к зуму. | `1m, 5m, 15m, 1h, 1d` (в связке с `$__interval`) |
+| **`Datasource`** | Позволяет переключать весь источник данных панели. | Тип: `prometheus` или `loki` |
+| **`Constant`** | Скрытая глобальная константа дашборда. | `domain = corp.internal` |
+
+### Синтаксис форматирования переменных (Variable Formatters)
+
+- `${pod:regex}` — преобразует массив `['pod-1', 'pod-2']` в строку регулярного выражения `(pod-1|pod-2)` (идеально для PromQL `{pod=~"${pod:regex}"}`).
+- `${service:csv}` — форматирует в `api,auth,billing` (для SQL `IN (${service:csv})`).
+- `${service:pipe}` — форматирует в `api|auth|billing`.
+- `${pod:percentencode}` — URL-безопасное кодирование значений.
+
+---
+
+## 🔄 Трансформации данных (Data Transformations)
+
+Трансформации позволяют манипулировать таблицами и сериями данных до их отрисовки на панели без модификации запроса в источнике.
+
+```mermaid
+graph LR
+    subgraph Q["Queries Output"]
+        A["Query A (Prometheus): CPU Core Usage"]
+        B["Query B (Prometheus): CPU Core Limit"]
+    end
+
+    subgraph Transformations["Grafana Transformations Pipeline"]
+        T1["Join by field (pod, namespace)"]
+        T2["Add field from calculation: A / B * 100 as Percentage"]
+        T3["Organize fields: Hide raw A, B; Rename labels"]
+    end
+
+    subgraph Panel["Visual Output"]
+        P["Bar Gauge / Table: CPU % Utilization"]
+    end
+
+    Q --> T1
+    T1 --> T2
+    T2 --> T3
+    T3 --> Panel
+```
+
+### Ключевые трансформации для Production
+1. **`Join by field`:** Объединение разнородных источников (например, метрика из Prometheus + метаданные хоста из SQL-таблицы).
+2. **`Add field from calculation`:** Арифметические операции над колонками (проценты, дельты, суммы).
+3. **`Organize fields`:** Переименование, переупорядочивание и скрытие технических колонок.
+4. **`Series to rows` / `Grouping matrix`:** Преобразование плоских серий во вложенные матрицы.
+
+---
+
+## 🎨 Обзор ключевых визуальных панелей
+
+```mermaid
+graph TD
+    Panels["Grafana Visual Panels Palette"]
+    Panels --> TS["Time Series: Графики временных рядов, пороговые линии, градиенты"]
+    Panels --> ST["State Timeline: Динамика смены состояний (Ready, Degraded, Failed)"]
+    Panels --> HM["Heatmap: Тепловая карта латентности (визуализация гистограмм)"]
+    Panels --> NG["Node Graph: Граф микросервисов и связей между ними"]
+    Panels --> Stat["Stat / Gauge: Крупные индикаторы ключевых бизнес-метрик с Sparklines"]
+```
+
+### Настройка Heatmap для гистограмм задержки (Latency Buckets)
+При визуализации Prometheus гистограмм через панель `Heatmap`:
+1. PromQL запрос: `sum by (le) (rate(http_request_duration_seconds_bucket[5m]))`
+2. В настройках панели Format установить: **Heatmap Cells**.
+3. Режим данных (Data format): **Data format -> Time series buckets**.
+4. Схема градиента: **Spectral** или **Plasma** для наглядного отображения выбросов (outliers).
+
+---
+
+## 🚀 Оптимизация производительности и кэширование дашбордов
+
+1. **Использование `$__rate_interval`:**
+   Вместо жестко заданного `rate(http_requests_total[5m])` всегда пишите:
+   ```promql
+   sum by (service) (rate(http_requests_total[$__rate_interval]))
+   ```
+   Grafana автоматически рассчитывает `$__rate_interval = max($__interval + ScrapeInterval, 4 * ScrapeInterval)`, предотвращая пропуски сэмплов и перегрузку бэкенда при уменьшении масштаба.
+
+2. **Ограничение максимального числа точек (Max Data Points):**
+   Устанавливайте `Max Data Points: 1000 - 1500` на панелях, чтобы браузер пользователя не зависал при рендеринге 500 000 SVG-точек.
+
+3. **Query Caching:**
+   Включение Redis для кэширования одинаковых повторяющихся запросов снижает нагрузку на Prometheus на 40-70%:
+   ```ini
+   # /etc/grafana/grafana.ini
+   [query_history]
+   enabled = true
+
+   [caching]
+   enabled = true
+   ttl = 60s
+   provider = redis
+   redis_url = redis://redis.monitoring.svc:6379/0
+   ```
+
+---
+
+## 🔧 Диагностика и разрешение проблем (Troubleshooting)
+
+### Сценарий 1: Панели дашборда загружаются экстремально медленно (Query Timeout)
+- **Симптом:** При открытии дашборда панели показывают спиннер загрузки до 30-60 секунд или падают с ошибкой `504 Gateway Timeout`.
+- **Диагностика:**
+  1. Откройте панель в режиме инспектора: `Panel -> More -> Inspect -> Query`.
+  2. Проверьте вкладку `Stats`: время выполнения запроса и количество возвращенных рядов (Series Count).
+- **Решение:**
+  - Если возвращается > 10 000 серий, добавьте обязательные фильтры по переменным `$cluster` / `$namespace`.
+  - Замените тяжелый PromQL с множеством регулярок на предварительно рассчитанный **Recording Rule**.
+
+### Сценарий 2: Селекторы переменных отображают дубликаты или пустой список
+- **Симптом:** В выпадающем списке переменной `$pod` отображаются дубли или пустота.
+- **Причина:** Некорректно настроена фильтрация Regex или отсутствует каскадная зависимость от родительской переменной.
+- **Решение:**
+  В настройках переменной `$pod` используйте:
+  ```promql
+  label_values(container_cpu_usage_seconds_total{namespace=~"$namespace"}, pod)
+  ```
+  И укажите Regex фильтр: `/^prod-(.*)$/` для очистки системных префиксов.
+
+---
+
+## 🧠 Проверь себя
+
+1. Чем отличается переменная типа `Query` от переменной типа `Custom`?
+2. Зачем нужен модификатор `${var:regex}` при подстановке значений переменных в PromQL запрос?
+3. Какая трансформация в Grafana позволяет объединить данные из Prometheus и SQL-таблицы по общему идентификатору?
+4. Почему использование `$__rate_interval` предпочтительнее фиксированного окна `[5m]` на графиках с большим диапазоном времени?
+5. Как панель Heatmap визуализирует кумулятивные корзины гистограмм Prometheus?

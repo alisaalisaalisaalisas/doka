@@ -1,135 +1,123 @@
-# Виртуальная память и swap
+# 🧠 13. Виртуальная Память, Сегменты и Swap
 
-> virtual memory, paging, swap, PSI, vmstat
+## 🗺️ Архитектура Виртуальной Памяти
 
----
+Каждый процесс в Linux работает в собственном **виртуальном адресном пространстве**. Процесс никогда не обращается напрямую к физическим чипам оперативной памяти (RAM).
 
-## Теория
+Преобразование виртуальных адресов в физические выполняет аппаратный модуль процессора **MMU (Memory Management Unit)** с помощью **Таблицы Страниц (Page Tables)** и быстрого аппаратного кэша трансляций **TLB (Translation Lookaside Buffer)**.
 
-### Что это и зачем
-
-virtual memory, paging, swap, PSI, vmstat — ключевая технология в 01-linux-and-networking. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+* **Размер стандартной страницы памяти:** `4 КБ` (4096 байт).
+* **HugePages (Большие страницы):** `2 МБ` или `1 ГБ` (используются для баз данных вроде PostgreSQL, Oracle и гипервизоров KVM для уменьшения накладных расходов TLB).
 
 ```mermaid
-graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
-```
+graph LR
+    subgraph VirtualMemory["Виртуальная память процесса"]
+        Stack["Стек (Локальные переменные)"]
+        Anon["Куча / Heap (malloc, new)"]
+        Mmap["Библиотеки (.so) / Файлы (mmap)"]
+        Code["Секция кода (.text)"]
+    end
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
+    MMU["MMU (Memory Management Unit) + Page Tables"]
+    
+    subgraph PhysicalStorage["Физическое хранилище"]
+        RAM["Физическая RAM (DRAM)"]
+        SWAP["Swap (Дисковый раздел / файл)"]
+    end
 
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-uname -a && lsblk && free -h && ss -tulpn
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+    VirtualMemory --> MMU
+    MMU -->|Активные страницы| RAM
+    MMU -->|Выгруженные страницы| SWAP
 ```
 
 ---
 
-## Проверь себя
+## 📊 Метрики Памяти: VSZ, RSS, PSS, USS
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+При анализе потребления памяти критически важно различать эти метрики:
 
+| Метрика | Название | Что означает |
+| :--- | :--- | :--- |
+| **`VSZ`** | **Virtual Size** | Общий объем виртуального адресного пространства, который процесс запросил у ядра (включая выделенные, но еще не используемые страницы, библиотеки и swap). |
+| **`RSS`** | **Resident Set Size** | **Реальная физическая память (RAM)**, которую процесс занимает прямо сейчас. Сюда входят разделяемые библиотеки (`glibc`), используемые другими процессами. |
+| **`PSS`** | **Proportional Set Size** | RSS процесса + пропорциональная доля разделяемой памяти (если библиотеку в 10 МБ используют 5 процессов, каждому запишется по 2 МБ). **Самая точная метрика реального потребления памяти!** |
+| **`USS`** | **Unique Set Size** | Память, занятая **исключительно** данным процессом (освободится мгновенно, если процесс убить). |
+
+---
+
+## 🔄 Механика Swap и параметр `vm.swappiness`
+
+**Swap (Подкачка)** — это область на диске (файл или раздел), куда ядро сбрасывает неактивные анонимные страницы памяти при нехватке RAM.
+
+### Параметр `vm.swappiness` (от `0` до `200` в современных ядрах):
+Задает баланс для ядра: что выгоднее сбросить — неактивную анонимную память в Swap или вытеснить Page Cache (кэш файлов с диска).
+
+* **`vm.swappiness = 0`** — максимально избегать использования Swap (сбрасывать в Swap только при абсолютной неизбежности OOM).
+* **`vm.swappiness = 10`** — **рекомендуемое значение для серверов баз данных** (PostgreSQL, MySQL, Redis, Elasticsearch).
+* **`vm.swappiness = 60`** — стандартное значение по умолчанию для настольных систем и серверов общего назначения.
+* **`vm.swappiness = 100+`** — ядро с одинаковым приоритетом сбрасывает анонимную память в Swap и чистит Page Cache.
+
+---
+
+## 🛠️ CLI Практика: Диагностика и Управление Памятью
+
+### 1. Быстрый аудит памяти сервера
+```bash
+# Общий статус памяти и swap в понятном виде
+free -h
+
+# Детальная статистика ядра по памяти
+cat /proc/meminfo | grep -E "MemTotal|MemFree|MemAvailable|Cached|Buffers|Dirty|AnonPages|Shmem|HugePages"
+
+# Мониторинг активности Swap (si = swap-in, so = swap-out) в реальном времени
+vmstat 1 5
+```
+> ⚠️ **Важно:** Если колонки `si` (swap in) и `so` (swap out) в выводе `vmstat` постоянно показывают ненулевые значения (>0) — сервер испытывает **Swap Thrashing** (диск перегружен сбросом страниц, приложения катастрофически тормозят).
+
+### 2. Исследование карты памяти процесса (`pmap`)
+```bash
+# Детальная раскладка адресного пространства процесса по адресам и типам:
+pmap -x <PID>
+
+# Точные метрики PSS, USS и RSS процессов через утилиту smem:
+# (sudo apt install smem)
+smem -t -k -p -r
+```
+
+### 3. Создание и включение файла Swap на лету
+```bash
+# 1. Создаем файл на 4 ГБ
+sudo fallocate -l 4G /swapfile
+# Если fallocate не поддерживается:
+# sudo dd if=/dev/zero of=/swapfile bs=1M count=4096 status=progress
+
+# 2. Выставляем строгие права (только root)
+sudo chmod 600 /swapfile
+
+# 3. Форматируем в структуру Swap
+sudo mkswap /swapfile
+
+# 4. Включаем файл подкачки
+sudo swapon /swapfile
+
+# 5. Добавляем в /etc/fstab для постоянного автоподключения при перезагрузке:
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+# 6. Настраиваем swappiness:
+sudo sysctl -w vm.swappiness=10
+echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.d/99-swappiness.conf
+```
+
+---
+
+## 🚨 Траблшутинг: Утечки Памяти (Memory Leaks)
+
+### Как обнаружить утечку памяти в процессе:
+1. Запустите мониторинг RSS и PSS процесса во времени:
+   ```bash
+   while true; do
+       ps -p <PID> -o %cpu,%mem,vsz,rss,comm
+       sleep 5
+   done
+   ```
+2. Если `RSS` непрерывно растет без плато под стабильной нагрузкой, а блоки `[ anon ]` в выводе `pmap -x <PID>` увеличиваются в размерах — в коде приложения (C++, Go, Node.js, Python) не освобождаются объекты или буферы.

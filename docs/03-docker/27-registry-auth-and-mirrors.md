@@ -1,135 +1,163 @@
-# Аутентификация регистра и зеркала
+# 🔐 27. Аутентификация в Реестрах, Credential Helpers и Pull-Through Кэши
 
-> auth, token, mirror, harbor, ECR
+## 🔑 1. Хранение учетных данных: `~/.docker/config.json`
 
----
-
-## Теория
-
-### Что это и зачем
-
-auth, token, mirror, harbor, ECR — ключевая технология в 03-docker. Понимание архитектуры и жизненного цикла критично для production.
-
-### Архитектура
+Когда вы выполняете `docker login registry.example.com`, клиент Docker сохраняет учетные данные в локальном файле `~/.docker/config.json`.
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    subgraph Insecure["Небезопасный режим (По умолчанию)"]
+        PlainJSON["~/.docker/config.json (Base64 пароли в открытом виде!)"]
+    end
+
+    subgraph Secure["Production Best Practice: Credential Helpers"]
+        Pass["docker-credential-pass (Linux GPG/Pass)"]
+        SecretService["docker-credential-secretservice (GNOME Keyring)"]
+        ECRHelper["docker-credential-ecr-login (AWS IAM Tokens)"]
+        GCRHelper["docker-credential-gcr (GCP Service Accounts)"]
+    end
+
+    DockerCLI["Docker CLI Client"] --> PlainJSON
+    DockerCLI --> Secure
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
-```bash
-# Проверка версии и базовый запуск
-docker info && docker run --rm hello-world
+### Проблема открытого Base64:
+По умолчанию `config.json` сохраняет пароли в виде:
+```json
+{
+  "auths": {
+    "https://index.docker.io/v1/": {
+      "auth": "dXNlcm5hbWU6cGFzc3dvcmQxMjM="
+    }
+  }
+}
 ```
+Строка `dXNlcm5hbWU6cGFzc3dvcmQxMjM=` легко декодируется командой `base64 -d`, что раскрывает пароль учетной записи любому процессу на хосте.
 
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+### Настройка безопасных Credential Helpers:
+В файле `~/.docker/config.json`:
+```json
+{
+  "credsStore": "pass",
+  "credHelpers": {
+    "public.ecr.aws": "ecr-login",
+    "gcr.io": "gcr"
+  }
+}
 ```
 
 ---
 
-## Проверь себя
+## 🗄️ 2. Развертывание приватного OCI Registry с базовой аутентификацией
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Минимальный защищенный локальный реестр на базе официального образа `registry:2`:
 
+### Шаг 1: Генерация пароля htpasswd
+```bash
+mkdir -p /opt/registry/{data,auth,certs}
+# Создание пользователя admin с паролем
+docker run --rm --entrypoint htpasswd httpd:2 -Bbn admin 'SuperSecretPassword123' > /opt/registry/auth/htpasswd
+```
+
+### Шаг 2: Генерация самоподписанного TLS-сертификата
+```bash
+openssl req -newkey rsa:4096 -nodes -sha256 -keyout /opt/registry/certs/domain.key \
+  -x509 -days 365 -out /opt/registry/certs/domain.crt \
+  -subj "/CN=registry.company.internal"
+```
+
+### Шаг 3: Запуск через Docker Compose
+```yaml
+# /opt/registry/docker-compose.yml
+services:
+  registry:
+    image: registry:2.8.3
+    container_name: private-registry
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: "Registry Realm"
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
+      REGISTRY_HTTP_TLS_KEY: /certs/domain.key
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"
+    volumes:
+      - ./data:/var/lib/registry
+      - ./auth:/auth:ro
+      - ./certs:/certs:ro
+```
+
+---
+
+## ⚡ 3. Зеркалирование и Pull-Through Кэши (Registry Mirrors)
+
+Чтобы обойти лимиты Docker Hub (Rate Limits: 100 pull в 6 часов) и ускорить загрузку образов в закрытых корпоративных контурах, настраивают **Registry Cache / Mirror**.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Node as Kubernetes Worker / Docker Node
+    participant Mirror as Harbor / Registry Cache (Local LAN)
+    participant Hub as Docker Hub (Internet)
+
+    Node->>Mirror: docker pull nginx:alpine
+    alt Образ есть в локальном кэше (HIT)
+        Mirror-->>Node: Мгновенная отдача по 10Gbps LAN!
+    else Образа нет в кэше (MISS)
+        Mirror->>Hub: Скачивание слоя из интернета
+        Hub-->>Mirror: Сохранение слоя в локальный диск кэша
+        Mirror-->>Node: Отдача клиенту
+    end
+```
+
+### Настройка Pull-Through Mirror на базе `registry:2`:
+```yaml
+services:
+  docker-hub-mirror:
+    image: registry:2.8.3
+    environment:
+      REGISTRY_PROXY_REMOTEURL: "https://registry-1.docker.io"
+      REGISTRY_PROXY_USERNAME: "company_user"
+      REGISTRY_PROXY_PASSWORD: "dockerhub_token"
+    volumes:
+      - /data/cache:/var/lib/registry
+    ports:
+      - "5001:5000"
+```
+
+### Подключение Mirror на всех хостах в `/etc/docker/daemon.json`:
+```json
+{
+  "registry-mirrors": [
+    "https://mirror.company.internal:5001"
+  ],
+  "insecure-registries": [
+    "mirror.company.internal:5001"
+  ]
+}
+```
+
+После перезапуска `systemctl restart docker` все команды `docker pull alpine` будут автоматически маршрутизироваться через локальное зеркало.
+
+---
+
+## 💥 4. Реальный Troubleshooting
+
+### Сценарий 1: Ошибка `x509: certificate signed by unknown authority`
+**Симптомы:** При выполнении `docker login registry.company.internal:5000` возникает ошибка SSL:
+`Error response from daemon: Get "https://registry...": x509: certificate signed by unknown authority`.
+
+**Причина:** Демон Docker не доверяет самоподписанному сертификату корпоративного реестра.
+
+**Решение:**
+1. Поместить корневой сертификат реестра в доверенное хранилище Docker:
+   ```bash
+   sudo mkdir -p /etc/docker/certs.d/registry.company.internal:5000
+   sudo cp /opt/registry/certs/domain.crt /etc/docker/certs.d/registry.company.internal:5000/ca.crt
+   ```
+2. Перезапустить демон Docker:
+   ```bash
+   sudo systemctl restart docker
+   ```

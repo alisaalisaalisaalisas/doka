@@ -1,135 +1,139 @@
-# Bisect и blame
+# 🕵️ 20. Git Bisect и Blame: Археология кода, Поиск регрессий и Pickaxe
 
-> bisect, blame, log -S/-G, bug hunting
+Поиск первопричины (Root Cause Analysis, RCA) багов и регрессий в монорепозиториях с сотнями тысяч коммитов требует применения специализированных алгоритмических инструментов Git: двоичного поиска **`git bisect`**, контекстной аннотации строк **`git blame`** и механизма точечного поиска изменений **Pickaxe (`-S`/`-G`)**.
 
 ---
 
-## Теория
+## ⚡ 1. Алгоритм и автоматизация `git bisect`
 
-### Что это и зачем
+`git bisect` использует двоичный поиск ($O(\log_2 N)$) по направленному графу коммитов:
 
-bisect, blame, log -S/-G, bug hunting — ключевая технология в 02-git. Понимание архитектуры и жизненного цикла критично для production.
+```mermaid
+graph LR
+    G["v1.0.0 (Good)"] --> C1["C1"]
+    C1 --> C2["C2 (Step 2: Good)"]
+    C2 --> C3["C3 (Step 3: Bad -> Culprit!)"]
+    C3 --> C4["C4 (Step 1: Bad)"]
+    C4 --> B["HEAD (Bad)"]
 
-### Архитектура
+    style G fill:#2ecc71,stroke:#27ae60,color:#fff
+    style B fill:#e74c3c,stroke:#c0392b,color:#fff
+    style C3 fill:#e74c3c,stroke:#c0392b,color:#fff
+    style C2 fill:#2ecc71,stroke:#27ae60,color:#fff
+```
+
+| Количество коммитов в истории | Максимальное число шагов проверки |
+| :---: | :---: |
+| 100 | ~7 шагов |
+| 1 000 | ~10 шагов |
+| 10 000 | ~14 шагов |
+| 100 000 | ~17 шагов |
+
+---
+
+## 🤖 2. Полностью автоматический поиск багов (`git bisect run`)
+
+Git позволяет передать скрипт-валидатор, который будет исполняться на каждом шаге бисекции:
+
+### Коды возврата скрипта для `git bisect run`:
+- **`0`**: Коммит корректен (`good` / `old`).
+- **`1..127` (кроме 125)**: В коммите обнаружен баг (`bad` / `new`).
+- **`125`**: Коммит невозможно протестировать (например, код не компилируется из-за опечатки) — Git пропустит его (`skip`).
+
+### Production-скрипт тестирования (`bisect_validator.sh`):
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# 1. Попытка сборки проекта
+if ! go build -o /dev/null ./cmd/api 2>/dev/null; then
+    # Код 125 указывает Git пропустить некомпилируемый коммит
+    exit 125
+fi
+
+# 2. Запуск интеграционного теста, выявляющего конкретный баг
+# Если тест упал -> exit code > 0 (bad commit)
+# Если тест прошел -> exit code 0 (good commit)
+go test -run TestOrderIdempotency ./tests/integration/...
+```
+
+Запуск одной командой:
+```bash
+git bisect start HEAD v2.1.0
+git bisect run ./bisect_validator.sh
+```
+*Git самостоятельно найдет проблемный коммит за секунды и выведет его полный SHA и автора.*
+
+---
+
+## 🔬 3. Продвинутый `git blame` и игнорирование форматирования
+
+Команда `git blame` показывает автора и коммит для каждой строки файла.
 
 ```mermaid
 graph TD
-    A["Source"] --> B["Processing"]
-    B --> C["Storage"]
-    C --> D["Consumer"]
+    File["Исходный файл"] --> Blame["git blame"]
+    Blame -->|"-w"| NoSpaces["Игнорировать форматирование и отступы"]
+    Blame -->|"-M"| MovedWithin["Отслеживать перемещенные строки внутри файла"]
+    Blame -->|"-C"| MovedAcross["Отслеживать скопированные строки из других файлов"]
+    Blame -->|"--ignore-revs-file"| IgnoreLinter["Игнорировать коммиты массового рефакторинга"]
 ```
 
-Основные компоненты:
-- **Компонент 1** — отвечает за ...
-- **Компонент 2** — обеспечивает ...
-- **Компонент 3** — масштабирует ...
-
-Жизненный цикл:
-1. Инициализация
-2. Конфигурация
-3. Запуск
-4. Наблюдение
-5. Обновление/откат
-
-Trade-offs:
-- Плюсы: производительность, наблюдаемость
-- Минусы: сложность, ресурсы
-
-Связь с другими технологиями: интегрируется с ... через ...
-
----
-
-## Практика
-
-### Минимальный пример
-
+### Игнорирование коммитов массового линтинга (`.git-blame-ignore-revs`):
+Когда в репозитории запускают `Prettier`, `black` или `gofmt` на весь проект, обычный `git blame` начинает показывать коммит линтера на всех строках.
+Создайте файл `.git-blame-ignore-revs`:
+```text
+# Mass formatting after Prettier migration
+e987654321fedcba0987654321abcdef01234567
+# Convert tabs to spaces
+a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+```
+Настройка Git для автоматического учета файла:
 ```bash
-# Проверка версии и базовый запуск
-git log --oneline --graph --all -10 && git status
-```
-
-```yaml
-# Минимальная конфигурация
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo
-data:
-  key: value
-```
-
-### Production-like пример
-
-```yaml
-# production.yaml — с лимитами, probe, ресурсами
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-prod
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: registry.example.com/app:1.2.3
-        resources:
-          requests: {cpu: "100m", memory: "128Mi"}
-          limits: {cpu: "500m", memory: "512Mi"}
-        livenessProbe:
-          httpGet: {path: /healthz, port: 8080}
-          initialDelaySeconds: 10
-        readinessProbe:
-          httpGet: {path: /ready, port: 8080}
-```
-
-```bash
-# Деплой и проверка
-kubectl apply -f production.yaml
-kubectl rollout status deploy/demo-prod
-kubectl get pods -l app=demo
-curl -s http://localhost:8080/healthz | jq .
-```
-
-### Troubleshooting
-
-**Симптом:** сервис не стартует / метрики отсутствуют.
-
-```bash
-# Диагностика
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-**Гипотезы:**
-1. Не хватает ресурсов → `kubectl top pods`, `describe` Conditions
-2. Ошибка конфигурации → `kubectl logs`, ` -o yaml`
-3. Сеть / DNS → `dig`, `curl -v`, `ss -tulpn`
-
-**Fix:**
-```bash
-# Пример исправления
-kubectl set resources deploy/demo --limits=cpu=500m
-kubectl rollout restart deploy/demo
-```
-
-**Verify:**
-```bash
-kubectl get pods
-curl http://app/healthz
+git config blame.ignoreRevsFile .git-blame-ignore-revs
 ```
 
 ---
 
-## Проверь себя
+## ⛏️ 4. Механизм Pickaxe Search: `-S` против `-G`
 
-1. Чем отличается `requests` от `limits` и что будет при превышении?
-2. Как работает liveness vs readiness probe и когда использовать каждую?
-3. Что покажет `kubectl describe pod` при `CrashLoopBackOff` из-за `REQUIRED_DB_URL`?
-4. Как диагностировать высокую cardinality в Prometheus/Loki?
-5. В чём trade-off между `distroless` и `alpine` для production?
-6. Как проверить, что `HPA` получает метрики?
-7. Что делает `group_wait` в Alertmanager?
+Когда нужно узнать, какой коммит добавил или удалил вызов определенной функции:
 
+- **`git log -S "processPayment"` (Pickaxe):** Ищет только те коммиты, где **количество вхождений** строки изменилось (добавление или удаление вызова функции). Если строка была просто перемещена без изменения числа вхождений, коммит не покажется.
+- **`git log -G "^func.*processPayment"` (Regex Diff):** Ищет любые коммиты, в которых патч (diff) удовлетворяет регулярному выражению (включая изменение аргументов или перемещение).
+- **`git log -L 45,70:src/auth.go` (Line Evolution):** Отслеживает эволюцию конкретного диапазона строк в файле сквозь всю историю коммитов.
+
+---
+
+## 🛠️ 5. Инженерный CLI Cheat Sheet
+
+| Команда | Описание |
+| :--- | :--- |
+| `git bisect start <bad_rev> <good_rev>` | Начать процесс бисекции |
+| `git bisect good` / `git bisect bad` | Вручную пометить текущий коммит |
+| `git bisect skip` | Пропустить текущий непроверяемый коммит |
+| `git bisect reset` | Завершить бисекцию и вернуться на исходную ветку |
+| `git bisect terms --term-old fast --term-new slow` | Настроить кастомные термины (для поиска падений производительности) |
+| `git blame -L 120,150 path/to/file.go` | Аннотировать только строки с 120 по 150 |
+| `git blame -w -C -C path/to/file.go` | Blame с глубоким поиском копипасты между всеми файлами |
+| `git log -S "secret_api_token" --source --all` | Найти точный коммит, добавивший секрет во всех ветках |
+
+---
+
+## 🚨 6. Production Troubleshooting & Break-Fix
+
+### Сценарий: Зависание `git bisect` в бесконечном цикле или некорректная остановка
+- **Симптом:** При ручной бисекции инженер случайно пометил коммит как `good`, хотя он был `bad`, из-за чего бисекция зашла в тупик.
+- **Диагностика и восстановление:**
+  ```bash
+  # 1. Посмотреть журнал выполненных шагов бисекции
+  git bisect log
+
+  # 2. Сохранить журнал, отредактировать ошибочный шаг
+  git bisect log > bisect_steps.txt
+  sed -i 's/git bisect good a1b2c3d/git bisect bad a1b2c3d/' bisect_steps.txt
+
+  # 3. Перезапустить бисекцию по исправленному журналу
+  git bisect reset
+  git bisect replay bisect_steps.txt
+  ```
